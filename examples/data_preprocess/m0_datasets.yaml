@@ -1,0 +1,55 @@
+# M0 dataset build (decisions 002 and 003). Revisions come from scripts/stage_assets.yaml.
+# Run: uv run --extra data python examples/data_preprocess/m0_datasets.py \
+#          --config examples/data_preprocess/m0_datasets.yaml
+version: v1
+output_dir: datasets/soe/v1  # relative to $SOE_DATA; a changed build gets a new version
+near_duplicate:
+  ngram: 13
+  min_fraction: 0.5
+  # n-grams in more than this many pool problems are answer-format boilerplate and are ignored
+  # (e.g. DAPO's "where gcd(m, n) = 1. Please provide the value of m + n"); see decision 003.
+  boilerplate_max_count: 20
+level_b:
+  size: 1000
+  seed: 20261026
+eval_sets:
+  # Level A
+  - {name: math500, level: A, hf_id: HuggingFaceH4/MATH-500, file: test.jsonl,
+     question: problem, answer: answer, id: unique_id}
+  - {name: aime24, level: A, hf_id: HuggingFaceH4/aime_2024, file: data/train-00000-of-00001.parquet,
+     question: problem, answer: answer, id: id}
+  - {name: aime25, level: A, hf_id: MathArena/aime_2025, file: data/train-00000-of-00001.parquet,
+     question: problem, answer: answer, id: problem_idx}
+  - {name: olympiadbench_en, level: A, hf_id: Hothan/OlympiadBench,
+     file: OlympiadBench/OE_TO_maths_en_COMP/OE_TO_maths_en_COMP.parquet,
+     question: question, answer: final_answer, id: id}
+  # Level C1: after the base model's release
+  - name: aime26
+    level: C1
+    hf_id: MathArena/aime_2026
+    file: data/train-00000-of-00001.parquet
+    question: problem
+    answer: answer
+    id: problem_idx
+    exclude:
+      "1": "AIME 2026 I-P1 is verbatim in DAPO-Math-17k and Skywork-OR1 (both 2025); decision 002"
+  - {name: hmmt_feb26, level: C1, hf_id: MathArena/hmmt_feb_2026, file: data/train-00000-of-00001.parquet,
+     question: problem, answer: answer, id: problem_idx}
+  # Level C2: 2025 competitions absent from the RL pool
+  - {name: hmmt_nov25, level: C2, hf_id: MathArena/hmmt_nov_2025, file: data/train-00000-of-00001.parquet,
+     question: problem, answer: answer, id: problem_idx}
+  - {name: hmmt_feb25, level: C2, hf_id: MathArena/hmmt_feb_2025, file: data/train-00000-of-00001.parquet,
+     question: problem, answer: answer, id: problem_idx}
+  - {name: brumo25, level: C2, hf_id: MathArena/brumo_2025, file: data/train-00000-of-00001.parquet,
+     question: problem, answer: answer, id: problem_idx}
+  - {name: smt25, level: C2, hf_id: MathArena/smt_2025, file: data/train-00000-of-00001.parquet,
+     question: problem, answer: answer, id: problem_idx}
+  - {name: cmimc25, level: C2, hf_id: MathArena/cmimc_2025, file: data/train-00000-of-00001.parquet,
+     question: problem, answer: answer, id: problem_idx}
+rl_pool:
+  name: dapo
+  hf_id: open-r1/DAPO-Math-17k-Processed
+  file: en/train-00000-of-00001.parquet
+  question: prompt
+  answer: solution
+  id: extra_info.index  # a dotted path reads a nested field

@@ -2814,6 +2814,11 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+data = [
+    { name = "huggingface-hub" },
+    { name = "pandas" },
+    { name = "pyarrow" },
+]
 train = [
     { name = "flash-attn" },
     { name = "torch" },
@@ -2834,7 +2839,10 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "flash-attn", marker = "extra == 'train'", url = "https://github.com/verl-project/verl-wheelhouse/releases/download/flash-attention-v2.8.3-py3.12-torch2.11.0/flash_attn-2.8.3-cp312-cp312-linux_x86_64.whl" },
+    { name = "huggingface-hub", marker = "extra == 'data'" },
     { name = "math-verify", extras = ["antlr4-9-3"], specifier = "==0.9.0" },
+    { name = "pandas", marker = "extra == 'data'" },
+    { name = "pyarrow", marker = "extra == 'data'" },
     { name = "pydantic", specifier = ">=2.9,<3" },
     { name = "pydantic-settings", specifier = ">=2.7,<3" },
     { name = "pyyaml", specifier = ">=6.0" },
@@ -2843,7 +2851,7 @@ requires-dist = [
     { name = "torchvision", marker = "extra == 'train'", specifier = "==0.26.0", index = "https://download.pytorch.org/whl/cu130" },
     { name = "verl", extras = ["vllm", "fsdp"], marker = "extra == 'train'", specifier = "==0.9.1" },
 ]
-provides-extras = ["train"]
+provides-extras = ["data", "train"]
 
 [package.metadata.requires-dev]
 dev = [

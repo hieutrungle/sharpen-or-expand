@@ -6,9 +6,10 @@ from pydantic import BaseModel, ConfigDict
 
 
 class Level(StrEnum):
-    A = "A"  # public benchmarks: MATH-500, AIME 2024/2025, an olympiad set
-    B = "B"  # held-out split carved from the RL pool before any training
-    C = "C"  # fresh / OOD; never used for any selection
+    A = "A"  # public benchmarks: MATH-500, AIME 2024/2025, OlympiadBench-EN (decision 002)
+    B = "B"  # held-out split carved from the RL pool before any training (decision 003)
+    C1 = "C1"  # competitions after the base model's release; never used for any selection
+    C2 = "C2"  # 2025 competitions absent from the RL pool; never used for any selection
     TRAIN = "train"
 
 
