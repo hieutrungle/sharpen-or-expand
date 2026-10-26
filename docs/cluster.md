@@ -31,6 +31,8 @@ scratch in `$SOE_DATA=/scratch/user/hieult/research/soe-data`, and code moves on
    `rsync -av --exclude 'checkpoints/' faster-claude:/scratch/user/hieult/research/sharpen-or-expand/runs/ runs/`
 
 ## Rules the templates enforce
+- Assets are staged as complete Hub snapshots (no file filters): offline, vLLM and
+  huggingface_hub refuse a snapshot with any repo file missing.
 - Every `sbatch` has `--nodes=1 --ntasks=1` (FASTER's submit filter rejects jobs without them).
 - Jobs refuse to start from a dirty git tree; chained jobs refuse to start if HEAD moved.
 - `HF_HUB_OFFLINE=1`, `WANDB_MODE=offline`; Ray's temp dir is short and node-local.

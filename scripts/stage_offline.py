@@ -32,7 +32,6 @@ class Asset(BaseModel):
     hf_id: str
     repo_type: Literal["model", "dataset"]
     revision: str
-    allow_patterns: list[str] | None = None
     note: str = ""
 
 
@@ -63,7 +62,6 @@ def stage(asset: Asset, api: HfApi) -> dict[str, object]:
             asset.hf_id,
             repo_type=asset.repo_type,
             revision=sha,
-            allow_patterns=asset.allow_patterns,
         )
     )
     files = file_entries(snapshot)

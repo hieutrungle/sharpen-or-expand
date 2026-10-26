@@ -46,9 +46,12 @@ def check_flash_attn() -> None:
 
 
 def check_model_offline(hf_id: str, revision: str) -> None:
+    from huggingface_hub import snapshot_download
     from transformers import AutoConfig, AutoTokenizer
 
     assert os.environ.get("HF_HUB_OFFLINE") == "1", "HF_HUB_OFFLINE must be 1 on compute nodes"
+    # vLLM resolves models with snapshot_download, which offline rejects a partial snapshot.
+    snapshot_download(hf_id, revision=revision, local_files_only=True)
     config = AutoConfig.from_pretrained(hf_id, revision=revision)
     tokenizer = AutoTokenizer.from_pretrained(hf_id, revision=revision)
     print(f"ok offline {hf_id}: {config.model_type}, vocab {len(tokenizer)}")
