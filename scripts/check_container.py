@@ -16,6 +16,26 @@ import yaml
 STACK = ("torch", "vllm", "verl", "transformers", "trl", "peft", "flash_attn", "fla", "ray")
 
 
+CACHE_VARIABLES = (
+    "HF_HOME",
+    "XDG_CACHE_HOME",
+    "VLLM_CACHE_ROOT",
+    "TORCHINDUCTOR_CACHE_DIR",
+    "TRITON_HOME",
+    "FLASHINFER_WORKSPACE_BASE",
+    "CUDA_CACHE_PATH",
+)
+
+
+def check_cache_locations() -> None:
+    # A cache under $HOME would hit FASTER's 10k-file home quota; slurm/common.sh sets these.
+    data_root = os.environ["SOE_DATA"]
+    outside = {v: os.environ.get(v) for v in CACHE_VARIABLES}
+    outside = {v: path for v, path in outside.items() if not (path or "").startswith(data_root)}
+    assert not outside, f"caches must live under $SOE_DATA={data_root}: {outside}"
+    print(f"ok caches under {data_root}")
+
+
 def check_imports() -> None:
     for name in STACK:
         module = importlib.import_module(name)
@@ -109,6 +129,7 @@ def main() -> int:
         raise SystemExit(
             f"not staged: {missing} (run scripts/stage_offline.py, see docs/cluster.md)"
         )
+    check_cache_locations()
     check_imports()
     check_gpus()
     check_flash_attn()

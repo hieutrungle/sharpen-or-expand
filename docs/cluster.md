@@ -36,6 +36,8 @@ scratch in `$SOE_DATA=/scratch/user/hieult/research/soe-data`, and code moves on
 - Every `sbatch` has `--nodes=1 --ntasks=1` (FASTER's submit filter rejects jobs without them).
 - Jobs refuse to start from a dirty git tree; chained jobs refuse to start if HEAD moved.
 - `HF_HUB_OFFLINE=1`, `WANDB_MODE=offline`; Ray's temp dir is short and node-local.
+- Every compile/kernel cache (vLLM, torch.compile, Triton, FlashInfer, CUDA) lives in
+  `$SOE_DATA/cache/`, never under `$HOME` (10k-file quota); `check_container` fails otherwise.
 - Override GPU type and time limit with `SBATCH_GRES` / `SBATCH_TIMELIMIT` environment
   variables, not `--gres` / `--time`: chained successors inherit the environment, not the
   command line.

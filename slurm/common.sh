@@ -9,6 +9,16 @@ export SOE_DATA
 export HF_HOME="$SOE_DATA/hf"
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1
 export WANDB_MODE=offline WANDB_DIR="$PWD/runs"
+# Kernel/compile caches (vLLM, torch.compile, Triton, FlashInfer, CUDA PTX) default to $HOME, which
+# Singularity mounts and which FASTER caps at 10k files. Keep them with the data; they persist across
+# jobs, so only the first job per GPU type and model pays the ~2 min compile.
+SOE_CACHE="$SOE_DATA/cache"
+export XDG_CACHE_HOME="$SOE_CACHE/xdg"
+export VLLM_CACHE_ROOT="$SOE_CACHE/vllm"
+export TORCHINDUCTOR_CACHE_DIR="$SOE_CACHE/torchinductor"
+export TRITON_HOME="$SOE_CACHE/triton"
+export FLASHINFER_WORKSPACE_BASE="$SOE_CACHE/flashinfer"
+export CUDA_CACHE_PATH="$SOE_CACHE/nv"
 # Ray's unix sockets must stay under 107 characters, so keep its temp dir short and node-local.
 export RAY_TMPDIR="/tmp/ray-${SLURM_JOB_ID:-local}"
 
