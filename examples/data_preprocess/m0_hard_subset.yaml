@@ -1,0 +1,26 @@
+# M0.6 hard subset (decision 005). Pre-registered: fixed before any selection sample existed.
+# Run: sbatch --time=24:00:00 slurm/lane_b.sbatch python examples/data_preprocess/m0_hard_subset.py \
+#          --config examples/data_preprocess/m0_hard_subset.yaml sample --shard 0 --num-shards 2
+#      (and --shard 1 on the second A40), then on any machine with $SOE_DATA:
+#      python examples/data_preprocess/m0_hard_subset.py --config ... select
+version: v1
+suite: soe/trainer/config/eval_suite.yaml
+selector: Qwen/Qwen3.5-4B-Base  # revision from scripts/stage_assets.yaml
+# Level C is never used for any selection, so the subset comes from Levels A and B only.
+candidate_sets: [math500, aime24, aime25, olympiadbench_en, level_b]
+samples_per_problem: 16
+# Independent of the suite's evaluation seed (0): a problem's selection draws are not the draws it
+# is later evaluated with, so the base model's evaluated pass rate is not biased low.
+sampling_seed: 1
+# Halt before freezing if the selector gives a boxed answer this rarely: the subset would then pick
+# format failures, not hard problems.
+min_answer_rate: 0.8
+rule:
+  max_correct: 4  # hard: at most 4 of 16 correct, 0 of 16 included
+  fallback_max_correct: 8  # applied once if fewer than min_size problems qualify
+  min_size: 200
+  target_size: 250  # more eligible -> stratified draw by problem set, proportional
+  draw_seed: 20261026
+work_dir: selection/hard_subset_v1  # relative to $SOE_DATA: sample shards and run info
+output: datasets/soe/v1/eval/hard_subset.jsonl  # relative to $SOE_DATA
+report: docs/reports/m0_hard_subset_v1.json  # committed; ids and counts only, no problem text

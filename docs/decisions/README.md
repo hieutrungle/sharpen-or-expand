@@ -10,3 +10,4 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [002](002-evaluation-sets.md) | Evaluation sets: OlympiadBench-EN; Level C = C1 (2026) + C2 (2025) | accepted |
 | [003](003-rl-pool-and-level-b.md) | RL pool DAPO-Math-17k (EN, dedup); Level B 994 held out | accepted |
 | [004](004-evaluation-protocol.md) | Evaluation protocol: Yue et al. sampling, zero-shot prompt, scoring, transitions | accepted |
+| [005](005-hard-subset.md) | Hard subset: 4B-Base c ≤ 4/16 on Levels A+B, independent seed 1, 250 | accepted (pre-registered) |

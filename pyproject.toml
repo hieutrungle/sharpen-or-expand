@@ -91,6 +91,11 @@ plugins = ["pydantic.mypy"]
 module = ["math_verify", "math_verify.*"]
 ignore_missing_imports = true
 
+# vLLM exists only in the GPU image; CI type-checks the CPU code paths.
+[[tool.mypy.overrides]]
+module = ["vllm", "vllm.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # Same as the container (PYTHONPATH=$PWD): tests import the soe/ in this checkout.

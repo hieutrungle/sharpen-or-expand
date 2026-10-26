@@ -68,7 +68,7 @@ def _git(args: list[str], cwd: Path) -> str:
     ).stdout.strip()
 
 
-def _gpu_names() -> list[str]:
+def gpu_names() -> list[str]:
     if shutil.which("nvidia-smi") is None:
         return []
     out = subprocess.run(
@@ -79,7 +79,7 @@ def _gpu_names() -> list[str]:
     return [line.strip() for line in out.stdout.splitlines() if line.strip()]
 
 
-def _library_versions() -> dict[str, str | None]:
+def library_versions() -> dict[str, str | None]:
     versions: dict[str, str | None] = {}
     for name in TRACKED_LIBRARIES:
         try:
@@ -108,8 +108,8 @@ def create_run(config_path: Path, seed: int, runs_root: Path, repo_root: Path) -
         created_at=now,
         hostname=platform.node(),
         slurm_job_id=os.environ.get("SLURM_JOB_ID"),
-        gpus=_gpu_names(),
-        library_versions=_library_versions(),
+        gpus=gpu_names(),
+        library_versions=library_versions(),
     )
     (run_dir / "run.json").write_text(info.model_dump_json(indent=2) + "\n")
     (run_dir / "efficiency.json").write_text(RunEfficiency().model_dump_json(indent=2) + "\n")

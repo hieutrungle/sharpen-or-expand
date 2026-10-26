@@ -55,6 +55,10 @@ class PromptSpec(FrozenModel):
 
     template: str
     use_chat_template: bool
+    # Passed to the chat template. Qwen3.5's generation prompt ends with an empty
+    # "<think>\n\n</think>\n\n" block unless enable_thinking is true (then an open "<think>\n").
+    # None leaves the template's own default.
+    enable_thinking: bool | None = None
 
     @model_validator(mode="after")
     def _check(self) -> Self:
@@ -65,6 +69,9 @@ class PromptSpec(FrozenModel):
     def render(self, problem: str) -> str:
         # Plain replacement, not str.format: the instruction itself contains \\boxed{}.
         return self.template.replace(PROBLEM_PLACEHOLDER, problem)
+
+    def chat_template_kwargs(self) -> dict[str, bool]:
+        return {} if self.enable_thinking is None else {"enable_thinking": self.enable_thinking}
 
 
 class ScoringSpec(FrozenModel):
