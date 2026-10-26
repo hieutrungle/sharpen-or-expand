@@ -31,8 +31,14 @@ Rewards for RL and scores for evaluation both go through `soe/utils/reward_score
 
 ## Consequences
 - vLLM is the rollout engine (the plan allows vLLM or SGLang).
-- `uv.lock` routes torch to the PyTorch cu130 index and flash-attn to the verl wheelhouse; uv
-  applies these sources only to direct dependencies, so the `train` extra lists them explicitly.
+- `uv.lock` routes torch to the PyTorch cu130 index; uv applies sources only to direct
+  dependencies, so the `train` extra lists torch/torchvision/torchaudio/flash-attn explicitly.
+- flash-attn is pinned by **direct URL and sha256** to the wheelhouse release
+  `flash-attention-v2.8.3-py3.12-torch2.11.0`, never through the wheelhouse index: the index
+  re-points the same filename to builds for newer torch. The first image (2026-10-26) got the
+  torch-2.13 build and failed to import (`undefined symbol c10::ValueError`); the original release
+  that verl 0.9.1's own lock references has been deleted. `tests/special_sanity/` checks that the
+  locked flash-attn build matches the locked torch.
 - Library versions are recorded in every `run.json`; upgrades only between milestones, followed
   by `slurm/check_container.sbatch` on A100 and A40.
 

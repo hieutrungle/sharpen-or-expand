@@ -732,13 +732,19 @@ wheels = [
 [[package]]
 name = "flash-attn"
 version = "2.8.3"
-source = { registry = "https://verl-project.github.io/verl-wheelhouse/simple/" }
+source = { url = "https://github.com/verl-project/verl-wheelhouse/releases/download/flash-attention-v2.8.3-py3.12-torch2.11.0/flash_attn-2.8.3-cp312-cp312-linux_x86_64.whl" }
 dependencies = [
     { name = "einops" },
     { name = "torch" },
 ]
 wheels = [
-    { url = "https://github.com/verl-project/verl-wheelhouse/releases/download/flash-attention-v2.8.3-py3.12-torch2.13.0-cu132/flash_attn-2.8.3-cp312-cp312-linux_x86_64.whl" },
+    { url = "https://github.com/verl-project/verl-wheelhouse/releases/download/flash-attention-v2.8.3-py3.12-torch2.11.0/flash_attn-2.8.3-cp312-cp312-linux_x86_64.whl", hash = "sha256:578253f946f93be01b31c89f02d6ab8d7d9d52c3d6130e9fef4ade1d8b750b4c" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "einops" },
+    { name = "torch" },
 ]
 
 [[package]]
@@ -2827,7 +2833,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "flash-attn", marker = "extra == 'train'", specifier = "==2.8.3", index = "https://verl-project.github.io/verl-wheelhouse/simple/" },
+    { name = "flash-attn", marker = "extra == 'train'", url = "https://github.com/verl-project/verl-wheelhouse/releases/download/flash-attention-v2.8.3-py3.12-torch2.11.0/flash_attn-2.8.3-cp312-cp312-linux_x86_64.whl" },
     { name = "math-verify", extras = ["antlr4-9-3"], specifier = "==0.9.0" },
     { name = "pydantic", specifier = ">=2.9,<3" },
     { name = "pydantic-settings", specifier = ">=2.7,<3" },

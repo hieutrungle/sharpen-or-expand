@@ -34,6 +34,16 @@ def check_gpus() -> None:
     print(f"ok bf16 matmul, norm {float((x @ x).norm()):.1f}")
 
 
+def check_flash_attn() -> None:
+    # Importing is not enough: run a kernel so a build lacking this GPU's architecture fails here.
+    import torch
+    from flash_attn import flash_attn_func
+
+    q, k, v = (torch.randn(1, 128, 8, 64, device="cuda", dtype=torch.bfloat16) for _ in range(3))
+    out = flash_attn_func(q, k, v, causal=True)
+    print(f"ok flash-attn kernel, output {tuple(out.shape)}")
+
+
 def check_model_offline(hf_id: str, revision: str) -> None:
     from transformers import AutoConfig, AutoTokenizer
 
@@ -66,6 +76,7 @@ def main() -> int:
     models = staged_models(args.assets)
     check_imports()
     check_gpus()
+    check_flash_attn()
     for hf_id, revision in models.items():
         check_model_offline(hf_id, revision)
     if args.vllm:

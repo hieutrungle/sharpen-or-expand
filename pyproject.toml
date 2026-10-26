@@ -58,17 +58,14 @@ override-dependencies = [
 torch = { index = "pytorch-cu130" }
 torchvision = { index = "pytorch-cu130" }
 torchaudio = { index = "pytorch-cu130" }
-flash-attn = { index = "verl-wheelhouse" }
+# Direct URL, not the wheelhouse index: the index re-points the same filename to builds for newer
+# torch (a torch-2.13 build fails to import under torch 2.11). This release holds the original
+# torch-2.11 / CUDA 13 build that verl 0.9.1 was tested with; uv.lock pins its sha256.
+flash-attn = { url = "https://github.com/verl-project/verl-wheelhouse/releases/download/flash-attention-v2.8.3-py3.12-torch2.11.0/flash_attn-2.8.3-cp312-cp312-linux_x86_64.whl" }
 
 [[tool.uv.index]]
 name = "pytorch-cu130"
 url = "https://download.pytorch.org/whl/cu130"
-explicit = true
-
-# Prebuilt flash-attn 2.8.3 for cu130 / torch 2.11 / cp312; avoids a multi-hour source build.
-[[tool.uv.index]]
-name = "verl-wheelhouse"
-url = "https://verl-project.github.io/verl-wheelhouse/simple/"
 explicit = true
 
 [tool.ruff]
