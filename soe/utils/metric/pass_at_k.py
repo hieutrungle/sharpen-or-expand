@@ -1,7 +1,7 @@
 """Capability metrics. pass@k uses the unbiased estimator of Chen et al. (2021)."""
 
 from collections import Counter
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from math import prod
 
 from soe.utils.dataset.records import SampleRecord
@@ -29,30 +29,44 @@ def mean_pass_at_k(counts: Iterable[tuple[int, int]], k: int) -> float:
     return sum(values) / len(values)
 
 
-def maj_at_k(answers: Sequence[str | None], correct: Sequence[bool], k: int) -> bool:
+def same_string(a: str, b: str) -> bool:
+    """Exact match ignoring whitespace (the "exact_string" maj@k grouping)."""
+    return "".join(a.split()) == "".join(b.split())
+
+
+def maj_at_k(
+    answers: Sequence[str | None],
+    correct: Sequence[bool],
+    k: int,
+    same: Callable[[str, str], bool],
+) -> bool:
     """Is the most common answer among the first k samples correct?
 
-    Answers are grouped by exact string after stripping whitespace (equivalent forms written
-    differently count as different votes). Ties go to the answer seen first. Samples with no
-    extracted answer do not vote; if none vote, the result is False.
+    Answers form groups: each answer joins the first group whose representative (the group's
+    first answer) it matches under `same`, e.g. verifier equivalence so "0.5" and "\\frac12" are one
+    vote. Ties go to the group seen first. Samples with no extracted answer do not vote; if none
+    vote, the result is False.
     """
     if len(answers) != len(correct):
         raise ValueError("answers and correct must have the same length")
     if not 1 <= k <= len(answers):
         raise ValueError(f"need 1 <= k <= {len(answers)}, got {k}")
-    votes: Counter[str] = Counter()
-    first_index: dict[str, int] = {}
+    groups: list[list[int]] = []  # sample indices; groups[g][0] is the representative
     for i in range(k):
         answer = answers[i]
         if answer is None:
             continue
-        key = "".join(answer.split())
-        votes[key] += 1
-        first_index.setdefault(key, i)
-    if not votes:
+        for group in groups:
+            representative = answers[group[0]]
+            if representative is not None and same(answer, representative):
+                group.append(i)
+                break
+        else:
+            groups.append([i])
+    if not groups:
         return False
-    winner = max(votes, key=lambda key: (votes[key], -first_index[key]))
-    return correct[first_index[winner]]
+    winner = max(groups, key=len)  # max keeps the first of equally large groups
+    return correct[winner[0]]
 
 
 def correct_counts(records: Iterable[SampleRecord]) -> dict[str, tuple[int, int]]:

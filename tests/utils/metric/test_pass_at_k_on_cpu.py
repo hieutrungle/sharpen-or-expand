@@ -4,7 +4,14 @@ from math import comb
 import pytest
 
 from soe.utils.dataset.records import SampleRecord
-from soe.utils.metric.pass_at_k import correct_counts, maj_at_k, mean_pass_at_k, pass_at_k
+from soe.utils.metric.pass_at_k import (
+    correct_counts,
+    maj_at_k,
+    mean_pass_at_k,
+    pass_at_k,
+    same_string,
+)
+from soe.utils.reward_score.math_verify import answers_equivalent
 
 
 def brute_force_pass_at_k(n: int, c: int, k: int) -> float:
@@ -42,20 +49,28 @@ def test_mean_pass_at_k() -> None:
         mean_pass_at_k([], k=1)
 
 
-def test_maj_at_k_majority_and_whitespace() -> None:
+def test_maj_at_k_exact_string_grouping_ignores_whitespace() -> None:
     answers = ["1/2", "3", "1 / 2", None]
     correct = [True, False, True, False]
-    assert maj_at_k(answers, correct, k=4) is True
+    assert maj_at_k(answers, correct, k=4, same=same_string) is True
+
+
+def test_maj_at_k_verifier_grouping_merges_equivalent_forms() -> None:
+    # Under the verifier "0.5", "\frac{1}{2}" and "1/2" are one group of 3, beating "3" (2 votes).
+    answers = ["3", "0.5", "\\frac{1}{2}", "3", "1/2"]
+    correct = [False, True, True, False, True]
+    assert maj_at_k(answers, correct, k=5, same=same_string) is False  # "3" wins 2-1-1-1
+    assert maj_at_k(answers, correct, k=5, same=answers_equivalent) is True  # 1/2 wins 3-2
 
 
 def test_maj_at_k_tie_goes_to_first_seen() -> None:
-    assert maj_at_k(["3", "5"], [False, True], k=2) is False
-    assert maj_at_k(["5", "3"], [True, False], k=2) is True
+    assert maj_at_k(["3", "5"], [False, True], k=2, same=same_string) is False
+    assert maj_at_k(["5", "3"], [True, False], k=2, same=same_string) is True
 
 
 def test_maj_at_k_uses_only_first_k_and_no_votes_is_wrong() -> None:
-    assert maj_at_k(["3", "5", "5"], [False, True, True], k=1) is False
-    assert maj_at_k([None, None], [False, False], k=2) is False
+    assert maj_at_k(["3", "5", "5"], [False, True, True], k=1, same=same_string) is False
+    assert maj_at_k([None, None], [False, False], k=2, same=same_string) is False
 
 
 def test_correct_counts() -> None:

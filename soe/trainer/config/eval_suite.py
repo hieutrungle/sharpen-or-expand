@@ -1,4 +1,5 @@
-"""The frozen evaluation suite: problem files pinned by sha256, plus fixed sampling parameters.
+"""The frozen evaluation suite (decision 004): problem files pinned by sha256, plus the fixed
+sampling, prompt and scoring rules every checkpoint is evaluated with.
 
 Evaluation refuses to run if any problem file no longer matches its recorded hash, so the
 yardstick cannot drift after M0.
@@ -6,12 +7,14 @@ yardstick cannot drift after M0.
 
 import hashlib
 from pathlib import Path
-from typing import Self
+from typing import Literal, Self
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from soe.utils.dataset.problems import Level
+
+PROBLEM_PLACEHOLDER = "{problem}"
 
 
 class FrozenModel(BaseModel):
@@ -19,20 +22,56 @@ class FrozenModel(BaseModel):
 
 
 class SamplingSpec(FrozenModel):
-    temperature: float = Field(ge=0)
+    """Identical for base, SFT and every RL checkpoint."""
+
+    temperature: float = Field(gt=0)
     top_p: float = Field(gt=0, le=1)
+    top_k: int = Field(ge=-1)  # -1 disables top-k
     max_tokens: int = Field(gt=0)
+    seed: int
+
+
+class KSpec(FrozenModel):
+    """Which k values a tier reports; the largest k is the number of samples per problem."""
+
     ks: list[int]
+    transition_ks: list[int]  # k values at which unsolved->solved / solved->lost are counted
 
     @model_validator(mode="after")
-    def _check_ks(self) -> Self:
+    def _check(self) -> Self:
         if not self.ks or self.ks != sorted(set(self.ks)) or self.ks[0] < 1:
             raise ValueError("ks must be strictly increasing positive integers")
+        if not set(self.transition_ks) <= set(self.ks):
+            raise ValueError("transition_ks must be a subset of ks")
         return self
 
     @property
     def samples_per_problem(self) -> int:
         return self.ks[-1]
+
+
+class PromptSpec(FrozenModel):
+    """Zero-shot; the same text for every model stage (no few-shot examples for base models)."""
+
+    template: str
+    use_chat_template: bool
+
+    @model_validator(mode="after")
+    def _check(self) -> Self:
+        if self.template.count(PROBLEM_PLACEHOLDER) != 1:
+            raise ValueError(f"template must contain {PROBLEM_PLACEHOLDER} exactly once")
+        return self
+
+    def render(self, problem: str) -> str:
+        # Plain replacement, not str.format: the instruction itself contains \\boxed{}.
+        return self.template.replace(PROBLEM_PLACEHOLDER, problem)
+
+
+class ScoringSpec(FrozenModel):
+    answer_extraction: Literal["last_boxed"]
+    truncated_response: Literal["incorrect"]  # finish_reason == "length"
+    maj_grouping: Literal["verifier_equivalence", "exact_string"]
+    transition_solved_threshold: float = Field(gt=0, le=1)  # solved at k when pass@k >= this
 
 
 class ProblemSet(FrozenModel):
@@ -44,16 +83,22 @@ class ProblemSet(FrozenModel):
 
 class EvalSuite(FrozenModel):
     name: str
+    data_build_report: str  # committed report the problem-set hashes come from
     sampling: SamplingSpec
+    prompt: PromptSpec
+    scoring: ScoringSpec
+    main: KSpec  # every problem set
+    hard: KSpec  # the hard subset
     problem_sets: list[ProblemSet]
-    hard_subset: ProblemSet | None
-    hard_subset_sampling: SamplingSpec | None
-    transition_solved_threshold: float = Field(gt=0, le=1)
+    hard_subset: ProblemSet | None  # None until M0.6 freezes it
 
     @model_validator(mode="after")
-    def _check_hard_subset(self) -> Self:
-        if (self.hard_subset is None) != (self.hard_subset_sampling is None):
-            raise ValueError("hard_subset and hard_subset_sampling go together")
+    def _check(self) -> Self:
+        names = [p.name for p in self.problem_sets]
+        if len(names) != len(set(names)):
+            raise ValueError("problem set names must be unique")
+        if self.hard.samples_per_problem < self.main.samples_per_problem:
+            raise ValueError("the hard subset needs at least as many samples as the main tier")
         return self
 
 
