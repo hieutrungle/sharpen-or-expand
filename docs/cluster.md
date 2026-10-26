@@ -12,11 +12,14 @@ scratch in `$SOE_DATA=/scratch/user/hieult/research/soe-data`, and code moves on
 ## One-time setup
 1. Locally: `make container` (needs sudo + apptainer) builds `../soe-data/sif/soe.sif`.
 2. From your terminal: `rsync -av ../soe-data/sif/soe.sif faster-claude:/scratch/user/hieult/research/soe-data/sif/`.
-3. On the FASTER login node (downloads are light work):
+3. On the FASTER login node (the system Python is 3.6, so uv brings its own; keep uv's Python
+   and cache on scratch, never home: `export UV_CACHE_DIR=$SOE_DATA/cache/uv
+   UV_PYTHON_INSTALL_DIR=$SOE_DATA/cache/uv-python`). Models are ~30 GB: run it with
+   `setsid nohup ... > $SOE_DATA/logs/stage_models.log 2>&1 &`.
    `export SOE_DATA=/scratch/user/hieult/research/soe-data && cd /scratch/user/hieult/research/sharpen-or-expand && HF_HOME=$SOE_DATA/hf uv run scripts/stage_offline.py --assets scripts/stage_assets.yaml`
-4. Datasets: build locally (`examples/data_preprocess/README.md`), then from your terminal
-   `rsync -av ../soe-data/datasets/soe/ faster-claude:/scratch/user/hieult/research/soe-data/datasets/soe/`;
-   the sha256 values in `docs/reports/m0_datasets_v1.json` must match on both machines.
+4. Datasets: `sbatch slurm/build_datasets.sbatch` builds them on a CPU node inside the container,
+   offline from the staged snapshots, and fails unless the result is byte-identical to the
+   committed `docs/reports/m0_datasets_v1.json` and every `eval_suite.yaml` hash matches.
 5. `mkdir -p logs/slurm && sbatch slurm/check_container.sbatch`, then again with
    `SBATCH_GRES=gpu:a40:1`.
 
