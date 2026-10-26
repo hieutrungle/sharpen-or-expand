@@ -31,6 +31,12 @@ Rewards for RL and scores for evaluation both go through `soe/utils/reward_score
 
 ## Consequences
 - vLLM is the rollout engine (the plan allows vLLM or SGLang).
+- Qwen3.5 and Gemma 4 ship as multimodal checkpoints (`*ForConditionalGeneration` with a vision
+  tower); the study is text-only. Every vLLM engine (evaluation sampler, verl rollout) runs with
+  `language_model_only=True`, which sets all image/video limits to 0 so vLLM neither profiles nor
+  runs the vision encoder. Without it, startup profiling on a dummy video ran out of memory on
+  the local 16 GB GPU (2026-10-26). For verl this goes through the rollout's vLLM engine kwargs
+  (wired and verified in M1).
 - `uv.lock` routes torch to the PyTorch cu130 index; uv applies sources only to direct
   dependencies, so the `train` extra lists torch/torchvision/torchaudio/flash-attn explicitly.
 - flash-attn is pinned by **direct URL and sha256** to the wheelhouse release

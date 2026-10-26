@@ -60,7 +60,15 @@ def check_model_offline(hf_id: str, revision: str) -> None:
 def check_vllm_generate(hf_id: str, revision: str) -> None:
     from vllm import LLM, SamplingParams
 
-    llm = LLM(model=hf_id, revision=revision, max_model_len=1024, gpu_memory_utilization=0.5)
+    # Qwen3.5 and Gemma 4 are multimodal checkpoints; the study is text-only. Without this, vLLM
+    # profiles the vision encoder on a dummy video at startup (out of memory on a 16 GB GPU).
+    llm = LLM(
+        model=hf_id,
+        revision=revision,
+        max_model_len=1024,
+        gpu_memory_utilization=0.5,
+        language_model_only=True,
+    )
     out = llm.generate(["1 + 1 ="], SamplingParams(max_tokens=8, temperature=0.0))
     print(f"ok vllm {hf_id}: {out[0].outputs[0].text!r}")
 
