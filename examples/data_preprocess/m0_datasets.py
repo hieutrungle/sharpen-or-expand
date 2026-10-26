@@ -8,14 +8,14 @@ and writes Problem JSONL files under $SOE_DATA/<output_dir>/:
     rl/level_b.jsonl       Level B held-out split
     build_report.json      counts, dropped ids per reason, sha256 per file (no problem text)
 
-The report is also written to --report so it can be committed (problem text never is).
+The report is also written to --report so it can be committed (problem text never is). It holds
+no timestamp, so a rebuild that reproduces the data leaves the git tree clean.
 """
 
 import argparse
 import hashlib
 import json
 import os
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -184,7 +184,6 @@ def main() -> None:
 
     report = {
         "version": config.version,
-        "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "config": json.loads(config.model_dump_json()),
         "revisions": {s.hf_id: revisions[s.hf_id] for s in [*config.eval_sets, config.rl_pool]},
         "counts": counts,
