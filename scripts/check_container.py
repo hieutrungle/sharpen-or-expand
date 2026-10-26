@@ -6,6 +6,7 @@ loading of each staged model's config and tokenizer, and optionally a few vLLM t
 
 import argparse
 import importlib
+import json
 import os
 import sys
 from pathlib import Path
@@ -61,9 +62,18 @@ def check_vllm_generate(hf_id: str, revision: str) -> None:
     print(f"ok vllm {hf_id}: {out[0].outputs[0].text!r}")
 
 
-def staged_models(assets_path: Path) -> dict[str, str]:
+def pinned_models(assets_path: Path) -> dict[str, str]:
     assets = yaml.safe_load(assets_path.read_text())["assets"]
     return {a["hf_id"]: a["revision"] for a in assets if a["repo_type"] == "model"}
+
+
+def staged_commits(data_root: Path) -> dict[str, str]:
+    """hf_id -> commit actually downloaded, from the manifest written by stage_offline.py."""
+    manifest_path = data_root / "manifest.json"
+    if not manifest_path.exists():
+        return {}
+    assets = json.loads(manifest_path.read_text())["assets"]
+    return {hf_id: entry["commit_sha"] for hf_id, entry in assets.items()}
 
 
 def main() -> int:
@@ -72,13 +82,30 @@ def main() -> int:
     parser.add_argument(
         "--vllm", metavar="HF_ID", help="also generate a few tokens with this model"
     )
+    parser.add_argument(
+        "--allow-missing",
+        action="store_true",
+        help="skip pinned models that are not staged (local development); FASTER jobs omit this",
+    )
     args = parser.parse_args()
-    models = staged_models(args.assets)
+    models = pinned_models(args.assets)
+    staged = staged_commits(Path(os.environ["SOE_DATA"]))
+    wrong = {m: staged[m] for m in models if m in staged and staged[m] != models[m]}
+    if wrong:
+        raise SystemExit(f"staged at a different revision than scripts/stage_assets.yaml: {wrong}")
+    missing = [m for m in models if m not in staged]
+    if missing and not args.allow_missing:
+        raise SystemExit(
+            f"not staged: {missing} (run scripts/stage_offline.py, see docs/cluster.md)"
+        )
     check_imports()
     check_gpus()
     check_flash_attn()
     for hf_id, revision in models.items():
-        check_model_offline(hf_id, revision)
+        if hf_id in missing:
+            print(f"skip {hf_id}: not staged (--allow-missing)")
+        else:
+            check_model_offline(hf_id, revision)
     if args.vllm:
         check_vllm_generate(args.vllm, models[args.vllm])
     print("check_container: all passed")

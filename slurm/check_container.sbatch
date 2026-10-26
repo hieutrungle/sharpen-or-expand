@@ -1,6 +1,7 @@
 #!/bin/bash
 # GPU stack check plus offline load of every staged model, then a few vLLM tokens on 2B.
-# Usage: sbatch slurm/check_container.sbatch                  (A100)
+# Usage: sbatch slurm/check_container.sbatch                  (A100; every pinned model must be staged)
+#        bash slurm/check_container.sbatch --allow-missing    (local; skips models not staged)
 #        SBATCH_GRES=gpu:a40:1 sbatch slurm/check_container.sbatch
 #SBATCH --job-name=soe-check
 #SBATCH --account=142788516569
@@ -15,4 +16,4 @@
 
 set -euo pipefail
 source slurm/common.sh
-run_in_container python scripts/check_container.py --vllm Qwen/Qwen3.5-2B-Base
+run_in_container python scripts/check_container.py --vllm Qwen/Qwen3.5-2B-Base "$@"
