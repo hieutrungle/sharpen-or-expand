@@ -1,0 +1,31 @@
+# Everything compute jobs need offline. Models are pinned to the commit used in configs; datasets
+# are the Level A candidates, confirmed (or replaced) by the M0 eval-suite decision. The olympiad
+# set, Level C set and the SFT / RL pools are added here once M0/M1 choose them.
+assets:
+  - hf_id: Qwen/Qwen3.5-2B-Base
+    repo_type: model
+    revision: b1485b2fa6dfa1287294f269f5fb618e03d52d7c
+    allow_patterns: ["*.json", "*.safetensors", "*.txt", "*.jinja", "*.model"]
+    note: development only (Lane B); never in conclusions
+  - hf_id: Qwen/Qwen3.5-4B-Base
+    repo_type: model
+    revision: 1001bb4d826a52d1f399e183466143f4da7b741b
+    allow_patterns: ["*.json", "*.safetensors", "*.txt", "*.jinja", "*.model"]
+    note: main model
+  - hf_id: google/gemma-4-E4B
+    repo_type: model
+    revision: 411aa17b749aa952df1359d2dcea73917a544d9a
+    allow_patterns: ["*.json", "*.safetensors", "*.txt", "*.jinja", "*.model"]
+    note: cross-model replication (M8)
+  - hf_id: HuggingFaceH4/MATH-500
+    repo_type: dataset
+    revision: main
+    note: Level A candidate
+  - hf_id: HuggingFaceH4/aime_2024
+    repo_type: dataset
+    revision: main
+    note: Level A candidate
+  - hf_id: MathArena/aime_2025
+    repo_type: dataset
+    revision: main
+    note: Level A candidate

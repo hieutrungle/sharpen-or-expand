@@ -1,0 +1,40 @@
+# M1 pipeline-debugging run on Lane B (2B, development only). Values are starting points for
+# debugging the pipeline, not tuned hyperparameters; nothing from this run enters conclusions.
+# Data paths are relative to $SOE_DATA and are created in M1.
+name: grpo_m1_dev_qwen35-2b
+milestone: m1
+development: true
+lane: B
+model:
+  hf_id: Qwen/Qwen3.5-2B-Base
+  revision: b1485b2fa6dfa1287294f269f5fb618e03d52d7c
+init_checkpoint: null  # becomes the 2B SFT checkpoint once M1 has one
+training_mode: lora_bf16
+lora:
+  rank: 64
+  alpha: 128
+  target_modules: all-linear
+algorithm: grpo
+optim:
+  learning_rate: 1.0e-5
+  warmup_steps: 10
+  weight_decay: 0.0
+rollout:
+  prompts_per_step: 64
+  group_size: 8
+  temperature: 1.0
+  top_p: 1.0
+  max_prompt_tokens: 1024
+  max_response_tokens: 4096
+policy_loss:
+  clip_ratio_low: 0.2
+  clip_ratio_high: 0.2
+  kl_coef: 0.0
+  entropy_coef: 0.0
+budget:
+  rollout_tokens: 20000000
+  checkpoint_every_rollout_tokens: 2000000
+data:
+  train_file: datasets/rl/dev_train.parquet
+  val_file: datasets/rl/dev_val.parquet
+eval_suite: soe/trainer/config/eval_suite.yaml

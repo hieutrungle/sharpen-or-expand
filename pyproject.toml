@@ -1,0 +1,94 @@
+[project]
+name = "soe"
+version = "0.0.1"
+description = "Sharpen or Expand: what RL post-training with verifiable rewards changes in a reasoning model."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "MIT"
+authors = [{ name = "Hieu Le" }]
+# Base deps: everything CI and the CPU-side tools need (configs, verifier, metrics, run cards).
+dependencies = [
+    "pydantic>=2.9,<3",
+    "pydantic-settings>=2.7,<3",
+    "pyyaml>=6.0",
+    # antlr4 4.9.3 matches hydra-core (pulled in by verl), so one antlr runtime serves both.
+    "math-verify[antlr4_9_3]==0.9.0",
+]
+
+[project.optional-dependencies]
+# GPU stack (decision 001). verl 0.9.1's own tested set: torch 2.11.0+cu130, vLLM 0.24.0,
+# transformers 5.9.0, flash-attn 2.8.3, flash-linear-attention 0.5.2 (Qwen3.5 linear attention),
+# TRL 0.27.0 (used for SFT/DPO). Change only between milestones, then rerun check_container.
+train = [
+    "verl[vllm,fsdp]==0.9.1",
+    # Listed directly so [tool.uv.sources] routes them (uv applies sources to direct deps only).
+    "torch==2.11.0",
+    "torchvision==0.26.0",
+    "torchaudio==2.11.0",
+    "flash-attn==2.8.3",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0",
+    "pytest>=8.3",
+    "ruff>=0.7",
+    "mypy>=1.13",
+    "types-PyYAML",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["soe"]
+
+[tool.uv]
+# vLLM and the verl wheelhouse ship Linux x86-64 cp312 wheels only; both machines and CI match.
+environments = ["python_full_version >= '3.12' and sys_platform == 'linux' and platform_machine == 'x86_64'"]
+# Copied from verl 0.9.1's own [tool.uv] (index routing is not inherited by dependents):
+# kernels is pinned to transformers 5.9.0's window; cusparselt 0.8.0 has a correct wheel tag.
+override-dependencies = [
+    "kernels>=0.12.0,<0.13",
+    "nvidia-cusparselt-cu13==0.8.0",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu130" }
+torchvision = { index = "pytorch-cu130" }
+torchaudio = { index = "pytorch-cu130" }
+flash-attn = { index = "verl-wheelhouse" }
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+# Prebuilt flash-attn 2.8.3 for cu130 / torch 2.11 / cp312; avoids a multi-hour source build.
+[[tool.uv.index]]
+name = "verl-wheelhouse"
+url = "https://verl-project.github.io/verl-wheelhouse/simple/"
+explicit = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["soe"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["math_verify", "math_verify.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Same as the container (PYTHONPATH=$PWD): tests import the soe/ in this checkout.
+pythonpath = ["."]
