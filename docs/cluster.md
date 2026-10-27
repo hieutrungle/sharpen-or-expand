@@ -9,6 +9,12 @@ scratch in `$SOE_DATA=/scratch/user/hieult/research/soe-data`, and code moves on
 | A | 2×A100 (PCIe 40 GB) | every 4B / Gemma training run | `slurm/train.sbatch` (default `gpu:a100:2`) |
 | B | 2×A40 (48 GB) | 2B development, evaluation, preferences, sweeps | `slurm/eval.sbatch` (`gpu:a40:1`); dev training with `SBATCH_GRES=gpu:a40:2` |
 
+Sampling-only jobs (evaluation, selection, probes) may also use idle A100, A30 (24 GB, sm_80) and
+A10 (24 GB, sm_86) GPUs; `check_container` passes on all four types, while T4s (no BF16) are out.
+Slurm's `normal` QOS allows 16 GPUs per user; in practice we run at most six one-GPU jobs at once.
+A100/A40/A30/A10 all cost 128 SUs per GPU-hour. Sampling parameters never depend on the GPU type;
+each sampling job records the GPU it ran on.
+
 ## One-time setup
 1. Locally: `make container` (needs sudo + apptainer) builds `../soe-data/sif/soe.sif`.
 2. From your terminal: `rsync -av ../soe-data/sif/soe.sif faster-claude:/scratch/user/hieult/research/soe-data/sif/`.
