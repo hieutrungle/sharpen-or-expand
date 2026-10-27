@@ -117,3 +117,17 @@ def test_report_stage_builds_tables_from_shards(tmp_path: Path) -> None:
         json.loads(line) for line in (out / "per_problem.jsonl").read_text().splitlines()
     ]
     assert [p["all"]["n"] for p in per_problem] == [64, 16, 16, 16, 16]
+
+
+def test_plan_is_never_seen_half_written(tmp_path: Path) -> None:
+    suite_path, suite = tiny_suite(tmp_path)
+    units = main_eval.eval_units(suite, tmp_path, None)
+    plan = main_eval.make_plan(
+        suite_path, suite, CHECKPOINT, units, num_shards=2, limit_per_set=None
+    )
+    out = tmp_path / "out"
+    main_eval.write_or_check_plan(out, plan)
+    assert [p.name for p in out.iterdir()] == ["plan.json"]  # no private file left behind
+    (out / "plan.json").write_text("")  # what a racing reader used to see
+    with pytest.raises(ValueError):
+        main_eval.write_or_check_plan(out, plan)

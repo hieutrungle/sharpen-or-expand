@@ -15,6 +15,13 @@ Slurm's `normal` QOS allows 16 GPUs per user; in practice we run at most six one
 A100/A40/A30/A10 all cost 128 SUs per GPU-hour. Sampling parameters never depend on the GPU type;
 each sampling job records the GPU it ran on.
 
+Sampling throughput is bound by KV-cache memory, not by vLLM's request limit: with 16K-token
+reasoning, vLLM starts about 180 sequences, the cache fills as they grow, and steady state holds about
+50 on an A10 (about 900 tokens/s; about 1,300 on an A40). `max_num_seqs` therefore does not help.
+Keep `gpu_memory_utilization` at 0.90: at 0.95 the Qwen3.5 linear-attention prefill kernel runs out
+of memory on 24 GB cards (A30 probe, job 3221501). An fp8 KV cache would roughly double concurrency
+but changes the sampled tokens, so it needs a decision and would apply to every checkpoint.
+
 ## One-time setup
 1. Locally: `make container` (needs sudo + apptainer) builds `../soe-data/sif/soe.sif`.
 2. From your terminal: `rsync -av ../soe-data/sif/soe.sif faster-claude:/scratch/user/hieult/research/soe-data/sif/`.

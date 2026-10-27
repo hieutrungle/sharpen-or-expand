@@ -119,17 +119,25 @@ def pinned_revision(checkpoint: str) -> str | None:
 
 
 def write_or_check_plan(output: Path, plan: EvalPlan) -> None:
+    """The first job publishes the plan; every later job must match it.
+
+    The plan is written to a private file and then hard-linked into place: the link is atomic and
+    fails if the plan exists, so no job ever reads a half-written plan.json.
+    """
     path = output / "plan.json"
     output.mkdir(parents=True, exist_ok=True)
+    private = output / f".plan-{os.getpid()}-{platform.node()}.json"
+    private.write_text(plan.model_dump_json(indent=1) + "\n")
     try:
-        with path.open("x") as f:  # exclusive create: the first job writes the plan
-            f.write(plan.model_dump_json(indent=1) + "\n")
+        os.link(private, path)
     except FileExistsError:
         existing = EvalPlan.model_validate_json(path.read_text())
         if existing != plan:
             raise SystemExit(
                 f"{path} describes a different evaluation:\n{existing}\nvs\n{plan}"
             ) from None
+    finally:
+        private.unlink()
 
 
 def make_plan(
