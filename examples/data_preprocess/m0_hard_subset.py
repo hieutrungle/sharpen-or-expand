@@ -31,7 +31,9 @@ from soe.utils.jsonl import read_jsonl, write_jsonl
 from soe.utils.run import gpu_names, library_versions
 
 ASSETS = Path("scripts/stage_assets.yaml")
-CHUNK_PROBLEMS = 64  # one generate() call; a crash loses at most this much work
+# One generate() call (128 x 16 completions): large enough that the slow tail of the longest
+# completions is a small share of each call; a crash loses at most one chunk.
+CHUNK_PROBLEMS = 128
 
 
 class RuleSpec(BaseModel):
@@ -53,7 +55,7 @@ class HardSubsetConfig(BaseModel):
     candidate_sets: list[str]
     samples_per_problem: int = Field(ge=1)
     sampling_seed: int
-    min_answer_rate: float = Field(ge=0, le=1)
+    min_boxed_rate_when_stopped: float = Field(ge=0, le=1)
     rule: RuleSpec
     work_dir: str
     output: str
@@ -174,6 +176,7 @@ def set_stats(
     records: list[SampleRecord], correct: dict[str, int], rule: RuleSpec
 ) -> dict[str, Any]:
     histogram = Counter(correct.values())
+    stopped = [r for r in records if r.finish_reason == "stop"]
     return {
         "problems": len(correct),
         "answer_rate": round(
@@ -181,6 +184,9 @@ def set_stats(
         ),
         "truncation_rate": round(
             sum(r.finish_reason == "length" for r in records) / len(records), 4
+        ),
+        "boxed_rate_when_stopped": round(
+            sum(r.extracted_answer is not None for r in stopped) / max(1, len(stopped)), 4
         ),
         "pass_at_1": round(sum(r.correct for r in records) / len(records), 4),
         "mean_completion_tokens": round(sum(r.completion_tokens for r in records) / len(records)),
@@ -238,7 +244,7 @@ def run_select(config: HardSubsetConfig, data_root: Path) -> int:
         "overall": overall,
         "per_set": per_set,
     }
-    halted = overall["answer_rate"] < config.min_answer_rate
+    halted = overall["boxed_rate_when_stopped"] < config.min_boxed_rate_when_stopped
     if not halted:
         rule = HardSubsetRule(**config.rule.model_dump())
         subset = select_hard_subset(correct, stratum, rule)
@@ -256,7 +262,7 @@ def run_select(config: HardSubsetConfig, data_root: Path) -> int:
             "output_sha256": file_sha256(out),
             "selected_problem_ids": subset.problem_ids,
         }
-    report |= {"halted_low_answer_rate": halted, "correct_counts": dict(sorted(correct.items()))}
+    report |= {"halted_format": halted, "correct_counts": dict(sorted(correct.items()))}
     config.report.parent.mkdir(parents=True, exist_ok=True)
     config.report.write_text(json.dumps(report, indent=1) + "\n")
     print(
@@ -272,9 +278,8 @@ def run_select(config: HardSubsetConfig, data_root: Path) -> int:
     for name, stats in per_set.items():
         print(name, {k: v for k, v in stats.items() if k != "correct_histogram"})
     if halted:
-        print(
-            f"HALT: answer rate {overall['answer_rate']} < {config.min_answer_rate} (decision 005)"
-        )
+        rate, floor = overall["boxed_rate_when_stopped"], config.min_boxed_rate_when_stopped
+        print(f"HALT: boxed rate among stopped completions {rate} < {floor} (decision 006)")
         return 1
     return 0
 

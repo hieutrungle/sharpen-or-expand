@@ -23,6 +23,8 @@ def test_frozen_suite_loads_with_decision_004_settings() -> None:
     assert suite.main.samples_per_problem == 16 and suite.hard.samples_per_problem == 64
     assert suite.scoring.maj_grouping == "verifier_equivalence"
     assert suite.scoring.transition_solved_threshold == 0.5
+    # decision 006: open think block, passed explicitly so no renderer falls back to the default
+    assert suite.prompt.chat_template_kwargs() == {"enable_thinking": True}
 
 
 def test_frozen_suite_hashes_match_the_committed_data_build_report() -> None:

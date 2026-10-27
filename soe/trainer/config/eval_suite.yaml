@@ -18,6 +18,9 @@ sampling:
 # from google/gemma-4-E4B-it (same tokenizer).
 prompt:
   use_chat_template: true
+  # Generation prompt ends with an open "<think>\n" (decision 006); every renderer must pass this:
+  # evaluation, verl rollouts (apply_chat_template kwargs) and the SFT data format.
+  enable_thinking: true
   template: |-
     {problem}
 

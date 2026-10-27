@@ -12,9 +12,10 @@ samples_per_problem: 16
 # Independent of the suite's evaluation seed (0): a problem's selection draws are not the draws it
 # is later evaluated with, so the base model's evaluated pass rate is not biased low.
 sampling_seed: 1
-# Halt before freezing if the selector gives a boxed answer this rarely: the subset would then pick
-# format failures, not hard problems.
-min_answer_rate: 0.8
+# Halt before freezing if fewer completions that stopped (not truncated) give a boxed answer: the
+# subset would then pick format failures, not hard problems. Truncation at 16K is a length effect,
+# counted as incorrect and reported, not a format failure (decision 006 supersedes 005 item 6).
+min_boxed_rate_when_stopped: 0.8
 rule:
   max_correct: 4  # hard: at most 4 of 16 correct, 0 of 16 included
   fallback_max_correct: 8  # applied once if fewer than min_size problems qualify

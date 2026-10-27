@@ -34,7 +34,7 @@ def test_committed_config_holds_the_decision_005_values() -> None:
     rule = config.rule
     assert (rule.max_correct, rule.fallback_max_correct) == (4, 8)
     assert (rule.min_size, rule.target_size, rule.draw_seed) == (200, 250, 20261026)
-    assert config.min_answer_rate == 0.8
+    assert config.min_boxed_rate_when_stopped == 0.8
 
 
 def test_level_c_and_the_evaluation_seed_are_rejected() -> None:
@@ -120,9 +120,9 @@ def test_select_stage_writes_the_subset_and_report(tmp_path: Path) -> None:
     assert [p.problem_id for p in chosen] == report["selected_problem_ids"]
 
 
-def test_select_stage_halts_on_a_low_answer_rate(tmp_path: Path) -> None:
+def test_select_stage_halts_on_missing_boxed_answers(tmp_path: Path) -> None:
     m = script()
     config = fake_data(tmp_path, m, {"math500": [0, 0, 0, 0]}, answer=None)
     assert m.run_select(config, tmp_path) == 1
-    assert json.loads(config.report.read_text())["halted_low_answer_rate"] is True
+    assert json.loads(config.report.read_text())["halted_format"] is True
     assert not (tmp_path / config.output).exists()
