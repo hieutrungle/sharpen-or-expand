@@ -5,6 +5,7 @@ GPU-only: vLLM is imported when a sampler is built, so CPU tests can import this
 """
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Any
 
 from soe.trainer.config.eval_suite import PromptSpec, SamplingSpec
@@ -17,6 +18,24 @@ from soe.workers.rollout.chat import stop_token_ids, turn_end_text
 PROMPT_TOKEN_ALLOWANCE = 2048
 
 
+@dataclass(frozen=True, slots=True, kw_only=True)
+class EngineSettings:
+    """vLLM engine knobs: they change speed and memory use, never which tokens are sampled."""
+
+    gpu_memory_utilization: float = 0.9
+    max_num_seqs: int | None = None  # None: vLLM's default
+    log_stats: bool = False  # periodic throughput, running/waiting requests, KV-cache use
+
+    def llm_kwargs(self) -> dict[str, Any]:
+        kwargs: dict[str, Any] = {
+            "gpu_memory_utilization": self.gpu_memory_utilization,
+            "disable_log_stats": not self.log_stats,
+        }
+        if self.max_num_seqs is not None:
+            kwargs["max_num_seqs"] = self.max_num_seqs
+        return kwargs
+
+
 class VllmSampler:
     def __init__(
         self,
@@ -24,9 +43,11 @@ class VllmSampler:
         *,
         revision: str | None,
         max_tokens: int,
-        gpu_memory_utilization: float = 0.9,
+        engine: "EngineSettings | None" = None,
     ) -> None:
         from vllm import LLM
+
+        self.engine = engine or EngineSettings()
 
         # Qwen3.5 and Gemma 4 are multimodal checkpoints; the study is text-only, and without
         # this vLLM also loads and profiles the vision encoder.
@@ -34,8 +55,8 @@ class VllmSampler:
             model=model,
             revision=revision,
             max_model_len=max_tokens + PROMPT_TOKEN_ALLOWANCE,
-            gpu_memory_utilization=gpu_memory_utilization,
             language_model_only=True,
+            **self.engine.llm_kwargs(),
         )
         self._tokenizer: Any = self._llm.get_tokenizer()
         turn_end = turn_end_text(

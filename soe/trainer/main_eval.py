@@ -18,7 +18,7 @@ import subprocess
 import time
 from collections import defaultdict
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -153,10 +153,13 @@ def make_plan(
 
 
 def run_sample(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan: EvalPlan) -> None:
-    from soe.workers.rollout.vllm_sampler import VllmSampler  # GPU stack, image only
+    from soe.workers.rollout.vllm_sampler import EngineSettings, VllmSampler  # GPU image only
 
+    engine = EngineSettings(
+        gpu_memory_utilization=cli.gpu_memory_utilization, max_num_seqs=cli.max_num_seqs
+    )
     sampler = VllmSampler(
-        cli.checkpoint, revision=plan.revision, max_tokens=suite.sampling.max_tokens
+        cli.checkpoint, revision=plan.revision, max_tokens=suite.sampling.max_tokens, engine=engine
     )
     info = SamplingRunInfo(
         checkpoint=cli.checkpoint,
@@ -167,6 +170,7 @@ def run_sample(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan
         seed=suite.sampling.seed,
         chat_template_kwargs=suite.prompt.chat_template_kwargs(),
         stop_token_ids=sampler.stop_token_ids,
+        engine=asdict(engine),
         git_commit=subprocess.run(
             ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
         ).stdout.strip(),
@@ -313,6 +317,9 @@ class EvaluateCli(BaseSettings):
     shard: int | None = None  # sample this shard only (default: claim free ones)
     num_shards: int = 32
     limit_per_set: int | None = None  # smoke tests: the first N problems (by id) of each set
+    # vLLM speed knobs only (recorded per shard); sampling always comes from the suite
+    gpu_memory_utilization: float = 0.9
+    max_num_seqs: int | None = None
 
     def cli_cmd(self) -> None:
         suite = load_suite(self.suite)

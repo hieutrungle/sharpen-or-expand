@@ -33,6 +33,7 @@ class SamplingRunInfo(BaseModel):
     seed: int  # the vLLM per-request seed actually used (may differ from the suite's, e.g. M0.6)
     chat_template_kwargs: dict[str, bool]
     stop_token_ids: list[int]
+    engine: dict[str, float | int | bool | None] = {}  # vLLM speed knobs (EngineSettings)
     git_commit: str
     hostname: str
     slurm_job_id: str | None
