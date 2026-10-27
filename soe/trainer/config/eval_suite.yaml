@@ -69,4 +69,10 @@ problem_sets:
   - {name: level_b, level: B, path: datasets/soe/v1/rl/level_b.jsonl,
      sha256: a4833e89b697c3f3fd5073792a5a100be3c14bb5cbb7a1a4a6048c264e434fdc}
 
-hard_subset: null  # frozen in M0.6
+# Hard subset (decision 005, halt rule per 006): 250 Level A/B problems that Qwen3.5-4B-Base solved
+# at most 4/16 times with sampling seed 1. Every sample of these problems uses the hard tier (64).
+hard_subset:
+  name: hard_subset
+  path: datasets/soe/v1/eval/hard_subset.jsonl
+  sha256: bfb28bf49aa080d00da453b66f299fa419add2aebd5163b2f1afae25a8ca28dc
+  selection_report: docs/reports/m0_hard_subset_v1.json

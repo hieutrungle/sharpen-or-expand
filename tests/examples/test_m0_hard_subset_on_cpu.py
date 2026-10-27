@@ -126,11 +126,3 @@ def test_select_stage_halts_on_missing_boxed_answers(tmp_path: Path) -> None:
     assert m.run_select(config, tmp_path) == 1
     assert json.loads(config.report.read_text())["halted_format"] is True
     assert not (tmp_path / config.output).exists()
-
-
-def test_a_shard_is_claimed_once(tmp_path: Path) -> None:
-    m = script()
-    assert m.claim_shard(tmp_path, 3, "job 1") is True
-    assert m.claim_shard(tmp_path, 3, "job 2") is False
-    assert (tmp_path / "claims" / "shard-3" / "owner").read_text() == "job 1\n"
-    assert m.claim_shard(tmp_path, 4, "job 2") is True

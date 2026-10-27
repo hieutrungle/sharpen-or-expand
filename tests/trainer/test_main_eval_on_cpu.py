@@ -41,9 +41,9 @@ def tiny_suite(tmp_path: Path) -> tuple[Path, EvalSuite]:
     data["problem_sets"] = entries
     data["hard_subset"] = {
         "name": "hard",
-        "level": "A",
         "path": hard.name,
         "sha256": file_sha256(hard),
+        "selection_report": "unused",
     }
     suite_path = tmp_path / "suite.yaml"
     suite_path.write_text(yaml.safe_dump(data))

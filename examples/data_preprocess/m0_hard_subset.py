@@ -29,6 +29,7 @@ from soe.utils.dataset.problems import Level, Problem
 from soe.utils.dataset.records import SampleRecord, SamplingRunInfo
 from soe.utils.jsonl import read_jsonl, write_jsonl
 from soe.utils.run import gpu_names, library_versions
+from soe.utils.shards import claim_shard, mark_done, shard_path
 
 ASSETS = Path("scripts/stage_assets.yaml")
 # One generate() call (128 x 16 completions): large enough that the slow tail of the longest
@@ -105,26 +106,6 @@ def candidates(
     return sorted(problems, key=lambda p: p.problem_id), problem_set
 
 
-def shard_path(work: Path, shard: int, num_shards: int) -> Path:
-    return work / f"samples-{shard}-of-{num_shards}.jsonl"
-
-
-def claim_shard(work: Path, shard: int, owner: str) -> bool:
-    """Atomically claim a shard for this job; False if another job already holds it.
-
-    mkdir is atomic on the shared (Lustre) file system, so concurrent jobs on different GPUs never
-    sample the same shard. A job that dies leaves its claim: re-run that shard with --shard.
-    """
-    claim = work / "claims" / f"shard-{shard}"
-    claim.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        claim.mkdir()
-    except FileExistsError:
-        return False
-    (claim / "owner").write_text(owner + "\n")
-    return True
-
-
 def run_sample(config: HardSubsetConfig, shard: int | None, data_root: Path) -> None:
     """Sample one shard (--shard k, e.g. to finish an interrupted one) or, with shard None, claim
     and sample free shards until none are left. The model is loaded once per job."""
@@ -165,8 +146,7 @@ def run_sample(config: HardSubsetConfig, shard: int | None, data_root: Path) -> 
             continue
         sample_shard(config, sampler, sampling, suite, problems[k :: config.num_shards], work, k)
         write_jsonl(work / f"runinfo-{k}-of-{config.num_shards}.jsonl", [info], append=True)
-        (work / "claims" / f"shard-{k}" / "done").parent.mkdir(parents=True, exist_ok=True)
-        (work / "claims" / f"shard-{k}" / "done").touch()
+        mark_done(work, k)
     print("no shards left", flush=True)
 
 

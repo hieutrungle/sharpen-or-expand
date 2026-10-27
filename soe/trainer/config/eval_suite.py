@@ -81,11 +81,21 @@ class ScoringSpec(FrozenModel):
     transition_solved_threshold: float = Field(gt=0, le=1)  # solved at k when pass@k >= this
 
 
-class ProblemSet(FrozenModel):
+class ProblemFile(FrozenModel):
     name: str
-    level: Level
     path: str  # relative to the data root ($SOE_DATA)
     sha256: str = Field(min_length=64, max_length=64)
+
+
+class ProblemSet(ProblemFile):
+    level: Level
+
+
+class HardSubset(ProblemFile):
+    """Problems drawn from several sets and levels (decision 005); each keeps the level of the
+    problem set it belongs to, so the file itself has none."""
+
+    selection_report: str  # committed report: rule, counts, selected ids, this file's sha256
 
 
 class EvalSuite(FrozenModel):
@@ -97,7 +107,7 @@ class EvalSuite(FrozenModel):
     main: KSpec  # every problem set
     hard: KSpec  # the hard subset
     problem_sets: list[ProblemSet]
-    hard_subset: ProblemSet | None  # None until M0.6 freezes it
+    hard_subset: HardSubset | None
 
     @model_validator(mode="after")
     def _check(self) -> Self:
@@ -123,7 +133,10 @@ def load_suite(path: Path) -> EvalSuite:
 
 def hash_mismatches(suite: EvalSuite, data_root: Path) -> list[str]:
     """Names of problem sets whose file is missing or no longer matches its frozen hash."""
-    sets = [*suite.problem_sets, *([suite.hard_subset] if suite.hard_subset else [])]
+    sets: list[ProblemFile] = [
+        *suite.problem_sets,
+        *([suite.hard_subset] if suite.hard_subset else []),
+    ]
     bad = []
     for problem_set in sets:
         path = data_root / problem_set.path

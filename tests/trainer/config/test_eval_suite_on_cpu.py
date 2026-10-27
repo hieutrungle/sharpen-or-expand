@@ -38,6 +38,16 @@ def test_frozen_suite_hashes_match_the_committed_data_build_report() -> None:
     assert covered == built  # every built evaluation file is in the suite, and nothing else
 
 
+def test_hard_subset_hash_matches_the_committed_selection_report() -> None:
+    suite = load_suite(SUITE)
+    assert suite.hard_subset is not None
+    report = json.loads(Path(suite.hard_subset.selection_report).read_text())
+    assert suite.hard_subset.sha256 == report["output_sha256"]
+    assert suite.hard_subset.path.endswith(report["output"])
+    assert report["selected"] == len(report["selected_problem_ids"]) == 250
+    assert report["halted_format"] is False and report["sampling_seed"] != suite.sampling.seed
+
+
 def test_prompt_renders_problem_and_boxed_instruction() -> None:
     prompt = load_suite(SUITE).prompt.render("What is 1+1?")
     assert prompt.startswith("What is 1+1?\n\n")
@@ -80,6 +90,7 @@ def test_hash_check_detects_drift(tmp_path: Path) -> None:
     data["problem_sets"] = [
         {"name": "toy", "level": "A", "path": "toy.jsonl", "sha256": file_sha256(problems)}
     ]
+    data["hard_subset"] = None
     suite = EvalSuite.model_validate(data)
     assert hash_mismatches(suite, tmp_path) == []
     problems.write_text('{"q": 2}\n')
