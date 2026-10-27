@@ -43,7 +43,7 @@ CONTAINER_CMD="$(command -v apptainer || command -v singularity)" || {
 run_in_container() {
     "$CONTAINER_CMD" exec --nv \
         --bind "$SOE_DATA" --bind "$PWD" --pwd "$PWD" \
-        --env PYTHONPATH="$PWD" \
+        --env PYTHONPATH="$PWD" --env PYTHONUNBUFFERED=1 \
         "$SOE_SIF" "$@"
 }
 
