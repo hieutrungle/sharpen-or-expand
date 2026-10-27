@@ -36,7 +36,11 @@ each sampling job records the GPU it ran on.
 3. Submit from the repo root:
    - new run, chained up to 2 more times: `CHAIN_LEFT=2 sbatch slurm/train.sbatch examples/dapo_trainer/m3_screen_qwen35-4b.yaml 1`
    - resume: `RUN_DIR=runs/<run_id> sbatch slurm/train.sbatch examples/dapo_trainer/m3_screen_qwen35-4b.yaml`
-   - evaluate a checkpoint: `sbatch slurm/eval.sbatch soe/trainer/config/eval_suite.yaml <checkpoint> <out dir>`
+   - evaluate a checkpoint: start several workers, any sampling GPU type, e.g.
+     `SBATCH_GRES=gpu:a30:1 sbatch slurm/eval.sbatch soe/trainer/config/eval_suite.yaml <checkpoint> $SOE_DATA/eval/<name>`;
+     each claims shards until none are left (`--shard k` finishes an interrupted one). Then
+     `sbatch slurm/cpu.sbatch python -m soe.trainer.main_eval --suite ... --checkpoint ... --output ... --stage report`
+     writes `report.json` and `per_problem.jsonl`. Smoke test: add `--limit-per-set 5`.
 4. Poll with `squeue -u hieult` and `sacct -j <id> --format=JobID,State,Elapsed,ExitCode`; read
    `logs/slurm/<name>-<jobid>.out`.
 5. Bring results home with rsync from your own terminal, excluding checkpoints:

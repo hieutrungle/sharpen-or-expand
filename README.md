@@ -19,7 +19,7 @@ sit where verl's extension points are. Entries marked *(Mx)* arrive in that mile
 soe/
   trainer/                        entry points: python -m soe.trainer.main_*
     main_rl.py                    verl RL runs (GRPO, Dr.GRPO, DAPO, RS-GRPO)       stub until M1
-    main_eval.py                  Lane B evaluation of one checkpoint               stub until M0
+    main_eval.py                  evaluation of one checkpoint: sample (GPU) and report (CPU)
     main_sft.py  main_dpo.py      TRL SFT / DPO                                      (M2, M4)
     config/
       experiment.py               ExperimentConfig; validators enforce the standing rules
@@ -28,12 +28,13 @@ soe/
     rl/                           core_algos.py (RS-GRPO estimator), verl_overrides.py (M1)
   workers/
     reward_manager/math_reward.py the reward function verl calls (same verifier as eval)
-    rollout/                      vLLM sampler for evaluation                        (M0)
+    rollout/                      vllm_sampler.py (text-only, turn-end stop), chat.py
   utils/
     reward_score/math_verify.py   last \boxed{} extraction + math-verify equivalence
-    metric/                       pass_at_k.py (unbiased pass@k, maj@k), transitions.py
+    metric/                       pass_at_k.py (unbiased pass@k, maj@k), transitions.py, eval_tables.py
     dataset/                      problems.py (Problem, Level A/B/C), records.py (SampleRecord)
     run.py  run_card.py  jsonl.py run directories, run cards, JSONL I/O
+    shards.py                     shards that concurrent sampling jobs claim (mkdir)
   analysis/                       cross-run aggregation (seeds, equal-token comparisons)
   viz/                            one fig_<ID>.py per figure, rebuilt from runs/
 examples/                         experiment YAMLs grouped by algorithm; data_preprocess/ (M0)
