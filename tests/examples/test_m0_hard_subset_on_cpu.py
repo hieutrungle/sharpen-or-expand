@@ -34,7 +34,7 @@ def test_committed_config_holds_the_decision_005_values() -> None:
     rule = config.rule
     assert (rule.max_correct, rule.fallback_max_correct) == (4, 8)
     assert (rule.min_size, rule.target_size, rule.draw_seed) == (200, 250, 20261026)
-    assert config.min_boxed_rate_when_stopped == 0.8
+    assert config.min_boxed_rate_when_stopped == 0.8 and config.num_shards == 48
 
 
 def test_level_c_and_the_evaluation_seed_are_rejected() -> None:
@@ -80,7 +80,7 @@ def fake_data(  # type: ignore[no-untyped-def]
                     )
                 )
     work = tmp_path / config.work_dir
-    write_jsonl(m.shard_path(work, 0, 1), records)
+    write_jsonl(m.shard_path(work, 0, config.num_shards), records)  # one shard holds all
     info = SamplingRunInfo(
         checkpoint="base",
         revision=None,
@@ -96,7 +96,7 @@ def fake_data(  # type: ignore[no-untyped-def]
         gpus=["A40"],
         library_versions={},
     )
-    write_jsonl(work / "runinfo-0-of-1.jsonl", [info])
+    write_jsonl(work / f"runinfo-0-of-{config.num_shards}.jsonl", [info])
     rule = config.rule.model_copy(update={"min_size": 3, "target_size": 4})
     return config.model_copy(update={"rule": rule, "report": tmp_path / "report.json"})
 
@@ -126,3 +126,11 @@ def test_select_stage_halts_on_missing_boxed_answers(tmp_path: Path) -> None:
     assert m.run_select(config, tmp_path) == 1
     assert json.loads(config.report.read_text())["halted_format"] is True
     assert not (tmp_path / config.output).exists()
+
+
+def test_a_shard_is_claimed_once(tmp_path: Path) -> None:
+    m = script()
+    assert m.claim_shard(tmp_path, 3, "job 1") is True
+    assert m.claim_shard(tmp_path, 3, "job 2") is False
+    assert (tmp_path / "claims" / "shard-3" / "owner").read_text() == "job 1\n"
+    assert m.claim_shard(tmp_path, 4, "job 2") is True

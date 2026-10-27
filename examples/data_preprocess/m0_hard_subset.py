@@ -23,7 +23,7 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-from soe.trainer.config.eval_suite import EvalSuite, hash_mismatches, load_suite
+from soe.trainer.config.eval_suite import EvalSuite, SamplingSpec, hash_mismatches, load_suite
 from soe.utils.dataset.hard_subset import HardSubsetRule, select_hard_subset
 from soe.utils.dataset.problems import Level, Problem
 from soe.utils.dataset.records import SampleRecord, SamplingRunInfo
@@ -54,6 +54,7 @@ class HardSubsetConfig(BaseModel):
     selector: str
     candidate_sets: list[str]
     samples_per_problem: int = Field(ge=1)
+    num_shards: int = Field(ge=1)
     sampling_seed: int
     min_boxed_rate_when_stopped: float = Field(ge=0, le=1)
     rule: RuleSpec
@@ -108,7 +109,25 @@ def shard_path(work: Path, shard: int, num_shards: int) -> Path:
     return work / f"samples-{shard}-of-{num_shards}.jsonl"
 
 
-def run_sample(config: HardSubsetConfig, shard: int, num_shards: int, data_root: Path) -> None:
+def claim_shard(work: Path, shard: int, owner: str) -> bool:
+    """Atomically claim a shard for this job; False if another job already holds it.
+
+    mkdir is atomic on the shared (Lustre) file system, so concurrent jobs on different GPUs never
+    sample the same shard. A job that dies leaves its claim: re-run that shard with --shard.
+    """
+    claim = work / "claims" / f"shard-{shard}"
+    claim.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        claim.mkdir()
+    except FileExistsError:
+        return False
+    (claim / "owner").write_text(owner + "\n")
+    return True
+
+
+def run_sample(config: HardSubsetConfig, shard: int | None, data_root: Path) -> None:
+    """Sample one shard (--shard k, e.g. to finish an interrupted one) or, with shard None, claim
+    and sample free shards until none are left. The model is loaded once per job."""
     from soe.workers.rollout.vllm_sampler import VllmSampler  # GPU stack, image only
 
     suite = load_suite(config.suite)
@@ -117,15 +136,7 @@ def run_sample(config: HardSubsetConfig, shard: int, num_shards: int, data_root:
     if bad:
         raise SystemExit(f"refusing to sample: problem sets changed or missing: {bad}")
     work = data_root / config.work_dir
-    out = shard_path(work, shard, num_shards)
-    mine = candidates(config, suite, data_root)[0][shard::num_shards]
-    done = Counter(r.problem_id for r in read_jsonl(out, SampleRecord)) if out.exists() else {}
-    partial = [pid for pid, n in done.items() if n != config.samples_per_problem]
-    if partial:
-        raise SystemExit(f"{out} has incomplete problems {partial[:5]}; inspect before resuming")
-    todo = [p for p in mine if p.problem_id not in done]
-    print(f"shard {shard}/{num_shards}: {len(mine)} problems, {len(todo)} to sample", flush=True)
-
+    problems = candidates(config, suite, data_root)[0]
     revision = pinned_revision(config.selector)
     sampling = suite.sampling.model_copy(update={"seed": config.sampling_seed})
     sampler = VllmSampler(config.selector, revision=revision, max_tokens=sampling.max_tokens)
@@ -146,9 +157,35 @@ def run_sample(config: HardSubsetConfig, shard: int, num_shards: int, data_root:
         gpus=gpu_names(),
         library_versions=library_versions(),
     )
-    write_jsonl(work / f"runinfo-{shard}-of-{num_shards}.jsonl", [info], append=True)
-    print("rendered prompt:", repr(sampler.render(todo[0].question if todo else "", suite.prompt)))
+    print("rendered prompt:", repr(sampler.render("<Q>", suite.prompt)), flush=True)
+    owner = f"job {info.slurm_job_id} on {info.hostname} {info.gpus}"
+    # Claim lazily, one shard at a time, so faster GPUs take more shards.
+    for k in [shard] if shard is not None else range(config.num_shards):
+        if shard is None and not claim_shard(work, k, owner):
+            continue
+        sample_shard(config, sampler, sampling, suite, problems[k :: config.num_shards], work, k)
+        write_jsonl(work / f"runinfo-{k}-of-{config.num_shards}.jsonl", [info], append=True)
+        (work / "claims" / f"shard-{k}" / "done").parent.mkdir(parents=True, exist_ok=True)
+        (work / "claims" / f"shard-{k}" / "done").touch()
+    print("no shards left", flush=True)
 
+
+def sample_shard(
+    config: HardSubsetConfig,
+    sampler: Any,
+    sampling: SamplingSpec,
+    suite: EvalSuite,
+    mine: list[Problem],
+    work: Path,
+    shard: int,
+) -> None:
+    out = shard_path(work, shard, config.num_shards)
+    done = Counter(r.problem_id for r in read_jsonl(out, SampleRecord)) if out.exists() else {}
+    partial = [pid for pid, n in done.items() if n != config.samples_per_problem]
+    if partial:
+        raise SystemExit(f"{out} has incomplete problems {partial[:5]}; inspect before resuming")
+    todo = [p for p in mine if p.problem_id not in done]
+    print(f"shard {shard}/{config.num_shards}: {len(mine)} problems, {len(todo)} to sample")
     for start in range(0, len(todo), CHUNK_PROBLEMS):
         chunk = todo[start : start + CHUNK_PROBLEMS]
         began = time.monotonic()
@@ -162,8 +199,9 @@ def run_sample(config: HardSubsetConfig, shard: int, num_shards: int, data_root:
         write_jsonl(out, records, append=True)
         tokens = sum(r.completion_tokens for r in records)
         print(
-            f"{start + len(chunk)}/{len(todo)} problems; {tokens / (time.monotonic() - began):.0f}"
-            f" tok/s; truncated {sum(r.finish_reason == 'length' for r in records)}/{len(records)}",
+            f"shard {shard}: {start + len(chunk)}/{len(todo)} problems; "
+            f"{tokens / (time.monotonic() - began):.0f} tok/s; "
+            f"truncated {sum(r.finish_reason == 'length' for r in records)}/{len(records)}",
             flush=True,
         )
 
@@ -200,7 +238,7 @@ def run_select(config: HardSubsetConfig, data_root: Path) -> int:
     suite = load_suite(config.suite)
     check_against_suite(config, suite)
     work = data_root / config.work_dir
-    shards = sorted(work.glob("samples-*-of-*.jsonl"))
+    shards = sorted(work.glob(f"samples-*-of-{config.num_shards}.jsonl"))
     infos = [
         i for p in sorted(work.glob("runinfo-*.jsonl")) for i in read_jsonl(p, SamplingRunInfo)
     ]
@@ -291,14 +329,15 @@ def main() -> int:
     parser.add_argument("--config", type=Path, required=True)
     stages = parser.add_subparsers(dest="stage", required=True)
     sample = stages.add_parser("sample")
-    sample.add_argument("--shard", type=int, required=True)
-    sample.add_argument("--num-shards", type=int, required=True)
+    sample.add_argument(
+        "--shard", type=int, help="sample this shard only (default: claim free ones)"
+    )
     stages.add_parser("select")
     args = parser.parse_args()
     config = load_config(args.config)
     data_root = Path(os.environ["SOE_DATA"])
     if args.stage == "sample":
-        run_sample(config, args.shard, args.num_shards, data_root)
+        run_sample(config, args.shard, data_root)
         return 0
     return run_select(config, data_root)
 
