@@ -56,7 +56,7 @@ def test_v1_suite_is_kept_byte_for_byte_for_the_runs_that_used_it() -> None:
     v1 = Path("soe/trainer/config/eval_suite_v1.yaml")
     base_eval = json.loads(Path("docs/reports/qwen35-4b-base_soe-eval-v1_report.json").read_text())
     assert file_sha256(v1) == base_eval["plan"]["suite_file_sha256"]
-    old, new = load_suite(v1), load_suite(SUITE)
+    old, new = load_suite(v1), load_suite(Path("soe/trainer/config/eval_suite_v2.yaml"))
     assert (old.name, new.name) == ("soe-eval-v1", "soe-eval-v2")
     changed = {
         p.name
@@ -65,6 +65,14 @@ def test_v1_suite_is_kept_byte_for_byte_for_the_runs_that_used_it() -> None:
     }
     assert changed == {"level_b"}  # decision 007: only the repaired Level B text changed
     assert old.sampling == new.sampling and old.prompt == new.prompt and old.scoring == new.scoring
+
+
+def test_v3_differs_from_v2_only_in_the_kv_cache_dtype() -> None:
+    v2, v3 = load_suite(Path("soe/trainer/config/eval_suite_v2.yaml")), load_suite(SUITE)
+    assert (v2.name, v3.name) == ("soe-eval-v2", "soe-eval-v3")
+    assert (v2.sampling.kv_cache_dtype, v3.sampling.kv_cache_dtype) == ("auto", "fp8")
+    same = v3.model_copy(update={"name": v2.name, "sampling": v2.sampling})
+    assert same == v2  # problems, exclusions, prompt, scoring and tiers unchanged
 
 
 def test_excluded_problems_have_reasons_and_belong_to_the_suite() -> None:

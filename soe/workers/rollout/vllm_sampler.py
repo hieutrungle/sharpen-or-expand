@@ -45,7 +45,6 @@ class VllmSampler:
         max_tokens: int,
         engine: "EngineSettings | None" = None,
         kv_cache_dtype: str = "auto",
-        calculate_kv_scales: bool = False,
     ) -> None:
         from vllm import LLM
 
@@ -60,7 +59,6 @@ class VllmSampler:
             language_model_only=True,
             # Not an engine knob: a quantized KV cache changes which tokens are sampled.
             kv_cache_dtype=kv_cache_dtype,
-            calculate_kv_scales=calculate_kv_scales,
             **self.engine.llm_kwargs(),
         )
         self._tokenizer: Any = self._llm.get_tokenizer()

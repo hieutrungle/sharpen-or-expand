@@ -193,7 +193,11 @@ def run_sample(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan
         gpu_memory_utilization=cli.gpu_memory_utilization, max_num_seqs=cli.max_num_seqs
     )
     sampler = VllmSampler(
-        cli.checkpoint, revision=plan.revision, max_tokens=suite.sampling.max_tokens, engine=engine
+        cli.checkpoint,
+        revision=plan.revision,
+        max_tokens=suite.sampling.max_tokens,
+        engine=engine,
+        kv_cache_dtype=suite.sampling.kv_cache_dtype,
     )
     info = SamplingRunInfo(
         checkpoint=cli.checkpoint,

@@ -1,9 +1,11 @@
 # The frozen evaluation suite (decision 004). v2 (decision 007): Level B text repaired (42 problems,
-# same ids); every other file is byte-identical to v1. v1 stays in eval_suite_v1.yaml.
+# same ids); every other file is byte-identical to v1. v3 (decision 009): FP8 KV cache; problems,
+# exclusions and scoring identical to v2. Earlier versions stay in eval_suite_v1.yaml and
+# eval_suite_v2.yaml for the runs that used them.
 # Every checkpoint -- base, SFT, DPO, every RL run --
 # is evaluated with exactly these settings. Never edit after the M0 freeze: a change needs a new
 # decision note and a new suite name. Problem-set hashes come from the data build report below.
-name: soe-eval-v2
+name: soe-eval-v3
 data_build_report: docs/reports/m0_datasets_v2.json
 
 # As in Yue et al. (2025), "Does Reinforcement Learning Really Incentivize Reasoning Capacity in
@@ -14,6 +16,7 @@ sampling:
   top_k: -1  # disabled
   max_tokens: 16384  # also the cap on RL rollout length (enforced from M1)
   seed: 0  # every request; the same random numbers for every checkpoint
+  kv_cache_dtype: fp8  # decision 009 (user): e4m3, scale 1.0; also for every RL rollout
 
 # Zero-shot, the same prompt for every model stage, wrapped in the model's chat template.
 # SFT data (M2) must use this format. Gemma 4 E4B base ships no chat template; M8 uses the one

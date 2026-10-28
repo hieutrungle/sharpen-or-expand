@@ -29,6 +29,9 @@ class SamplingSpec(FrozenModel):
     top_k: int = Field(ge=-1)  # -1 disables top-k
     max_tokens: int = Field(gt=0)
     seed: int
+    # vLLM KV-cache storage (decision 009). It changes which tokens are sampled, so it is part of
+    # the protocol; "auto" (the model's BF16) is what v1 and v2 were sampled with.
+    kv_cache_dtype: Literal["auto", "fp8"] = "auto"
 
 
 class KSpec(FrozenModel):
