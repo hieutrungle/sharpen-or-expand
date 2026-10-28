@@ -206,6 +206,7 @@ These hold for every run from M2 onward; breaking one makes the algorithm compar
 - RL jobs write a checkpoint every N steps (2–4 hours) and record the cumulative rollout tokens of each, instead of saving at fixed rollout-token intervals (decision 013). Runs are compared at the checkpoint nearest each token mark.
 - The in-loop validation set is 256 problems carved from RL train v3, so the "One yardstick" rule now names RL train v3.1 (11,868 problems; decision 012). Level B stays a held-out measurement and is never used for stopping.
 - No RL algorithm uses a KL term or a reference model (decision 013).
+- While no Lane A run is in flight, Lane B jobs may use any free GPU of their type, fc098 included, so they do not wait. A run still never changes hardware mid-run, and runs compared with each other keep one GPU type.
 - RL rollouts sample with the evaluation settings (temperature 0.6, top-p 0.95), and a rollout cut off at the 16,384-token cap gets reward 0, as evaluation scores it incorrect (decision 014).
 
 Details: `docs/roadmap/M1.md`.

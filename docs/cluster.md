@@ -11,6 +11,10 @@ scratch in `$SOE_DATA=/scratch/user/hieult/research/soe-data`, and code moves on
 | B, development | A40 pairs on fc096 and fc097 | 2B training (2-GPU jobs) | `SBATCH_GRES=gpu:a40:2 sbatch --nodelist=fc096 slurm/train.sbatch …` |
 | B, sampling | A30s (fc123, fc124) first, A10s for overflow, spare A40s | evaluation, preference sampling (1-GPU workers) | `SBATCH_GRES=gpu:a30:1 sbatch slurm/eval.sbatch …` |
 
+While no Lane A run is in flight, Lane B jobs use whatever GPUs of their type are free, fc098 included
+(user, 2026-10-28), e.g. `SBATCH_GRES=gpu:a40:2 sbatch --nodelist=fc098 slurm/train.sbatch …`. A run stays
+on the node it started on (chained jobs are pinned), and runs compared with each other keep one GPU type.
+
 ### Training job sizing (`slurm/train.sbatch`)
 - FASTER compute nodes are identical: 64 cores, 256 GB RAM and 3.84 TB local NVMe (`/tmp`). GPUs are
   composed onto nodes through the Liqid fabric, up to 10 per node (HPRC hardware page). Checked
