@@ -111,6 +111,19 @@ def context(text: str) -> str:
     return text[max(0, end - 900) : end]
 
 
+def draw_problems(
+    rng: random.Random, pool_items: list[Candidate], used: set[str], k: int
+) -> list[Candidate]:
+    """Up to k candidates from k different problems not used yet: problems are drawn first, then
+    one of each problem's answers, so a problem with many distinct answers is not drawn twice."""
+    by_problem: dict[str, list[Candidate]] = defaultdict(list)
+    for cand in pool_items:
+        if cand["problem_id"] not in used:
+            by_problem[cand["problem_id"]].append(cand)
+    problems = rng.sample(sorted(by_problem), min(k, len(by_problem)))
+    return [rng.choice(by_problem[pid]) for pid in problems]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", type=Path, default=Path("soe/trainer/config/eval_suite.yaml"))
@@ -170,8 +183,7 @@ def main() -> None:
     items: list[Candidate] = []
 
     def draw(pool_items: list[Candidate], k: int, category: str) -> None:
-        fresh = [c for c in pool_items if c["problem_id"] not in used]
-        for cand in rng.sample(fresh, min(k, len(fresh))):
+        for cand in draw_problems(rng, pool_items, used, k):
             used.add(cand["problem_id"])
             items.append(cand | {"category": category})
 

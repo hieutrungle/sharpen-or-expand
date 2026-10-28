@@ -15,6 +15,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+from typing import Any
 
 from soe.trainer.config.eval_suite import EvalSuite, load_suite
 from soe.trainer.main_eval import EvalPlan, eval_units, print_main_table, report_tables
@@ -29,6 +30,17 @@ def problems_by_id(suite: EvalSuite, data_root: Path) -> dict[str, Problem]:
         for problem_set in suite.problem_sets
         for p in read_jsonl(data_root / problem_set.path, Problem)
     }
+
+
+def common_scoring(old: dict[str, Any] | None, patch: dict[str, Any] | None) -> dict[str, Any]:
+    """Both runs' verdicts must come from one verifier (decision 008: the report re-scores)."""
+    if old is None or patch is None:
+        raise SystemExit("re-run --stage report on both evaluations first (no scoring record)")
+    if old["git_commit"] != patch["git_commit"]:
+        raise SystemExit(
+            f"scored at different commits: {old['git_commit']} vs {patch['git_commit']}"
+        )
+    return {"git_commit": old["git_commit"]}
 
 
 def leave_hard_tier(result: ProblemResult, main_ks: list[int]) -> ProblemResult:
@@ -106,6 +118,11 @@ def main() -> None:
     def results(path: Path) -> dict[str, ProblemResult]:
         return {r.problem_id: r for r in read_jsonl(path / "per_problem.jsonl", ProblemResult)}
 
+    reports = {
+        name: json.loads((path / "report.json").read_text())
+        for name, path in (("old", args.old_eval), ("patch", args.patch_eval))
+    }
+    scoring = common_scoring(reports["old"].get("scoring"), reports["patch"].get("scoring"))
     merged, counts = merge(old, new, results(args.old_eval), results(args.patch_eval), data_root)
     args.output.mkdir(parents=True, exist_ok=True)
     write_jsonl(args.output / "per_problem.jsonl", merged)
@@ -114,7 +131,7 @@ def main() -> None:
         "merged_from": {name: plan.model_dump() for name, plan in plans.items()},
         **counts,
     }
-    report = {"plan": provenance, **report_tables(merged, new)}
+    report = {"plan": provenance, "scoring": scoring, **report_tables(merged, new)}
     (args.output / "report.json").write_text(json.dumps(report, indent=1) + "\n")
     print(json.dumps(counts))
     print_main_table(report["main"], new.main.ks)

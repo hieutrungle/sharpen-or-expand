@@ -1,6 +1,7 @@
 """The audit's risk tags: they decide which verifier decisions a human looks at."""
 
 import importlib.util
+import random
 from pathlib import Path
 from types import ModuleType
 
@@ -33,3 +34,12 @@ def test_tags() -> None:
     assert "units_text" in tags(r"5\text{ cm}", "5", True, [])
     assert "extraction" in tags("3", "3", True, ["2", "3"])
     assert tags("7", "12", False, [])[-1] == "control_incorrect"
+
+
+def test_a_problem_is_drawn_once_even_with_many_answers() -> None:
+    m = script()
+    pool = [{"problem_id": "a", "extracted": str(i)} for i in range(5)]
+    pool += [{"problem_id": "b", "extracted": "0"}, {"problem_id": "c", "extracted": "0"}]
+    for seed in range(20):
+        drawn = m.draw_problems(random.Random(seed), pool, {"c"}, 3)
+        assert sorted(d["problem_id"] for d in drawn) == ["a", "b"]  # c used; a only once

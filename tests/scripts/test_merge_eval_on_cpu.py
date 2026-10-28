@@ -97,3 +97,12 @@ def test_leaving_the_hard_tier_keeps_main_counts_and_main_ks() -> None:
     left = m.leave_hard_tier(hard, [1, 4, 8, 16])
     assert (left.hard, left.all, left.main) == (False, main, main)
     assert left.maj == {1: False, 4: False, 8: False, 16: False}
+
+
+def test_both_runs_must_be_scored_by_one_verifier() -> None:
+    m = script()
+    assert m.common_scoring({"git_commit": "abc"}, {"git_commit": "abc"}) == {"git_commit": "abc"}
+    with pytest.raises(SystemExit, match="different commits"):
+        m.common_scoring({"git_commit": "abc"}, {"git_commit": "def"})
+    with pytest.raises(SystemExit, match="no scoring record"):
+        m.common_scoring(None, {"git_commit": "abc"})
