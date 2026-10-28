@@ -1,7 +1,7 @@
 # 015 — Backport vLLM's FP8 wake-up fix for hybrid models into the pinned vLLM 0.24.0
 
 - Date: 2026-10-28
-- Status: proposed
+- Status: accepted (user, 2026-10-28; smoke attempts 2–4 ran on it)
 - Milestone: M1 (task M1.3; amends decision 001's "pinned versions only" with one backported fix)
 - Code: `soe/workers/rollout/vllm_patches.py`, selected by the verl override
   `+actor_rollout_ref.rollout.engine_kwargs.vllm.worker_extension_cls`

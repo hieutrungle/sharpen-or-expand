@@ -19,7 +19,7 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [011](011-rl-train-v3.md) | RL train v3: hand-reviewed copies of evaluation problems removed (12,124) | accepted; 256 problems moved to validation by 012 |
 | [012](012-rl-validation-split.md) | In-loop validation split (256) carved from RL train v3; RL data v3.1 (11,868 train) | accepted |
 | [013](013-rl-no-kl-step-checkpoints.md) | RL runs: no KL term; a checkpoint every N steps with its rollout-token count | accepted |
-| [014](014-rl-rollout-sampling-and-truncation.md) | RL rollouts sample like evaluation (0.6 / 0.95, no fixed seed); truncated rollout reward 0 | accepted; sampling superseded by 017 |
-| [015](015-vllm-fp8-wakeup-backport.md) | Backport vLLM PR #41602 (FP8 KV wake-up on hybrid models) to the pinned vLLM 0.24.0 | proposed |
+| [014](014-rl-rollout-sampling-and-truncation.md) | RL rollouts (and DPO preference data) at 1.0 / 1.0, validation at evaluation sampling, no fixed seed (via 017); truncated rollout reward 0 | accepted |
+| [015](015-vllm-fp8-wakeup-backport.md) | Backport vLLM PR #41602 (FP8 KV wake-up on hybrid models) to the pinned vLLM 0.24.0 | accepted |
 | [016](016-rl-rollout-failures-stop-the-run.md) | A rollout failure stops the RL run; RL rewards scored in a process pool (math-verify time limits) | accepted |
 | [017](017-rl-rollout-sampling-1.0.md) | RL rollouts and DPO preference data sample at 1.0 / 1.0 for every algorithm; in-loop validation stays at evaluation sampling | accepted |
