@@ -92,7 +92,7 @@ def test_report_stage_builds_tables_from_shards(tmp_path: Path) -> None:
                 problem_id=u.problem.problem_id,
                 sample_index=i,
                 checkpoint=CHECKPOINT,
-                completion="",
+                completion="\\boxed{1}" if i % 2 == 0 else "\\boxed{2}",
                 extracted_answer="1" if i % 2 == 0 else "2",
                 correct=i % 2 == 0,
                 completion_tokens=5,
@@ -170,7 +170,7 @@ def test_report_rescores_stored_verdicts_with_the_current_verifier() -> None:
         problem_id="a/0",
         sample_index=0,
         checkpoint=CHECKPOINT,
-        completion="",
+        completion="so \\boxed{10\\%}",
         extracted_answer="10\\%",
         correct=False,  # as an older verifier judged it
         completion_tokens=5,
@@ -179,5 +179,5 @@ def test_report_rescores_stored_verdicts_with_the_current_verifier() -> None:
     assert main_eval.rescored(record, "10").correct
     truncated = record.model_copy(update={"finish_reason": "length"})
     assert not main_eval.rescored(truncated, "10").correct  # truncated stays incorrect
-    unboxed = record.model_copy(update={"extracted_answer": None, "correct": True})
+    unboxed = record.model_copy(update={"completion": "10", "correct": True})
     assert not main_eval.rescored(unboxed, "10").correct

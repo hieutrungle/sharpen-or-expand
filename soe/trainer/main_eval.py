@@ -32,7 +32,11 @@ from soe.utils.dataset.problems import Level, Problem
 from soe.utils.dataset.records import SampleRecord, SamplingRunInfo
 from soe.utils.jsonl import read_jsonl, write_jsonl
 from soe.utils.metric.eval_tables import ProblemResult, problem_result, tier_table
-from soe.utils.reward_score.math_verify import answers_equivalent, timed_out_comparisons
+from soe.utils.reward_score.math_verify import (
+    answers_equivalent,
+    score_response,
+    timed_out_comparisons,
+)
 from soe.utils.run import gpu_names, library_versions
 from soe.utils.shards import claim_shard, mark_done, shard_path, unfinished_shards
 
@@ -272,13 +276,13 @@ def same_answer(a: str, b: str) -> bool:
 
 def rescored(record: SampleRecord, gold: str) -> SampleRecord:
     """The record as the current verifier judges it. Sampling stores a verdict, but the report
-    scores every answer again, so a verifier fix reaches old samples without re-sampling."""
-    correct = (
-        record.finish_reason == "stop"
-        and record.extracted_answer is not None
-        and same_answer(record.extracted_answer, gold)
-    )
-    return record if correct == record.correct else record.model_copy(update={"correct": correct})
+    scores every completion again, so a verifier or extraction fix reaches old samples without
+    re-sampling."""
+    verdict = score_response(record.completion, gold)
+    correct = record.finish_reason == "stop" and verdict.correct
+    if (correct, verdict.extracted) == (record.correct, record.extracted_answer):
+        return record
+    return record.model_copy(update={"correct": correct, "extracted_answer": verdict.extracted})
 
 
 def git_commit() -> str:

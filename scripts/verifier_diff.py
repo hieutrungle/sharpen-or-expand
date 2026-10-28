@@ -20,13 +20,43 @@ from pathlib import Path
 from soe.trainer.config.eval_suite import load_suite
 from soe.utils.dataset.problems import Problem
 from soe.utils.jsonl import read_jsonl
-from soe.utils.reward_score.math_verify import answers_equivalent
+from soe.utils.reward_score.math_verify import score_response
 
-Pair = tuple[str, str]  # (extracted answer, gold)
+_gold: dict[str, str] = {}
 
 
-def judge(pair: Pair) -> bool:
-    return answers_equivalent(*pair)
+def _init(gold: dict[str, str]) -> None:
+    _gold.update(gold)
+
+
+def judge_shard(shard: Path) -> tuple[list[dict[str, object]], dict[str, tuple[int, int]]]:
+    """Flipped records and per-problem (old, new) correct counts of one sample file, judged from
+    the whole completion as the report stage does."""
+    flips: list[dict[str, object]] = []
+    counts: dict[str, tuple[int, int]] = {}
+    with shard.open() as f:
+        for line in f:
+            r = json.loads(line)
+            gold = _gold.get(r["problem_id"])
+            if gold is None:
+                continue
+            verdict = score_response(r["completion"], gold)
+            new = r["finish_reason"] == "stop" and verdict.correct
+            old_n, new_n = counts.get(r["problem_id"], (0, 0))
+            counts[r["problem_id"]] = (old_n + r["correct"], new_n + new)
+            if new != r["correct"]:
+                flips.append(
+                    {
+                        "samples": shard.parent.name,
+                        "problem_id": r["problem_id"],
+                        "sample_index": r["sample_index"],
+                        "answer": verdict.extracted,
+                        "gold": gold,
+                        "old": r["correct"],
+                        "new": new,
+                    }
+                )
+    return flips, counts
 
 
 def main() -> None:
@@ -43,45 +73,29 @@ def main() -> None:
         for s in suite.problem_sets
         for p in read_jsonl(data_root / s.path, Problem)
     }
-    records = []  # (directory, problem_id, sample_index, answer or None if never correct, old)
-    for directory in args.samples:
-        for shard in sorted(directory.glob("samples-*-of-*.jsonl")):
-            with shard.open() as f:
-                for line in f:
-                    r = json.loads(line)
-                    if r["problem_id"] not in gold:
-                        continue
-                    judged = r["finish_reason"] == "stop" and r["extracted_answer"] is not None
-                    answer = r["extracted_answer"] if judged else None
-                    records.append(
-                        (directory.name, r["problem_id"], r["sample_index"], answer, r["correct"])
-                    )
-    pairs = sorted({(a, gold[pid]) for _, pid, _, a, _ in records if a is not None})
-    with Pool(args.workers) as pool:
-        verdict = dict(zip(pairs, pool.map(judge, pairs, chunksize=64), strict=True))
+    shards = [s for d in args.samples for s in sorted(d.glob("samples-*-of-*.jsonl"))]
+    with Pool(args.workers, initializer=_init, initargs=(gold,)) as pool:
+        results = pool.map(judge_shard, shards)
     args.out.mkdir(parents=True, exist_ok=True)
-    flips: Counter[str] = Counter()
-    before: Counter[tuple[str, str]] = Counter()
-    after: Counter[tuple[str, str]] = Counter()
+    summary: Counter[str] = Counter()
+    per_problem: Counter[tuple[str, str, str]] = Counter()
     with (args.out / "flips.jsonl").open("w") as f:
-        for directory, pid, index, answer, old in records:
-            new = answer is not None and verdict[(answer, gold[pid])]
-            before[(directory, pid)] += old
-            after[(directory, pid)] += new
-            if new != old:
-                flips[f"{old}->{new}"] += 1
-                row = {"samples": directory, "problem_id": pid, "sample_index": index}
-                row |= {"answer": answer, "gold": gold[pid], "old": old, "new": new}
+        for shard, (flips, counts) in zip(shards, results, strict=True):
+            for row in flips:
+                summary[f"{row['old']}->{row['new']}"] += 1
                 f.write(json.dumps(row) + "\n")
+            for pid, (old, new) in counts.items():
+                per_problem[(shard.parent.name, pid, "old")] += old
+                per_problem[(shard.parent.name, pid, "new")] += new
     with (args.out / "counts.jsonl").open("w") as f:
-        for directory, pid in sorted(before.keys() | after.keys()):
+        for directory, pid in sorted({(d, p) for d, p, _ in per_problem}):
             row = {"samples": directory, "problem_id": pid}
-            f.write(
-                json.dumps(row | {"old": before[(directory, pid)], "new": after[(directory, pid)]})
-                + "\n"
-            )
-    print(f"{len(records)} records, {len(pairs)} distinct (answer, gold) pairs")
-    print("flips:", dict(flips))
+            row |= {
+                "old": per_problem[(directory, pid, "old")],
+                "new": per_problem[(directory, pid, "new")],
+            }
+            f.write(json.dumps(row) + "\n")
+    print(f"{len(shards)} sample files; flips:", dict(summary))
 
 
 if __name__ == "__main__":

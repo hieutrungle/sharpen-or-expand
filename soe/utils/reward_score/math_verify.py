@@ -1,11 +1,13 @@
 """Final-answer verification for math problems.
 
-A response is correct only if its last \\boxed{...} is equivalent to the gold answer. Equivalence
-is delegated to math-verify (symbolic comparison via sympy). Where the M0.8 audit and gold screen
-found it rejecting a correct answer written in another notation, both answers are rewritten to
-one notation and compared again (`normalize`); a pair is accepted if either comparison accepts
-it, so the rewrites can only add acceptances. The accept/reject behaviour on edge cases is
-pinned in tests/utils/reward_score/test_math_verify_on_cpu.py.
+A response is correct if its last \\boxed{...} is equivalent to the gold answer, or, for an answer
+whose parts are boxed separately ("\\boxed{64} and \\boxed{1/4}", decision 010), if the last two or
+three boxes of the final answer (after the closing </think>) joined with commas are. Equivalence is
+delegated to math-verify (symbolic comparison via sympy). Where the M0.8 audit and gold screen
+found it rejecting a correct answer written in another notation, both answers are rewritten to one
+notation and compared again (`normalize`); a pair is accepted if either comparison accepts it, so
+the rewrites can only add acceptances. The accept/reject behaviour on edge cases is pinned in
+tests/utils/reward_score/test_math_verify_on_cpu.py.
 
 Known limit kept on purpose: math-verify compares a bare comma list as a set, so order and
 repeats are ignored ("1,5" equals "5,1", "2" equals "2,2").
@@ -14,6 +16,7 @@ repeats are ignored ("1,5" equals "5,1", "2" equals "2,2").
 import logging
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Literal
 
 from math_verify import parse, verify
@@ -182,6 +185,7 @@ def normalize(answer: str, *, percent: Literal["strip", "fraction"]) -> str:
     return ",".join(_as_interval(e) for e in elements if e)
 
 
+@lru_cache(maxsize=1 << 20)  # pure in its arguments; answers repeat a lot across samples
 def answers_equivalent(predicted: str, gold: str) -> bool:
     if _verify(predicted, gold):
         return True
@@ -194,8 +198,23 @@ def answers_equivalent(predicted: str, gold: str) -> bool:
     return False
 
 
+SPLIT_JOINS = (2, 3)  # decision 010: measured on 50,416 base-model samples, 4 never helped
+THINK_END = "</think>"
+
+
 def score_response(response: str, gold: str) -> Verdict:
     extracted = extract_boxed(response)
     if not extracted:
         return Verdict(extracted=None, correct=False)
-    return Verdict(extracted=extracted, correct=answers_equivalent(extracted, gold))
+    if answers_equivalent(extracted, gold):
+        return Verdict(extracted=extracted, correct=True)
+    # Only boxes of the final answer: a box left in the reasoning must not complete it.
+    final = response.rsplit(THINK_END, 1)[-1]
+    boxes = all_boxed(final)
+    for j in SPLIT_JOINS:
+        parts = boxes[-j:]
+        if len(boxes) >= j and all(parts) and len(set(parts)) == j:
+            joined = ", ".join(parts)
+            if answers_equivalent(joined, gold):
+                return Verdict(extracted=joined, correct=True)
+    return Verdict(extracted=extracted, correct=False)

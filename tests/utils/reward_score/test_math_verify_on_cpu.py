@@ -170,3 +170,39 @@ def test_timed_out_comparisons_are_recorded_with_their_pair() -> None:
     mv._timeouts.pair = None
     logging.getLogger("math_verify.grader").warning("Timeout during comparison")  # no pair: ignored
     assert mv.timed_out_comparisons()[before:] == [("x", "y")]
+
+
+@pytest.mark.parametrize(
+    ("response", "gold", "joined"),
+    [  # decision 010: multi-part answers boxed separately (olympiadbench_en 2539, 2570, 2235)
+        (
+            r"Both are valid. \[ \boxed{64} \quad \text{and} \quad \boxed{\frac{1}{4}} \]",
+            "64, \\frac{1}{4}",
+            True,
+        ),
+        (r"\boxed{(27,20,13)} \quad \boxed{(18,20,22)}", "(18,20,22),(27,20,13)", True),
+        (
+            r"</think> are: \[ \boxed{-2,-1,0,1,2} \quad \text{and} \quad "
+            r"\boxed{10,11,12,13,14}. \]",
+            "10,11,12,13,14,-2,-1,0,1,2",
+            True,
+        ),
+        # a box in the reasoning must not complete an incomplete final answer
+        (
+            r"try \boxed{64} ... </think> The answer is \boxed{\frac{1}{4}}",
+            "64, \\frac{1}{4}",
+            False,
+        ),
+        # boxing an extra candidate is not rewarded: the joined answer must match as a whole
+        (r"\boxed{64}, \boxed{\frac{1}{4}}, \boxed{3}", "64, \\frac{1}{4}", False),
+        # a repeated box is not a second part
+        (r"\boxed{64} so \boxed{64}", "64, \\frac{1}{4}", False),
+    ],
+)
+def test_split_answers_are_joined(response: str, gold: str, joined: bool) -> None:
+    assert score_response(response, gold).correct is joined
+
+
+def test_last_box_still_wins_when_correct() -> None:
+    verdict = score_response(r"\boxed{3} then \boxed{5}", "5")
+    assert verdict.correct and verdict.extracted == "5"
