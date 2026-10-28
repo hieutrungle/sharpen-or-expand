@@ -112,7 +112,7 @@ class EvalSuite(FrozenModel):
     # scored: gold that is wrong for the stated question, or an answer that is not unique.
     excluded_problems: dict[str, str] = {}
     # problem_id -> reason. Stay in their problem set but leave the hard tier: they met the
-    # selection rule only because the verifier rejected correct answers (decision 005, addendum).
+    # selection rule only because the verifier rejected correct answers (decision 008).
     removed_from_hard_subset: dict[str, str] = {}
 
     @model_validator(mode="after")

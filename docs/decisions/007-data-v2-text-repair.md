@@ -43,8 +43,9 @@ hard subset.
    which is not refilled: 248 of 250 remain. The suite is 2,467 problems, 51,376 samples.
    The gold screen then added 13 more (10 with a wrong gold, verified by enumeration or direct
    calculation; 3 ambiguous questions), all with reasons in the suite, and moved 4 verifier
-   false negatives out of the hard tier only (decision 005, addendum). Format mismatches stay in
-   the data and are fixed in the verifier. Totals: 19 excluded, 2,454 problems, hard tier 237.
+   false negatives out of the hard tier only (decision 008). Format mismatches stay in
+   the data and are fixed in the verifier. Decision 008 then excluded two golds that are format debris (2349, 2498) and
+   moved 4 more problems out of the hard tier. Totals: 21 excluded, 2,452 problems, hard tier 233.
 
 4c. **Effect on the 4B-Base reference** (`docs/reports/qwen35-4b-base_soe-eval-v2_report.json`).
    Level B pass@1 is 0.665 under v1 (994 problems) and v2 (991). On the 42 repaired problems
