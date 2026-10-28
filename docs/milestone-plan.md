@@ -17,13 +17,13 @@ Lane A trains; Lane B evaluates and develops. One wall-clock hour on Lane A equa
 | Lane | Hardware | Runs here | Never runs here |
 | --- | --- | --- | --- |
 | A | 2×A100 | Qwen3.5-4B SFT, DPO, every RL run (screening, full, seeds, ablations), Gemma 4 E4B SFT and RL | Evaluation sweeps, preference sampling, 2B work |
-| B | 2×A40 (48 GB) | Qwen3.5-2B development, RS-GRPO β sweep, ablation pilots on 2B, base/SFT/DPO evaluation, preference generation, pass@k evaluation of every saved checkpoint | Training that feeds final 4B conclusions (unless the M1 exception below applies) |
+| B | A40s (48 GB); evaluation and preference sampling may also use A30/A10 workers | Qwen3.5-2B development, RS-GRPO β sweep, ablation pilots on 2B, base/SFT/DPO evaluation, preference generation, pass@k evaluation of every saved checkpoint | Training that feeds final 4B conclusions (unless the M1 exception below applies) |
 
 Evaluation is decoupled from training. RL jobs on Lane A only run a small in-loop pass@1 validation set and write checkpoints at fixed rollout-token intervals; Lane B picks those checkpoints up and runs the full K=1,4,8,16 suite and transition tables. This keeps Lane A training, and it means most of the final high-K evaluation is done by the time the last run finishes.
 
 The one exception: if the M1 memory study forces BF16 LoRA for all algorithms anyway, test whether the identical LoRA config fits on the A40 pair. If it does, Lane B can also run seeds, which saves about three weeks (see Cut order and compression).
 
-Open question: are the A100s 40 GB or 80 GB? This decides how likely full-parameter RL is, and it should be confirmed before M1.
+Answered in M0: FASTER's A100s are the PCIe 40 GB model, which makes full-parameter 4B RL on 2×A100 tight. The M1 memory study measures it on 2×A100 and, when a four-GPU A40 node is free, on 4×A40; asking for more than two A100s means competing with other users.
 
 ## Schedule at a glance
 
@@ -43,38 +43,43 @@ The yardstick is fixed before any serious training, so nothing downstream can dr
 - Level B: a held-out split carved from the RL problem pool before any training touches it.
 - Level C: a recent, contamination-resistant set, excluded from training and from all hyperparameter selection.
 - Hard subset of 200–300 problems for K=32/64, chosen now and frozen.
-- Fixed sampling parameters (temperature, top-p, max tokens) and the unbiased pass@k estimator.
+- Fixed sampling parameters (temperature, top-p, max tokens, thinking mode, KV-cache precision) and the unbiased pass@k estimator.
+- The RL problem pool checked against all three levels before any training touches it.
 
 Exit criteria:
 
-- [ ] Eval config and problem lists committed with a hash
-- [ ] Verifier audited by hand on \~200 items, including equivalent-form edge cases (fractions, radicals, boxed formats)
-- [ ] Contamination report: SFT and RL pools checked against all three levels
+- [x] Eval config and problem lists committed with a hash (`soe-eval-v3`, decisions 004–010)
+- [x] Verifier audited by hand on \~200 items, including equivalent-form edge cases (fractions, radicals, boxed formats)
+- [x] Contamination report: RL pool checked against all three levels (decision 011)
+
+Moved to M2: the SFT half of the contamination report, because the SFT data is chosen there.
 
 ### M1 — Working pipeline and 4B memory study (Weeks 1–2, Lanes A and B)
 
 Lane B builds and debugs the full pipeline on Qwen3.5-2B; Lane A spends about two days measuring what 4B training costs. Budget: 100–200 GPU-hours, mostly A40. None of these results count toward conclusions.
 
 - Lane B: SFT, rollout generation (vLLM/SGLang), GRPO, checkpoint/resume, evaluation hand-off, logging of every mandatory metric.
-- Lane A: Qwen3.5-4B full BF16 vs BF16 LoRA at G=8 — peak memory, KV-cache headroom, rollout tokens/sec, training tokens/sec.
+- Lane A: Qwen3.5-4B full BF16 vs BF16 LoRA at G=8 — peak memory, KV-cache headroom, rollout tokens/sec, training tokens/sec — on 2×A100 (40 GB) and, if a four-GPU A40 node is free, on 4×A40.
 
 Exit criteria:
 
 - [ ] 2B GRPO run shows training reward rising with sensible evaluation behaviour
 - [ ] A deliberately killed job resumes from checkpoint with identical metrics continuity
-- [ ] **Gate G0:** full BF16 or BF16 LoRA chosen for all 4B algorithms
+- [ ] **Gate G0:** full BF16 or BF16 LoRA chosen for all 4B algorithms; the memo also fixes the development model and which GPU type runs which comparison
 - [ ] Measured throughput converts the 30–50M and 100–200M rollout-token budgets into wall-clock hours
 
 ### M2 — Frozen SFT checkpoint (Weeks 2–3, Lane A trains, Lane B evaluates)
 
 One SFT checkpoint becomes the shared starting point for every RL run.
 
-- 25K–50K verified reasoning trajectories, decontaminated against M0.
-- Base model evaluation on Lane B while SFT data is prepared.
+- 25K–50K verified reasoning trajectories, decontaminated against all three levels with the M0.9 method (decision 011) before SFT starts.
+- Base model results: already recorded in M0 (the soe-eval-v3 reference); a suite revision re-scores them on CPU, without re-sampling.
+- Any suite revision happens before the first SFT checkpoint is evaluated (pending: exclude Level B problem dapo/254353b7, whose gold is impossible); every later checkpoint uses the same suite.
 - SFT run #1 for one epoch; run #2 only if the recipe needs adjustment.
 
 Exit criteria:
 
+- [ ] SFT pool contamination report against Levels A, B and C (moved from M0)
 - [ ] Base and SFT results at K=1,4,8,16 recorded
 - [ ] SFT checkpoint frozen, hashed, and referenced by every later config
 
@@ -190,3 +195,9 @@ These hold for every run from M2 onward; breaking one makes the algorithm compar
 - **Level C stays untouched.** It is never used for hyperparameter or checkpoint selection.
 - **Everything logged.** All capability, transition, training, behaviour and efficiency metrics from the original scoping, plus commit hash, config, seed and hardware per run.
 - **Development results stay out.** Nothing from M1 on 2B appears in the conclusions.
+- **One yardstick.** Every checkpoint is evaluated on soe-eval-v3 with the decision-010 verifier and compared with the v3 base reference; RL rollouts and preference data use RL train v3 (12,124 problems) and the same sampling protocol (thinking mode, FP8 KV cache).
+
+## Revisions
+
+**2026-10-28, closing M0.** M0's exit criteria are ticked. The SFT half of the contamination report moves to M2, which chooses the SFT data; the base-model evaluation listed under M2 was run in M0. The A100 question is answered (40 GB). Lane B sampling may use A30/A10 workers. M0 added two protocol settings (thinking mode, decision 006; FP8 KV cache, decision 009) and a standing rule that fixes the yardstick. The G0 memo also settles the development model and the GPU-type assignment. Details: `docs/roadmap/M0.md` and the M0 report chapter.
+
