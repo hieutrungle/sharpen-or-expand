@@ -1,0 +1,858 @@
+{
+ "about": "Hand review (2026-10-28, decision 011) of every train/reference pair that contamination option 2 selects: category E or R, or the same answer (docs/reports/m0_contamination_rl.json). drop = the same problem as the reference (reformatted, reworded, answer re-encoded, or one part of it); keep = a variant with other data, a different question, or an unrelated match on shared answer-format boilerplate. A train problem is dropped if any of its pairs says drop. Ids only.",
+ "pairs": [
+  {
+   "reference": "dapo/01eecc20-dea1-46c4-b414-9979d0f35e7b",
+   "train": "dapo/ba549672-1fe6-481b-99a9-e986afc69023",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/04681a34-9bb5-406f-b6db-79a22c568a73",
+   "train": "dapo/34aa1040-f2de-4a63-aa93-6242f91396c2",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/06645011-e7b3-4115-8363-f721861f2eee",
+   "train": "dapo/f54cf5ff-9fc1-488a-87f8-fe45a254d744",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/08462e96-6219-42b4-8b32-4c03dcb85685",
+   "train": "dapo/1e9513cb-3c44-4b5a-ab7a-542863314daf",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/0eb28a6a-b591-4cb4-a4c3-abf4e9f96759",
+   "train": "dapo/56a368fe-51a8-4879-9b96-053ea9485fea",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/1cc089e2-8560-431c-b946-3a1672587006",
+   "train": "dapo/4c4b0fe1-31f7-4a9e-91da-315aaf77f53e",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/21501126-e3d3-43a1-946a-53fef1646263",
+   "train": "dapo/924c3398-c70b-4006-9e7f-6a392a649038",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/232f7104-be40-4345-aaff-3f2116dc4077",
+   "train": "dapo/892c2cc7-a76a-4a58-bc20-83d5ec26f4fb",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/23449582-afc5-467c-bc32-970811aedc7c",
+   "train": "dapo/2d0e61e5-b411-436b-b183-42d672af5fb7",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "dapo/252634f8-27e6-410a-b282-fdbe0e150ac3",
+   "train": "dapo/d0f93a47-2f13-45db-a0f5-0d3ba26f9143",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/254353b7-e34c-4b96-99f5-0b51ec637c7f",
+   "train": "dapo/de832df3-b730-4db0-a960-a2acd1ad96ed",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded; golds disagree (2 vs 329): gold conflict"
+  },
+  {
+   "reference": "dapo/273daed8-850f-48d5-bc3e-132bcc548d8f",
+   "train": "dapo/a800a4c2-b468-4df2-beb6-4434f2f2b558",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/29a062d2-c7fd-4ade-a880-4a4e3067fa06",
+   "train": "dapo/3f6bfe84-62f6-4c59-b7d2-65b66359f038",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/2ce2cec1-8061-4431-a3a2-e6164618e795",
+   "train": "dapo/c958796c-bcbc-4d06-bfee-875fb01332d2",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/2f91d555-a6c8-40d7-a89d-bc8fd4c16afd",
+   "train": "dapo/360b0ca0-c38a-4fb2-a351-fa642e66ad43",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/315e8320-4bc4-4583-9747-9108cd805e18",
+   "train": "dapo/b4462672-d9d8-4b1b-b626-b44ce73945eb",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/317490df-1c3a-414b-8541-51fba43e19b1",
+   "train": "dapo/473cc44f-03b0-43bd-8cd4-d95bb81b6809",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/317490df-1c3a-414b-8541-51fba43e19b1",
+   "train": "dapo/6714096e-4d0d-4b01-b534-de90f0edfd8b",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/364884ef-f21e-4784-afc8-9119db2c10a1",
+   "train": "dapo/3ebb9433-2da2-430f-a966-186456d58fe6",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/37bd6d19-849d-45a8-b193-8d84036b9a41",
+   "train": "dapo/32017744-364a-4b01-b796-2b9b9356171d",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/39421b71-e244-440b-b581-ac8a305af715",
+   "train": "dapo/62d880bf-6584-4f9c-908e-c34c49505529",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/3b0aa3f3-39f6-43c4-addf-5b997353a4cf",
+   "train": "dapo/cdc80908-87b7-4d4d-8812-3af1c51052b9",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/3f102027-a24b-49ee-877d-d128dc8a72fe",
+   "train": "dapo/945dd6c1-659a-4ea2-a661-e24351fe0cea",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/40ce03b5-9274-4a86-a157-9bf9ce8bd2c5",
+   "train": "dapo/9d9a8c9b-c475-4a45-8767-3ecc5e4d35fc",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "variant: different data"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "train": "dapo/22cf0683-f9f0-474f-8bc7-e72e285511a6",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "unrelated: shared answer-format boilerplate"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "train": "dapo/7c06ebb1-4191-4901-8242-029a26345f95",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "unrelated: shared answer-format boilerplate"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "train": "dapo/90c17299-e753-4538-83b6-0441a9a3b279",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "unrelated: shared answer-format boilerplate"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "train": "dapo/95029ee1-3457-41c3-8176-72cc42b8a54e",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "unrelated: shared answer-format boilerplate"
+  },
+  {
+   "reference": "dapo/4441de5f-ca2f-4289-bdb8-1d8d3eae3a16",
+   "train": "dapo/6b8c2b38-1ae3-44a1-b459-f52bd0531eaf",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/47ede0e4-3356-479b-b2a8-e9766486c256",
+   "train": "dapo/26fd218b-9dff-48b9-a230-b6c070ca99a6",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "different question on similar setup"
+  },
+  {
+   "reference": "dapo/47ede0e4-3356-479b-b2a8-e9766486c256",
+   "train": "dapo/9a8f0995-f2ec-448a-bde7-2617f87a2aae",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "different question on similar setup"
+  },
+  {
+   "reference": "dapo/49de0bfd-1de5-40e0-8826-7026309f55a1",
+   "train": "dapo/e64db092-c058-4955-9e40-527f15621929",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/4c25efd8-d889-427d-a4d3-a550a698969f",
+   "train": "dapo/06a647e7-c145-4029-a93b-83e58bbfa8f2",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/4df1c812-9816-467a-bf27-6b2a8a29317f",
+   "train": "dapo/a8228b0c-a1fe-4c68-b01f-134734264c51",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/51eff7ab-b4f4-4175-a485-5bb46212a2f6",
+   "train": "dapo/0c773d00-0ad3-4da7-9e66-54bee8748d10",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/53bfa68d-3529-45e7-9763-37513acae890",
+   "train": "dapo/f3ab318c-72b3-4187-a045-d9c07bf9dd96",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same setup; train problem is part (a) of the multi-part reference"
+  },
+  {
+   "reference": "dapo/54e0cec6-09d3-4b22-a870-034dab22a5d3",
+   "train": "dapo/756522a1-9d81-4e4e-b192-5b3363ae6c08",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/580e8dcf-0eae-4073-87be-68efeb34ad1b",
+   "train": "dapo/aab0eb10-536a-435e-b31f-403b8ed79123",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "dapo/586a38b8-d0c2-45cc-91cd-862f42b22d37",
+   "train": "dapo/e73bff7b-53ed-4bd8-b941-fc562a049388",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/5afc4629-ffcd-4ea1-8b57-1f0e1e09ba02",
+   "train": "dapo/03f9d87e-a7a4-4a6c-9bdc-2de3d08fca56",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/5f414a9a-7aab-4417-a43a-bcd8205dec29",
+   "train": "dapo/0e88b3d8-40ed-456a-ada4-0f3720c82c86",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/6190f015-cfc4-485e-b296-0d6c9ac65094",
+   "train": "dapo/1e3457fc-e085-4900-86db-6262a348e464",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/62770b5d-78b8-4849-bd82-895eb8440917",
+   "train": "dapo/a92e6a1d-efbd-4e57-8811-1fc4856bcfe8",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "dapo/62770b5d-78b8-4849-bd82-895eb8440917",
+   "train": "dapo/b68a29ab-2cb3-4c42-918b-1e2f7ef5880a",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "dapo/6b3da8d2-6fb5-489c-8878-06140eebefa1",
+   "train": "dapo/859f31a3-1613-46d0-a758-84c3228efd90",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/6d08b422-ef73-44d3-88b4-c8e2e500d9e7",
+   "train": "dapo/7633c8ed-f1a1-4b55-ada1-f3ee4bc74b89",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "dapo/71ece1c7-67ab-4932-8078-338d7d1ed7ce",
+   "train": "dapo/b589607b-94dd-4be3-b5b5-80ef7a4b78a7",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/7aeeeb42-111d-4e8f-b0f1-2a7e372ff603",
+   "train": "dapo/4b5e4fc8-8c38-4f73-b50f-7f545e7e52e1",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/8326d608-9960-4461-88ef-319dd12fe97b",
+   "train": "dapo/4e254ea6-64dc-46d5-8690-7b8f0fd04982",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/83ed6a2f-2377-4ba3-90b6-939116b996f5",
+   "train": "dapo/49f5f4ff-8ae4-46bf-bc6c-199e68458d2a",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/83ed6a2f-2377-4ba3-90b6-939116b996f5",
+   "train": "dapo/b8f23219-9d89-4e1a-98b6-d67529d3cfe4",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/86d068c2-9d62-4cd4-90ae-f58548f6b370",
+   "train": "dapo/2678298a-3425-4ef6-8777-6d5e7c50b082",
+   "category": "R",
+   "verdict": "keep",
+   "reason": "different question on similar setup"
+  },
+  {
+   "reference": "dapo/9182ad4b-4e83-483c-a446-724a2014c78f",
+   "train": "dapo/a6f38b6e-d05a-4139-bab6-9ef9e68830ed",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/98963bef-9354-450b-a12d-0f9e2cefe205",
+   "train": "dapo/4aa6f424-fc7c-46e6-b616-c93082a527f0",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/98963bef-9354-450b-a12d-0f9e2cefe205",
+   "train": "dapo/646f09cf-6931-4292-8c35-768ea6e56e85",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/9b1d3c50-336e-421b-b98e-a1771affe9c9",
+   "train": "dapo/8b8db919-2554-4213-b8bb-98149d20b744",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/9bef5f43-b900-4d1f-8eab-fa5543dcd2d8",
+   "train": "dapo/b52e98fe-c760-4f93-84e7-b9fd49dedb3a",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/a02df7bb-e02a-4675-bde4-442f539425fe",
+   "train": "dapo/d85abace-67ec-4ee7-bf89-9827018f35e9",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/a74f3ba3-c5dd-4e1b-8e11-cb9755d8f1db",
+   "train": "dapo/c40108e9-2928-4ab7-b4d1-25fb6f5a0f93",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/a793349b-e9ab-42d3-9e92-8eaa7942baf5",
+   "train": "dapo/cd19c46a-7492-4d8e-9c25-89543888e0e4",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/a98d6ab6-c393-4f26-982e-960f3d3a22bc",
+   "train": "dapo/2533c8a2-2ad4-4f24-9a1f-3110925c3b2e",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/aa97d33b-716e-4d07-8cf0-ffd841167b14",
+   "train": "dapo/0d8710fc-27a1-43ee-99cf-0a8c7597138c",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/aa97d33b-716e-4d07-8cf0-ffd841167b14",
+   "train": "dapo/c840b854-c836-49d0-a625-a3dd641eb879",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/aa9c43a8-cafd-4909-917c-d59e3361b3d2",
+   "train": "dapo/90c17299-e753-4538-83b6-0441a9a3b279",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "dapo/ab3b9712-679a-4e34-97f5-4f16eb7c050b",
+   "train": "dapo/10308e37-9489-475b-8441-d19a21897e2f",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/ab3b9712-679a-4e34-97f5-4f16eb7c050b",
+   "train": "dapo/f0287dba-1973-46d5-8558-bf81c190a080",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/ad206284-bfcf-490c-b978-1ff00c88c00e",
+   "train": "dapo/dfa4ade7-b252-403d-8b80-ef787bd23d09",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/aeb1e1bd-376b-4e26-bdf2-df14856d6c74",
+   "train": "dapo/75f1cfe0-0c17-4c14-b059-3b5eee2accc6",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/aeb1e1bd-376b-4e26-bdf2-df14856d6c74",
+   "train": "dapo/ce9708f4-3139-47a3-a794-f5d6148fd3ea",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/aeb1e1bd-376b-4e26-bdf2-df14856d6c74",
+   "train": "dapo/f4d60d44-e30d-4a33-bb36-4aaef861751b",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/b49d5b25-34c3-45b2-b785-a72bb561d30e",
+   "train": "dapo/6c316c52-52c7-4dc6-9cb4-8302db34914a",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/b53a00ad-b667-4ea7-828c-366b05b99d84",
+   "train": "dapo/9ad9b84d-eed3-4966-84f5-260c63c192e5",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/b6b47f88-ddd4-420e-bade-985dfe35fbc8",
+   "train": "dapo/17856a1c-8e79-4d99-9192-8a074c273b87",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "variant: different data"
+  },
+  {
+   "reference": "dapo/b6b47f88-ddd4-420e-bade-985dfe35fbc8",
+   "train": "dapo/686272b2-b4e9-49fd-9b0e-728efdb714a5",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "variant: different data"
+  },
+  {
+   "reference": "dapo/b774570d-e90e-48db-a4b3-66c13dcf0a21",
+   "train": "dapo/3271a10c-d7ca-4bec-a7ff-b2e6c45d3222",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "train": "dapo/f6a13bf6-4fc1-4f3c-90ac-c0f6433e0a36",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "unrelated: shared answer-format boilerplate"
+  },
+  {
+   "reference": "dapo/b904e517-5e67-42bb-a99a-54b44b7c546b",
+   "train": "dapo/a029a0ed-fcc4-42e4-a4c2-147e90454a23",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/bae9b795-e39f-4d24-8443-f2e48054bf1c",
+   "train": "dapo/9a1e82d3-b08c-43bd-9b73-4781dec691d8",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/bcdab04d-ffec-4433-af29-f4ac74bb29a3",
+   "train": "dapo/f50b79b3-39a7-42bc-936b-a69bd49928f3",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/bd2386d8-a755-4466-bfd4-0ed79ebd7d7f",
+   "train": "dapo/84c81fbc-29c3-4f62-bd82-0157a99d670d",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/c249c0f0-022f-4d71-b1a0-d27c21c14128",
+   "train": "dapo/6168d66e-2133-4704-97cc-64bac471b73f",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/c5585f61-bfa7-48e2-aaca-52434b5515d4",
+   "train": "dapo/a862df20-3126-4789-bacd-238d9c9a5027",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/cdc0f809-ea19-464a-a84f-479b3dc36fd6",
+   "train": "dapo/0fdc50f9-9e1e-48de-8d66-577d9d552f7d",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/dea2d05e-8082-417b-b640-26873793b644",
+   "train": "dapo/c5e7624e-6fda-4857-9a93-4183a3c824bc",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/e0fb8963-d8b5-4d53-849d-838123e491c2",
+   "train": "dapo/e56bb76a-8a9c-4c49-b19f-2b9be1ae7603",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/e191ee71-ae9c-4931-9a8c-645443492b1d",
+   "train": "dapo/93a102f7-0322-4002-ad50-9b5fa165fe98",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/e330acaf-9dc2-4a41-8c0a-51ec16b4c17a",
+   "train": "dapo/237e82fb-5fff-4bc9-b4de-7d3dd4f6aad3",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/e5ff7dfb-586e-452f-87c7-e56299cbead5",
+   "train": "dapo/8105d23b-bd1d-43ef-b437-e1b23394d98c",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/ed684a8f-8ae6-4014-8901-98a72d73bfd2",
+   "train": "dapo/9e1a717b-cdd5-4f29-908e-91d9e87d36d4",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/f1db291a-9c0d-4869-b94d-2610f8f74e20",
+   "train": "dapo/f795e909-fbc4-45d9-8f18-944fcb5d381d",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/f291a371-c36a-4dea-ac07-8028b43d1248",
+   "train": "dapo/aa9b5424-63a5-4400-94bf-188e2b420216",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "dapo/fb4bcc69-252b-4467-8fd2-2b1120dd3315",
+   "train": "dapo/a3c44e92-c7ed-4f7f-ac1c-abdcb0eddfcd",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "dapo/fb4f3637-faef-4392-989d-6322d0d42ad4",
+   "train": "dapo/597ea941-ab34-4463-bcaf-d2a27220c351",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/1003.json",
+   "train": "dapo/61c1bbba-9d10-461a-ac8e-bebaac62b671",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/134.json",
+   "train": "dapo/7fbfb5fc-4521-4de9-99cb-9dc6ff89d3e1",
+   "category": "V",
+   "verdict": "keep",
+   "reason": "different question on similar setup"
+  },
+  {
+   "reference": "math500/test/geometry/221.json",
+   "train": "dapo/ba0b5423-a339-44d6-ac76-bb9c3f62efec",
+   "category": "R",
+   "verdict": "keep",
+   "reason": "different question on the same setup (other median)"
+  },
+  {
+   "reference": "math500/test/geometry/229.json",
+   "train": "dapo/289ca48e-2a54-4b80-ab84-b28b5380f302",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1063.json",
+   "train": "dapo/218c9d4e-fa33-4f1e-91a0-e608838136a7",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1566.json",
+   "train": "dapo/3bdcd15d-0f5e-4e20-b0f8-8934a0713596",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/964.json",
+   "train": "dapo/c5100a81-2240-4a82-8173-44cb556fcccf",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "math500/test/precalculus/1201.json",
+   "train": "dapo/97b81f93-8ad3-45a3-8b39-1117c721260f",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "math500/test/precalculus/1201.json",
+   "train": "dapo/b7c9c59d-cce0-46ca-bae2-2f7327313224",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/1709",
+   "train": "dapo/af97b851-2307-4504-b9ca-337b2e48f4da",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/1718",
+   "train": "dapo/969c6405-d43d-426f-81b0-5b18300ab811",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/1724",
+   "train": "dapo/0cea5fb4-01ed-400b-bbc0-bddc21068ad7",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "olympiadbench_en/1737",
+   "train": "dapo/b01b447e-8122-479f-9f70-9c5b2972846c",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/1766",
+   "train": "dapo/2043ba2a-5511-45fa-b847-1b5d1d0ebf4f",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/1843",
+   "train": "dapo/2c4720e3-42fd-48b8-87cd-83f6de56f38b",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "olympiadbench_en/1847",
+   "train": "dapo/c3e0a3fe-1c42-4a54-ae63-2e35268249e3",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "olympiadbench_en/1847",
+   "train": "dapo/fcabd287-8c09-4350-ac36-e157de849b92",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "olympiadbench_en/1873",
+   "train": "dapo/fbfc2f27-8e36-4535-a6fd-20822c50ab81",
+   "category": "V",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "olympiadbench_en/1962",
+   "train": "dapo/63c67dd3-935d-4af6-850e-dd6231eedf58",
+   "category": "R",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/1964",
+   "train": "dapo/b6398e4d-1e76-4cca-8894-2f58ffe58284",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/1988",
+   "train": "dapo/d2db4614-5c6b-45bd-b41d-216dd3fe5b88",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/2004",
+   "train": "dapo/cc15c2ff-7d31-4d36-9312-b006b74b86ef",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "olympiadbench_en/2165",
+   "train": "dapo/decd1f86-70bb-4b7f-b40c-6ae7ff4773a1",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/2607",
+   "train": "dapo/c8d40ede-9e08-42e7-96ed-7d31101fb813",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "olympiadbench_en/2644",
+   "train": "dapo/782f68bb-c2e5-4cda-9fde-417d404955e8",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/2791",
+   "train": "dapo/84186b86-cbff-4775-9405-7f72a9d93a58",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  },
+  {
+   "reference": "olympiadbench_en/2794",
+   "train": "dapo/9bbf2189-e4f4-4491-9086-8b23cffc2534",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, answer format re-encoded"
+  },
+  {
+   "reference": "olympiadbench_en/2918",
+   "train": "dapo/b2b80b78-75db-4147-98e0-ae7aefd2a58f",
+   "category": "E",
+   "verdict": "drop",
+   "reason": "same problem, reformatted or reworded"
+  }
+ ],
+ "gold_notes": [
+  {
+   "problem_id": "dapo/254353b7-e34c-4b96-99f5-0b51ec637c7f",
+   "note": "Level B gold 2 cannot be right: a^^6 and a^^7 always have the same parity, so they never differ mod 2; candidate for exclusion at the next suite revision"
+  }
+ ]
+}

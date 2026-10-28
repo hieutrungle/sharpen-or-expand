@@ -112,13 +112,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", type=Path, default=Path("soe/trainer/config/eval_suite.yaml"))
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--train", default="datasets/soe/v2/rl/train.jsonl")  # under $SOE_DATA
     args = parser.parse_args()
     root = Path(os.environ["SOE_DATA"])
     suite = load_suite(args.suite)
     sets = {s.name: read_jsonl(root / s.path, Problem) for s in suite.problem_sets}
     level_of = {p.problem_id: s.level.value for s in suite.problem_sets for p in sets[s.name]}
     references = [p for ps in sets.values() for p in ps]
-    train = read_jsonl(root / "datasets/soe/v2/rl/train.jsonl", Problem)
+    train = read_jsonl(root / args.train, Problem)
     by_id = {p.problem_id: p for p in train} | {p.problem_id: p for p in references}
 
     found: dict[int, dict[tuple[str, str], float]] = {}
@@ -156,7 +157,7 @@ def main() -> None:
         }
     frozen_hits = sorted({r for (r, _), share in found[13].items() if share >= FROZEN[1]})
     report = {
-        "train": {"path": "datasets/soe/v2/rl/train.jsonl", "problems": len(train)},
+        "train": {"path": args.train, "problems": len(train)},
         "frozen_rule": {"ngram": FROZEN[0], "min_fraction": FROZEN[1]},
         "residual_at_frozen_rule": {
             "single_problem": frozen_hits,
