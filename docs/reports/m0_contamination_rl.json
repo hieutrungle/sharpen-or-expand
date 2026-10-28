@@ -7,480 +7,3245 @@
   "ngram": 13,
   "min_fraction": 0.5
  },
- "13-gram": {
-  "ignored_boilerplate": 49,
-  "per_set": {
-   "math500": {
-    "level": "A",
-    "problems": 500,
-    "max_share>=0.2": 15,
-    "max_share>=0.3": 6,
-    "max_share>=0.5": 0
-   },
-   "aime24": {
-    "level": "A",
-    "problems": 30,
-    "max_share>=0.2": 1,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "aime25": {
-    "level": "A",
-    "problems": 30,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "olympiadbench_en": {
-    "level": "A",
-    "problems": 674,
-    "max_share>=0.2": 18,
-    "max_share>=0.3": 12,
-    "max_share>=0.5": 0
-   },
-   "aime26": {
-    "level": "C1",
-    "problems": 29,
-    "max_share>=0.2": 1,
-    "max_share>=0.3": 1,
-    "max_share>=0.5": 0
-   },
-   "hmmt_feb26": {
-    "level": "C1",
-    "problems": 33,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "hmmt_nov25": {
-    "level": "C2",
-    "problems": 30,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "hmmt_feb25": {
-    "level": "C2",
-    "problems": 30,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "brumo25": {
-    "level": "C2",
-    "problems": 30,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "smt25": {
-    "level": "C2",
-    "problems": 53,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "cmimc25": {
-    "level": "C2",
-    "problems": 40,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "level_b": {
-    "level": "B",
-    "problems": 994,
-    "max_share>=0.2": 65,
-    "max_share>=0.3": 38,
-    "max_share>=0.5": 0
-   }
-  },
-  "closest": [
-   {
-    "reference": "dapo/b774570d-e90e-48db-a4b3-66c13dcf0a21",
-    "train": "dapo/3271a10c-d7ca-4bec-a7ff-b2e6c45d3222",
-    "share": 0.483,
-    "same_answer": true
-   },
-   {
-    "reference": "olympiadbench_en/2127",
-    "train": "dapo/6affa4fa-9d22-47d9-aea6-840284e36e74",
-    "share": 0.481,
-    "same_answer": false
-   },
-   {
-    "reference": "olympiadbench_en/1644",
-    "train": "dapo/e5d8e598-739a-407e-addb-ba931ad9a32b",
-    "share": 0.479,
-    "same_answer": false
-   },
-   {
-    "reference": "dapo/3b0aa3f3-39f6-43c4-addf-5b997353a4cf",
-    "train": "dapo/cdc80908-87b7-4d4d-8812-3af1c51052b9",
-    "share": 0.474,
-    "same_answer": true
-   },
-   {
-    "reference": "dapo/8d7e5a4b-a8e7-4b76-8dd2-aa3ef11d610f",
-    "train": "dapo/ee68e234-bede-4b20-b25f-4c50a489a66c",
-    "share": 0.471,
-    "same_answer": false
-   },
-   {
-    "reference": "dapo/06645011-e7b3-4115-8363-f721861f2eee",
-    "train": "dapo/f54cf5ff-9fc1-488a-87f8-fe45a254d744",
-    "share": 0.467,
-    "same_answer": true
-   },
-   {
-    "reference": "olympiadbench_en/2953",
-    "train": "dapo/4cdcd63a-07b0-431e-b5c7-8a5f31312b93",
-    "share": 0.465,
-    "same_answer": false
-   },
-   {
-    "reference": "dapo/7aeeeb42-111d-4e8f-b0f1-2a7e372ff603",
-    "train": "dapo/4b5e4fc8-8c38-4f73-b50f-7f545e7e52e1",
-    "share": 0.464,
-    "same_answer": true
-   },
-   {
-    "reference": "dapo/f1db291a-9c0d-4869-b94d-2610f8f74e20",
-    "train": "dapo/f795e909-fbc4-45d9-8f18-944fcb5d381d",
-    "share": 0.464,
-    "same_answer": true
-   },
-   {
-    "reference": "math500/test/algebra/975.json",
-    "train": "dapo/7eda10cf-df84-4450-95f6-9cb175efe3c9",
-    "share": 0.455,
-    "same_answer": false
-   }
-  ]
- },
  "residual_at_frozen_rule": {
   "single_problem": [],
   "covered_by_union": []
  },
- "8-gram": {
-  "ignored_boilerplate": 185,
-  "per_set": {
-   "math500": {
-    "level": "A",
-    "problems": 500,
-    "max_share>=0.2": 32,
-    "max_share>=0.3": 19,
-    "max_share>=0.5": 6
-   },
-   "aime24": {
-    "level": "A",
-    "problems": 30,
-    "max_share>=0.2": 1,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "aime25": {
-    "level": "A",
-    "problems": 30,
-    "max_share>=0.2": 1,
-    "max_share>=0.3": 1,
-    "max_share>=0.5": 0
-   },
-   "olympiadbench_en": {
-    "level": "A",
-    "problems": 674,
-    "max_share>=0.2": 31,
-    "max_share>=0.3": 24,
-    "max_share>=0.5": 15
-   },
-   "aime26": {
-    "level": "C1",
-    "problems": 29,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "hmmt_feb26": {
-    "level": "C1",
-    "problems": 33,
-    "max_share>=0.2": 1,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "hmmt_nov25": {
-    "level": "C2",
-    "problems": 30,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "hmmt_feb25": {
-    "level": "C2",
-    "problems": 30,
-    "max_share>=0.2": 0,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "brumo25": {
-    "level": "C2",
-    "problems": 30,
-    "max_share>=0.2": 1,
-    "max_share>=0.3": 1,
-    "max_share>=0.5": 0
-   },
-   "smt25": {
-    "level": "C2",
-    "problems": 53,
-    "max_share>=0.2": 1,
-    "max_share>=0.3": 0,
-    "max_share>=0.5": 0
-   },
-   "cmimc25": {
-    "level": "C2",
-    "problems": 40,
-    "max_share>=0.2": 1,
-    "max_share>=0.3": 1,
-    "max_share>=0.5": 0
-   },
-   "level_b": {
-    "level": "B",
-    "problems": 994,
-    "max_share>=0.2": 128,
-    "max_share>=0.3": 86,
-    "max_share>=0.5": 35
-   }
+ "candidate_pairs": 354,
+ "per_category": {
+  "E": {
+   "pairs": 52,
+   "same_answer": 43
   },
-  "closest": [
-   {
-    "reference": "math500/test/counting_and_probability/1060.json",
-    "train": "dapo/19d294ab-a5be-4dae-9436-b90eaa3e6db8",
-    "share": 0.833,
-    "same_answer": false
-   },
-   {
-    "reference": "dapo/b774570d-e90e-48db-a4b3-66c13dcf0a21",
-    "train": "dapo/3271a10c-d7ca-4bec-a7ff-b2e6c45d3222",
-    "share": 0.706,
-    "same_answer": true
-   },
-   {
-    "reference": "dapo/23449582-afc5-467c-bc32-970811aedc7c",
-    "train": "dapo/2d0e61e5-b411-436b-b183-42d672af5fb7",
-    "share": 0.7,
-    "same_answer": true
-   },
-   {
-    "reference": "dapo/7aeeeb42-111d-4e8f-b0f1-2a7e372ff603",
-    "train": "dapo/4b5e4fc8-8c38-4f73-b50f-7f545e7e52e1",
-    "share": 0.697,
-    "same_answer": true
-   },
-   {
-    "reference": "dapo/cdc0f809-ea19-464a-a84f-479b3dc36fd6",
-    "train": "dapo/0fdc50f9-9e1e-48de-8d66-577d9d552f7d",
-    "share": 0.673,
-    "same_answer": true
-   },
-   {
-    "reference": "dapo/b53a00ad-b667-4ea7-828c-366b05b99d84",
-    "train": "dapo/9ad9b84d-eed3-4966-84f5-260c63c192e5",
-    "share": 0.672,
-    "same_answer": true
-   },
-   {
-    "reference": "math500/test/intermediate_algebra/232.json",
-    "train": "dapo/c926c97d-c509-4b37-b50d-30f71ad4a884",
-    "share": 0.667,
-    "same_answer": false
-   },
-   {
-    "reference": "olympiadbench_en/1644",
-    "train": "dapo/e5d8e598-739a-407e-addb-ba931ad9a32b",
-    "share": 0.667,
-    "same_answer": false
-   },
-   {
-    "reference": "dapo/4df1c812-9816-467a-bf27-6b2a8a29317f",
-    "train": "dapo/a8228b0c-a1fe-4c68-b01f-134734264c51",
-    "share": 0.667,
-    "same_answer": true
-   },
-   {
-    "reference": "dapo/aa97d33b-716e-4d07-8cf0-ffd841167b14",
-    "train": "dapo/0d8710fc-27a1-43ee-99cf-0a8c7597138c",
-    "share": 0.667,
-    "same_answer": true
-   }
-  ]
+  "R": {
+   "pairs": 33,
+   "same_answer": 22
+  },
+  "V": {
+   "pairs": 269,
+   "same_answer": 36
+  }
  },
- "suspects": {
-  "rule": {
-   "13-gram share": 0.3,
-   "8-gram share": 0.5,
-   "same_answer": true
-  },
-  "per_set": {
-   "math500": 1,
-   "olympiadbench_en": 5,
-   "level_b": 33
-  },
-  "pairs": [
-   {
-    "reference": "dapo/04681a34-9bb5-406f-b6db-79a22c568a73",
-    "train": "dapo/34aa1040-f2de-4a63-aa93-6242f91396c2"
-   },
-   {
-    "reference": "dapo/06645011-e7b3-4115-8363-f721861f2eee",
-    "train": "dapo/f54cf5ff-9fc1-488a-87f8-fe45a254d744"
-   },
-   {
-    "reference": "dapo/08462e96-6219-42b4-8b32-4c03dcb85685",
-    "train": "dapo/1e9513cb-3c44-4b5a-ab7a-542863314daf"
-   },
-   {
-    "reference": "dapo/1cc089e2-8560-431c-b946-3a1672587006",
-    "train": "dapo/4c4b0fe1-31f7-4a9e-91da-315aaf77f53e"
-   },
-   {
-    "reference": "dapo/21501126-e3d3-43a1-946a-53fef1646263",
-    "train": "dapo/924c3398-c70b-4006-9e7f-6a392a649038"
-   },
-   {
-    "reference": "dapo/23449582-afc5-467c-bc32-970811aedc7c",
-    "train": "dapo/2d0e61e5-b411-436b-b183-42d672af5fb7"
-   },
-   {
-    "reference": "dapo/252634f8-27e6-410a-b282-fdbe0e150ac3",
-    "train": "dapo/d0f93a47-2f13-45db-a0f5-0d3ba26f9143"
-   },
-   {
-    "reference": "dapo/273daed8-850f-48d5-bc3e-132bcc548d8f",
-    "train": "dapo/a800a4c2-b468-4df2-beb6-4434f2f2b558"
-   },
-   {
-    "reference": "dapo/317490df-1c3a-414b-8541-51fba43e19b1",
-    "train": "dapo/6714096e-4d0d-4b01-b534-de90f0edfd8b"
-   },
-   {
-    "reference": "dapo/39421b71-e244-440b-b581-ac8a305af715",
-    "train": "dapo/62d880bf-6584-4f9c-908e-c34c49505529"
-   },
-   {
-    "reference": "dapo/3b0aa3f3-39f6-43c4-addf-5b997353a4cf",
-    "train": "dapo/cdc80908-87b7-4d4d-8812-3af1c51052b9"
-   },
-   {
-    "reference": "dapo/4441de5f-ca2f-4289-bdb8-1d8d3eae3a16",
-    "train": "dapo/6b8c2b38-1ae3-44a1-b459-f52bd0531eaf"
-   },
-   {
-    "reference": "dapo/4df1c812-9816-467a-bf27-6b2a8a29317f",
-    "train": "dapo/a8228b0c-a1fe-4c68-b01f-134734264c51"
-   },
-   {
-    "reference": "dapo/51eff7ab-b4f4-4175-a485-5bb46212a2f6",
-    "train": "dapo/0c773d00-0ad3-4da7-9e66-54bee8748d10"
-   },
-   {
-    "reference": "dapo/54e0cec6-09d3-4b22-a870-034dab22a5d3",
-    "train": "dapo/756522a1-9d81-4e4e-b192-5b3363ae6c08"
-   },
-   {
-    "reference": "dapo/586a38b8-d0c2-45cc-91cd-862f42b22d37",
-    "train": "dapo/e73bff7b-53ed-4bd8-b941-fc562a049388"
-   },
-   {
-    "reference": "dapo/5afc4629-ffcd-4ea1-8b57-1f0e1e09ba02",
-    "train": "dapo/03f9d87e-a7a4-4a6c-9bdc-2de3d08fca56"
-   },
-   {
-    "reference": "dapo/7aeeeb42-111d-4e8f-b0f1-2a7e372ff603",
-    "train": "dapo/4b5e4fc8-8c38-4f73-b50f-7f545e7e52e1"
-   },
-   {
-    "reference": "dapo/a74f3ba3-c5dd-4e1b-8e11-cb9755d8f1db",
-    "train": "dapo/c40108e9-2928-4ab7-b4d1-25fb6f5a0f93"
-   },
-   {
-    "reference": "dapo/a793349b-e9ab-42d3-9e92-8eaa7942baf5",
-    "train": "dapo/cd19c46a-7492-4d8e-9c25-89543888e0e4"
-   },
-   {
-    "reference": "dapo/a98d6ab6-c393-4f26-982e-960f3d3a22bc",
-    "train": "dapo/2533c8a2-2ad4-4f24-9a1f-3110925c3b2e"
-   },
-   {
-    "reference": "dapo/aa97d33b-716e-4d07-8cf0-ffd841167b14",
-    "train": "dapo/0d8710fc-27a1-43ee-99cf-0a8c7597138c"
-   },
-   {
-    "reference": "dapo/aeb1e1bd-376b-4e26-bdf2-df14856d6c74",
-    "train": "dapo/f4d60d44-e30d-4a33-bb36-4aaef861751b"
-   },
-   {
-    "reference": "dapo/b53a00ad-b667-4ea7-828c-366b05b99d84",
-    "train": "dapo/9ad9b84d-eed3-4966-84f5-260c63c192e5"
-   },
-   {
-    "reference": "dapo/b774570d-e90e-48db-a4b3-66c13dcf0a21",
-    "train": "dapo/3271a10c-d7ca-4bec-a7ff-b2e6c45d3222"
-   },
-   {
-    "reference": "dapo/bae9b795-e39f-4d24-8443-f2e48054bf1c",
-    "train": "dapo/9a1e82d3-b08c-43bd-9b73-4781dec691d8"
-   },
-   {
-    "reference": "dapo/c5585f61-bfa7-48e2-aaca-52434b5515d4",
-    "train": "dapo/a862df20-3126-4789-bacd-238d9c9a5027"
-   },
-   {
-    "reference": "dapo/cdc0f809-ea19-464a-a84f-479b3dc36fd6",
-    "train": "dapo/0fdc50f9-9e1e-48de-8d66-577d9d552f7d"
-   },
-   {
-    "reference": "dapo/dea2d05e-8082-417b-b640-26873793b644",
-    "train": "dapo/c5e7624e-6fda-4857-9a93-4183a3c824bc"
-   },
-   {
-    "reference": "dapo/e191ee71-ae9c-4931-9a8c-645443492b1d",
-    "train": "dapo/93a102f7-0322-4002-ad50-9b5fa165fe98"
-   },
-   {
-    "reference": "dapo/e330acaf-9dc2-4a41-8c0a-51ec16b4c17a",
-    "train": "dapo/237e82fb-5fff-4bc9-b4de-7d3dd4f6aad3"
-   },
-   {
-    "reference": "dapo/e5ff7dfb-586e-452f-87c7-e56299cbead5",
-    "train": "dapo/8105d23b-bd1d-43ef-b437-e1b23394d98c"
-   },
-   {
-    "reference": "dapo/f1db291a-9c0d-4869-b94d-2610f8f74e20",
-    "train": "dapo/f795e909-fbc4-45d9-8f18-944fcb5d381d"
-   },
-   {
-    "reference": "math500/test/counting_and_probability/1003.json",
-    "train": "dapo/61c1bbba-9d10-461a-ac8e-bebaac62b671"
-   },
-   {
-    "reference": "olympiadbench_en/1724",
-    "train": "dapo/0cea5fb4-01ed-400b-bbc0-bddc21068ad7"
-   },
-   {
-    "reference": "olympiadbench_en/1847",
-    "train": "dapo/fcabd287-8c09-4350-ac36-e157de849b92"
-   },
-   {
-    "reference": "olympiadbench_en/1873",
-    "train": "dapo/fbfc2f27-8e36-4535-a6fd-20822c50ab81"
-   },
-   {
-    "reference": "olympiadbench_en/2607",
-    "train": "dapo/c8d40ede-9e08-42e7-96ed-7d31101fb813"
-   },
-   {
-    "reference": "olympiadbench_en/2918",
-    "train": "dapo/b2b80b78-75db-4147-98e0-ae7aefd2a58f"
+ "deletion_options": {
+  "1_identical_text (E)": {
+   "train_dropped": 52,
+   "references_by_level": {
+    "A": 16,
+    "B": 35
    }
-  ]
- }
+  },
+  "2_same_problem (E, R, or same answer)": {
+   "train_dropped": 120,
+   "references_by_level": {
+    "A": 26,
+    "B": 80
+   }
+  },
+  "3_plus_close_variants (option 2, or share >= 0.3)": {
+   "train_dropped": 187,
+   "references_by_level": {
+    "A": 47,
+    "B": 100,
+    "C1": 1,
+    "C2": 2
+   }
+  },
+  "4_everything_listed (share >= 0.2)": {
+   "train_dropped": 338,
+   "references_by_level": {
+    "A": 65,
+    "B": 129,
+    "C1": 2,
+    "C2": 3
+   }
+  }
+ },
+ "pairs": [
+  {
+   "reference": "aime24/65",
+   "level": "A",
+   "train": "dapo/903e86a0-1f3f-45bf-9225-9d3db76a29b8",
+   "share_13": 0.293,
+   "share_8": 0.274,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime25/17",
+   "level": "A",
+   "train": "dapo/4c677475-1461-4a47-8a96-02585f7b264a",
+   "share_13": 0.0,
+   "share_8": 0.231,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime25/17",
+   "level": "A",
+   "train": "dapo/621ab5b9-a3b8-4d74-adf2-9b5cec231633",
+   "share_13": 0.0,
+   "share_8": 0.308,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/1fad0198-f997-4357-9e4f-626373b786c4",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/33225c9f-6aea-48ad-b12c-8b00bab8b647",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/35440e5c-8e53-4054-8b63-ac74be56c16e",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/49b80eb7-5892-4a82-8836-0577544b3d9a",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/4b24f564-b5a2-45b8-bd01-67eb1b51a040",
+   "share_13": 0.255,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/6db08edd-f15c-41c2-81f6-e5ffc2c347e8",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/8563c194-d5ff-4f4b-a010-99a8a7e6263e",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/9bb8fb84-fe7b-4207-8891-b81407ff0370",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/a8b42fa1-1666-4dd2-8f17-97d49d2be6be",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/b345255d-47d2-4d76-aeba-97832d19bcb9",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/b805c469-43fe-499a-aaf0-fcf30688992b",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/bac8054b-2983-4149-a6a6-29929e665d2f",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/bdbfca32-2d70-4a7f-a484-767725d8dfe0",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/cf87bdea-ce8b-45ea-8b9b-7258e08e2255",
+   "share_13": 0.314,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/f22c9aa4-1fa9-44dc-9a58-9e88c477ba8a",
+   "share_13": 0.235,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "dapo/f9444c98-8d07-4f03-9a2c-a7e3ff0ae622",
+   "share_13": 0.275,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "dapo/34cc0cc3-ca47-4106-83e8-293a612555fc",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "dapo/355dd92d-df0d-4fab-b76f-87b96702340c",
+   "share_13": 0.0,
+   "share_8": 0.444,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "dapo/c5d2be7e-b430-4243-85d9-68493c0a238e",
+   "share_13": 0.0,
+   "share_8": 0.444,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "dapo/cc509606-0dd3-490e-9f8d-a441db2192de",
+   "share_13": 0.0,
+   "share_8": 0.444,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "dapo/f200c5df-fe17-4ee1-8738-81f9056af1e6",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "cmimc25/6",
+   "level": "C2",
+   "train": "dapo/9f2959f7-e987-4ce8-9208-de9d5e490ccd",
+   "share_13": 0.0,
+   "share_8": 0.308,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "cmimc25/6",
+   "level": "C2",
+   "train": "dapo/eb8fcdb0-a8af-4dac-850c-ec1e8ec3d5c5",
+   "share_13": 0.0,
+   "share_8": 0.308,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/01eecc20-dea1-46c4-b414-9979d0f35e7b",
+   "level": "B",
+   "train": "dapo/ba549672-1fe6-481b-99a9-e986afc69023",
+   "share_13": 0.0,
+   "share_8": 0.36,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/04681a34-9bb5-406f-b6db-79a22c568a73",
+   "level": "B",
+   "train": "dapo/34aa1040-f2de-4a63-aa93-6242f91396c2",
+   "share_13": 0.29,
+   "share_8": 0.552,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/06645011-e7b3-4115-8363-f721861f2eee",
+   "level": "B",
+   "train": "dapo/f54cf5ff-9fc1-488a-87f8-fe45a254d744",
+   "share_13": 0.467,
+   "share_8": 0.6,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/08462e96-6219-42b4-8b32-4c03dcb85685",
+   "level": "B",
+   "train": "dapo/1e9513cb-3c44-4b5a-ab7a-542863314daf",
+   "share_13": 0.277,
+   "share_8": 0.51,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/0eb28a6a-b591-4cb4-a4c3-abf4e9f96759",
+   "level": "B",
+   "train": "dapo/56a368fe-51a8-4879-9b96-053ea9485fea",
+   "share_13": 0.0,
+   "share_8": 0.375,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/1802f7fd-5e43-414e-b07b-a3000d134024",
+   "level": "B",
+   "train": "dapo/07e1aee0-4b89-430f-a288-9185df450d89",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/1c2ab3e5-c39c-4bdc-bf0a-e94e8704db20",
+   "level": "B",
+   "train": "dapo/27471804-3c37-43b3-a704-f503c414e2e5",
+   "share_13": 0.0,
+   "share_8": 0.214,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/1cc089e2-8560-431c-b946-3a1672587006",
+   "level": "B",
+   "train": "dapo/4c4b0fe1-31f7-4a9e-91da-315aaf77f53e",
+   "share_13": 0.422,
+   "share_8": 0.536,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/21501126-e3d3-43a1-946a-53fef1646263",
+   "level": "B",
+   "train": "dapo/924c3398-c70b-4006-9e7f-6a392a649038",
+   "share_13": 0.375,
+   "share_8": 0.619,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/232f7104-be40-4345-aaff-3f2116dc4077",
+   "level": "B",
+   "train": "dapo/892c2cc7-a76a-4a58-bc20-83d5ec26f4fb",
+   "share_13": 0.0,
+   "share_8": 0.288,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/23449582-afc5-467c-bc32-970811aedc7c",
+   "level": "B",
+   "train": "dapo/2d0e61e5-b411-436b-b183-42d672af5fb7",
+   "share_13": 0.433,
+   "share_8": 0.7,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/252634f8-27e6-410a-b282-fdbe0e150ac3",
+   "level": "B",
+   "train": "dapo/d0f93a47-2f13-45db-a0f5-0d3ba26f9143",
+   "share_13": 0.4,
+   "share_8": 0.5,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/254353b7-e34c-4b96-99f5-0b51ec637c7f",
+   "level": "B",
+   "train": "dapo/de832df3-b730-4db0-a960-a2acd1ad96ed",
+   "share_13": 0.34,
+   "share_8": 0.545,
+   "same_answer": false,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/27148220-d3bc-455c-b634-269e1b305a26",
+   "level": "B",
+   "train": "dapo/d03c7b1d-1cf6-4c50-89cd-538408c05bec",
+   "share_13": 0.0,
+   "share_8": 0.211,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/273daed8-850f-48d5-bc3e-132bcc548d8f",
+   "level": "B",
+   "train": "dapo/a800a4c2-b468-4df2-beb6-4434f2f2b558",
+   "share_13": 0.275,
+   "share_8": 0.607,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/29a062d2-c7fd-4ade-a880-4a4e3067fa06",
+   "level": "B",
+   "train": "dapo/238df3ea-992d-4324-a3be-01cf56c11691",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/29a062d2-c7fd-4ade-a880-4a4e3067fa06",
+   "level": "B",
+   "train": "dapo/3d45f234-d7e4-42bd-9588-54e77e232e1e",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/29a062d2-c7fd-4ade-a880-4a4e3067fa06",
+   "level": "B",
+   "train": "dapo/3f6bfe84-62f6-4c59-b7d2-65b66359f038",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/29a062d2-c7fd-4ade-a880-4a4e3067fa06",
+   "level": "B",
+   "train": "dapo/7588fd4f-717c-44d1-a7ee-3deb0ca6cdf0",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/29a062d2-c7fd-4ade-a880-4a4e3067fa06",
+   "level": "B",
+   "train": "dapo/7ed8685c-f33c-4a02-872b-cc33d58b817b",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/29a062d2-c7fd-4ade-a880-4a4e3067fa06",
+   "level": "B",
+   "train": "dapo/a3c7b715-51ec-42e5-8ed3-3ba95b404b88",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/2c2abfd8-4131-4148-b435-4f403b2e5d29",
+   "level": "B",
+   "train": "dapo/472346a6-d64f-4c69-a7b5-4c5c2e659d06",
+   "share_13": 0.214,
+   "share_8": 0.333,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/2ce2cec1-8061-4431-a3a2-e6164618e795",
+   "level": "B",
+   "train": "dapo/c958796c-bcbc-4d06-bfee-875fb01332d2",
+   "share_13": 0.0,
+   "share_8": 0.308,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/2f91d555-a6c8-40d7-a89d-bc8fd4c16afd",
+   "level": "B",
+   "train": "dapo/360b0ca0-c38a-4fb2-a351-fa642e66ad43",
+   "share_13": 0.278,
+   "share_8": 0.463,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/315e8320-4bc4-4583-9747-9108cd805e18",
+   "level": "B",
+   "train": "dapo/b4462672-d9d8-4b1b-b626-b44ce73945eb",
+   "share_13": 0.0,
+   "share_8": 0.304,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/317490df-1c3a-414b-8541-51fba43e19b1",
+   "level": "B",
+   "train": "dapo/473cc44f-03b0-43bd-8cd4-d95bb81b6809",
+   "share_13": 0.4,
+   "share_8": 0.486,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/317490df-1c3a-414b-8541-51fba43e19b1",
+   "level": "B",
+   "train": "dapo/6714096e-4d0d-4b01-b534-de90f0edfd8b",
+   "share_13": 0.433,
+   "share_8": 0.514,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/364884ef-f21e-4784-afc8-9119db2c10a1",
+   "level": "B",
+   "train": "dapo/3ebb9433-2da2-430f-a966-186456d58fe6",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/37bd6d19-849d-45a8-b193-8d84036b9a41",
+   "level": "B",
+   "train": "dapo/32017744-364a-4b01-b796-2b9b9356171d",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/38b5260a-9c32-4ab7-8ec9-b7d8358dcb99",
+   "level": "B",
+   "train": "dapo/b35f3961-1b3d-46e6-99de-9e3360d4aacb",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/39421b71-e244-440b-b581-ac8a305af715",
+   "level": "B",
+   "train": "dapo/62d880bf-6584-4f9c-908e-c34c49505529",
+   "share_13": 0.0,
+   "share_8": 0.529,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/3b0aa3f3-39f6-43c4-addf-5b997353a4cf",
+   "level": "B",
+   "train": "dapo/cdc80908-87b7-4d4d-8812-3af1c51052b9",
+   "share_13": 0.474,
+   "share_8": 0.63,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/3e1f2221-5eae-4d1a-9188-f7c2bffadcce",
+   "level": "B",
+   "train": "dapo/30779520-d3bc-48f1-be5b-8fbe53507d40",
+   "share_13": 0.0,
+   "share_8": 0.273,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/3ed89846-6f31-4ca7-810a-ddf91f6f711d",
+   "level": "B",
+   "train": "dapo/09583772-2da1-4874-99a0-a7a68ddf3e34",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/3ed89846-6f31-4ca7-810a-ddf91f6f711d",
+   "level": "B",
+   "train": "dapo/14c85b11-86c9-47e7-8e81-c261a393026a",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/3ed89846-6f31-4ca7-810a-ddf91f6f711d",
+   "level": "B",
+   "train": "dapo/60999aa6-0693-4ba0-a486-3773b5903e91",
+   "share_13": 0.0,
+   "share_8": 0.3,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/3ed89846-6f31-4ca7-810a-ddf91f6f711d",
+   "level": "B",
+   "train": "dapo/a6ee18d9-97a8-498d-9deb-8173f3b04a65",
+   "share_13": 0.0,
+   "share_8": 0.3,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/3ed89846-6f31-4ca7-810a-ddf91f6f711d",
+   "level": "B",
+   "train": "dapo/fc2dbbd0-29db-4aad-9585-8eaeb90673e3",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/3f102027-a24b-49ee-877d-d128dc8a72fe",
+   "level": "B",
+   "train": "dapo/945dd6c1-659a-4ea2-a661-e24351fe0cea",
+   "share_13": 0.236,
+   "share_8": 0.486,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/40ce03b5-9274-4a86-a157-9bf9ce8bd2c5",
+   "level": "B",
+   "train": "dapo/9d9a8c9b-c475-4a45-8767-3ecc5e4d35fc",
+   "share_13": 0.307,
+   "share_8": 0.507,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/40ce03b5-9274-4a86-a157-9bf9ce8bd2c5",
+   "level": "B",
+   "train": "dapo/eaa8c9f8-fd87-4f67-9015-5f9ed91a04da",
+   "share_13": 0.307,
+   "share_8": 0.507,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "level": "B",
+   "train": "dapo/22cf0683-f9f0-474f-8bc7-e72e285511a6",
+   "share_13": 0.0,
+   "share_8": 0.219,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "level": "B",
+   "train": "dapo/60bc718d-703b-48ee-9126-750e7a4001f8",
+   "share_13": 0.0,
+   "share_8": 0.219,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "level": "B",
+   "train": "dapo/7c06ebb1-4191-4901-8242-029a26345f95",
+   "share_13": 0.0,
+   "share_8": 0.219,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "level": "B",
+   "train": "dapo/90c17299-e753-4538-83b6-0441a9a3b279",
+   "share_13": 0.0,
+   "share_8": 0.219,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "level": "B",
+   "train": "dapo/95029ee1-3457-41c3-8176-72cc42b8a54e",
+   "share_13": 0.0,
+   "share_8": 0.219,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "level": "B",
+   "train": "dapo/a1cc5fc4-9b81-45c0-8325-fb97fe78fb91",
+   "share_13": 0.0,
+   "share_8": 0.219,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/41c23fe0-7880-4281-8026-85ab8199c94b",
+   "level": "B",
+   "train": "dapo/b29a945d-8af8-4c1c-862a-dbaf3c44852f",
+   "share_13": 0.0,
+   "share_8": 0.219,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/4441de5f-ca2f-4289-bdb8-1d8d3eae3a16",
+   "level": "B",
+   "train": "dapo/6b8c2b38-1ae3-44a1-b459-f52bd0531eaf",
+   "share_13": 0.333,
+   "share_8": 0.571,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/44cdb387-cf4a-404a-98d1-f916e19b577b",
+   "level": "B",
+   "train": "dapo/a3b0ee1b-44f6-47e6-8e47-37916e0b43cd",
+   "share_13": 0.342,
+   "share_8": 0.47,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/47ede0e4-3356-479b-b2a8-e9766486c256",
+   "level": "B",
+   "train": "dapo/26fd218b-9dff-48b9-a230-b6c070ca99a6",
+   "share_13": 0.0,
+   "share_8": 0.412,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/47ede0e4-3356-479b-b2a8-e9766486c256",
+   "level": "B",
+   "train": "dapo/9a8f0995-f2ec-448a-bde7-2617f87a2aae",
+   "share_13": 0.0,
+   "share_8": 0.235,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/49de0bfd-1de5-40e0-8826-7026309f55a1",
+   "level": "B",
+   "train": "dapo/e64db092-c058-4955-9e40-527f15621929",
+   "share_13": 0.0,
+   "share_8": 0.378,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/4c25efd8-d889-427d-a4d3-a550a698969f",
+   "level": "B",
+   "train": "dapo/06a647e7-c145-4029-a93b-83e58bbfa8f2",
+   "share_13": 0.235,
+   "share_8": 0.487,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/4ca070c4-0962-44f9-bb5b-faa66c89ff42",
+   "level": "B",
+   "train": "dapo/9cb8f262-6246-4e58-93e3-92668410eff2",
+   "share_13": 0.0,
+   "share_8": 0.385,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/4df1c812-9816-467a-bf27-6b2a8a29317f",
+   "level": "B",
+   "train": "dapo/a8228b0c-a1fe-4c68-b01f-134734264c51",
+   "share_13": 0.0,
+   "share_8": 0.667,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/4ffd40ca-d7c6-4c40-8654-e1cf43cd7076",
+   "level": "B",
+   "train": "dapo/6012c3a7-f329-4da7-810d-21c4e593be42",
+   "share_13": 0.0,
+   "share_8": 0.206,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/51eff7ab-b4f4-4175-a485-5bb46212a2f6",
+   "level": "B",
+   "train": "dapo/0c773d00-0ad3-4da7-9e66-54bee8748d10",
+   "share_13": 0.333,
+   "share_8": 0.571,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/53bfa68d-3529-45e7-9763-37513acae890",
+   "level": "B",
+   "train": "dapo/f3ab318c-72b3-4187-a045-d9c07bf9dd96",
+   "share_13": 0.303,
+   "share_8": 0.365,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/54e0cec6-09d3-4b22-a870-034dab22a5d3",
+   "level": "B",
+   "train": "dapo/756522a1-9d81-4e4e-b192-5b3363ae6c08",
+   "share_13": 0.4,
+   "share_8": 0.52,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/566792f9-b2b0-4109-8346-42e80dd0091f",
+   "level": "B",
+   "train": "dapo/7e9596bb-2fcc-45d2-a7ef-32f2ff205283",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/566792f9-b2b0-4109-8346-42e80dd0091f",
+   "level": "B",
+   "train": "dapo/a6d38312-86c7-4022-b8d2-adcf19fa0c3a",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/566792f9-b2b0-4109-8346-42e80dd0091f",
+   "level": "B",
+   "train": "dapo/fa4c762c-2f2b-48c2-8791-bd6587884db0",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/57ce963e-8e0a-4a65-a519-52f716d25e20",
+   "level": "B",
+   "train": "dapo/7db26a23-e4a3-446c-ba35-61ffa5e50d55",
+   "share_13": 0.0,
+   "share_8": 0.205,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/57ce963e-8e0a-4a65-a519-52f716d25e20",
+   "level": "B",
+   "train": "dapo/907578ac-14b8-4577-9252-c9fc1194c079",
+   "share_13": 0.0,
+   "share_8": 0.205,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/580e8dcf-0eae-4073-87be-68efeb34ad1b",
+   "level": "B",
+   "train": "dapo/aab0eb10-536a-435e-b31f-403b8ed79123",
+   "share_13": 0.0,
+   "share_8": 0.333,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/586a38b8-d0c2-45cc-91cd-862f42b22d37",
+   "level": "B",
+   "train": "dapo/e73bff7b-53ed-4bd8-b941-fc562a049388",
+   "share_13": 0.359,
+   "share_8": 0.432,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/5afc4629-ffcd-4ea1-8b57-1f0e1e09ba02",
+   "level": "B",
+   "train": "dapo/03f9d87e-a7a4-4a6c-9bdc-2de3d08fca56",
+   "share_13": 0.412,
+   "share_8": 0.636,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/5f414a9a-7aab-4417-a43a-bcd8205dec29",
+   "level": "B",
+   "train": "dapo/0e88b3d8-40ed-456a-ada4-0f3720c82c86",
+   "share_13": 0.0,
+   "share_8": 0.243,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/5f99878e-6bf0-45b4-8f5c-59d374c72384",
+   "level": "B",
+   "train": "dapo/35267123-db81-478c-9fbe-ab57437d73f1",
+   "share_13": 0.393,
+   "share_8": 0.485,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/6190f015-cfc4-485e-b296-0d6c9ac65094",
+   "level": "B",
+   "train": "dapo/1e3457fc-e085-4900-86db-6262a348e464",
+   "share_13": 0.278,
+   "share_8": 0.435,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/62770b5d-78b8-4849-bd82-895eb8440917",
+   "level": "B",
+   "train": "dapo/a92e6a1d-efbd-4e57-8811-1fc4856bcfe8",
+   "share_13": 0.0,
+   "share_8": 0.333,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/62770b5d-78b8-4849-bd82-895eb8440917",
+   "level": "B",
+   "train": "dapo/b68a29ab-2cb3-4c42-918b-1e2f7ef5880a",
+   "share_13": 0.0,
+   "share_8": 0.317,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/67594cca-7b62-4e7d-9def-3853917b69a1",
+   "level": "B",
+   "train": "dapo/f723bcdb-781e-42ec-bdf6-b6216546e79a",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/69accba1-e4e5-405f-8127-9555c72e350b",
+   "level": "B",
+   "train": "dapo/dcc448ea-0156-48ab-adc4-42885aa61886",
+   "share_13": 0.0,
+   "share_8": 0.214,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/6b3457d9-6632-46fd-9f5e-c450fc2df13b",
+   "level": "B",
+   "train": "dapo/1f268455-36a2-43b9-a2a8-2db29aef9570",
+   "share_13": 0.348,
+   "share_8": 0.412,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/6b3457d9-6632-46fd-9f5e-c450fc2df13b",
+   "level": "B",
+   "train": "dapo/2d05fc8e-0a25-4dc9-bc56-42b4f93b6206",
+   "share_13": 0.348,
+   "share_8": 0.412,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/6b3457d9-6632-46fd-9f5e-c450fc2df13b",
+   "level": "B",
+   "train": "dapo/410da13f-9f3d-41a9-bc6b-0000c35a11ff",
+   "share_13": 0.348,
+   "share_8": 0.412,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/6b3da8d2-6fb5-489c-8878-06140eebefa1",
+   "level": "B",
+   "train": "dapo/859f31a3-1613-46d0-a758-84c3228efd90",
+   "share_13": 0.0,
+   "share_8": 0.419,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/6d08b422-ef73-44d3-88b4-c8e2e500d9e7",
+   "level": "B",
+   "train": "dapo/7633c8ed-f1a1-4b55-ada1-f3ee4bc74b89",
+   "share_13": 0.341,
+   "share_8": 0.452,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/6dc7e4a9-4822-4a89-aac6-85c60c2eab39",
+   "level": "B",
+   "train": "dapo/23e7e923-ed81-4e69-9812-8d44decb4bd2",
+   "share_13": 0.0,
+   "share_8": 0.238,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/6e029e9b-6fc0-4e01-9390-8b9bcaea7210",
+   "level": "B",
+   "train": "dapo/04710569-0275-4693-b0ad-a6fe847c1f1d",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/6e029e9b-6fc0-4e01-9390-8b9bcaea7210",
+   "level": "B",
+   "train": "dapo/78d3bd6d-0057-4c52-8f5d-da7bfa5ce2bc",
+   "share_13": 0.0,
+   "share_8": 0.267,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/71ece1c7-67ab-4932-8078-338d7d1ed7ce",
+   "level": "B",
+   "train": "dapo/b589607b-94dd-4be3-b5b5-80ef7a4b78a7",
+   "share_13": 0.0,
+   "share_8": 0.341,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/73af046a-81c5-429a-829c-38625150641f",
+   "level": "B",
+   "train": "dapo/5c6c0534-1473-4120-95ba-542e13200e43",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/73af046a-81c5-429a-829c-38625150641f",
+   "level": "B",
+   "train": "dapo/83a53890-2fd2-4d9d-bf64-30a0a6232f0e",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/73af046a-81c5-429a-829c-38625150641f",
+   "level": "B",
+   "train": "dapo/e4e7d672-7027-4c50-b134-d31129798480",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/73af046a-81c5-429a-829c-38625150641f",
+   "level": "B",
+   "train": "dapo/ec38ebe7-d117-42c1-946a-da7eca2b3209",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/73af046a-81c5-429a-829c-38625150641f",
+   "level": "B",
+   "train": "dapo/ef7aaf3e-d83d-4f78-a265-6e14a83e7540",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/7aeeeb42-111d-4e8f-b0f1-2a7e372ff603",
+   "level": "B",
+   "train": "dapo/4b5e4fc8-8c38-4f73-b50f-7f545e7e52e1",
+   "share_13": 0.464,
+   "share_8": 0.697,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/7d157ce4-71e9-4ce8-bead-0c4f94b46ed1",
+   "level": "B",
+   "train": "dapo/0ad89bce-803a-46d9-84bc-dd07da666a3f",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/7d157ce4-71e9-4ce8-bead-0c4f94b46ed1",
+   "level": "B",
+   "train": "dapo/3ac0f421-5045-472b-89e7-70ceea9cf4f2",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/7d157ce4-71e9-4ce8-bead-0c4f94b46ed1",
+   "level": "B",
+   "train": "dapo/720c4f41-c213-480e-a11d-f25f52ceb90a",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/7d157ce4-71e9-4ce8-bead-0c4f94b46ed1",
+   "level": "B",
+   "train": "dapo/a54fdf93-9b8f-4d85-b008-22abb0620037",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/7d157ce4-71e9-4ce8-bead-0c4f94b46ed1",
+   "level": "B",
+   "train": "dapo/ae939b57-6735-445a-a623-0abfad69b8ea",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/8326d608-9960-4461-88ef-319dd12fe97b",
+   "level": "B",
+   "train": "dapo/4e254ea6-64dc-46d5-8690-7b8f0fd04982",
+   "share_13": 0.0,
+   "share_8": 0.357,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/837c0e1d-9a5c-4b5e-b8e2-a8c87ace258c",
+   "level": "B",
+   "train": "dapo/98731ec1-574e-4ec2-b6df-2039375d0baa",
+   "share_13": 0.0,
+   "share_8": 0.375,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/83ed6a2f-2377-4ba3-90b6-939116b996f5",
+   "level": "B",
+   "train": "dapo/49f5f4ff-8ae4-46bf-bc6c-199e68458d2a",
+   "share_13": 0.0,
+   "share_8": 0.393,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/83ed6a2f-2377-4ba3-90b6-939116b996f5",
+   "level": "B",
+   "train": "dapo/b8f23219-9d89-4e1a-98b6-d67529d3cfe4",
+   "share_13": 0.0,
+   "share_8": 0.429,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/86c2c7b7-2442-416f-a336-4e4e581de540",
+   "level": "B",
+   "train": "dapo/2bd4083f-26fc-4eab-9cb4-193ff0175d65",
+   "share_13": 0.284,
+   "share_8": 0.273,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/86d068c2-9d62-4cd4-90ae-f58548f6b370",
+   "level": "B",
+   "train": "dapo/2678298a-3425-4ef6-8777-6d5e7c50b082",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/86d068c2-9d62-4cd4-90ae-f58548f6b370",
+   "level": "B",
+   "train": "dapo/7e6d7306-6af4-4a88-b09a-af2c72f2a69c",
+   "share_13": 0.308,
+   "share_8": 0.4,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/86d068c2-9d62-4cd4-90ae-f58548f6b370",
+   "level": "B",
+   "train": "dapo/8040295b-ac32-4545-84f0-dde4f3449b53",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/86d068c2-9d62-4cd4-90ae-f58548f6b370",
+   "level": "B",
+   "train": "dapo/e0b19983-534f-48b5-98ff-dca0c6590042",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/2cc44ae6-852b-4b3b-ba73-38c29a3b9b78",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/2fa35708-19ed-42a1-9f04-d3ef3eca9359",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/355dd92d-df0d-4fab-b76f-87b96702340c",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/3c60a368-c009-4eed-af06-eb01b1a52b3a",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/457ad641-a176-4736-a2d4-710771e1fa91",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/4e95f564-7084-48fa-87d0-1a8ba4bb2e64",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/5e30f266-37a6-47cb-84cb-8fdbbe34c7af",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/62fc5e40-d643-4e3c-9222-a610553c7208",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/8f8e9f04-b541-45f0-bf04-68e60326e412",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/94584cca-2af4-4ec1-9c21-c633c20f05df",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/a662fd6d-07be-4090-acc8-5aa37a179ba8",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/c2944db0-4ada-47c2-8a55-a0566cbc8444",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/c5d1eb4d-db87-4951-b639-ec91210c839b",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/c8842d88-54dd-45ec-8945-f5c8836f5722",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/892c2790-ecb7-4e36-b43f-4f49ef8b9505",
+   "level": "B",
+   "train": "dapo/eb5a1137-11bd-44ca-bcdf-a63675980d7e",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/8cddda7a-ffb6-42d8-b600-1cfec3682475",
+   "level": "B",
+   "train": "dapo/49369bdf-f72e-47e3-9872-76847d842520",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/8cddda7a-ffb6-42d8-b600-1cfec3682475",
+   "level": "B",
+   "train": "dapo/e4e88615-5574-4e70-9839-13d5a3c35b17",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/8d7e5a4b-a8e7-4b76-8dd2-aa3ef11d610f",
+   "level": "B",
+   "train": "dapo/5b6155d4-f7d8-4efe-813d-0b1d901fd18f",
+   "share_13": 0.368,
+   "share_8": 0.441,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/8d7e5a4b-a8e7-4b76-8dd2-aa3ef11d610f",
+   "level": "B",
+   "train": "dapo/eb8266f0-47b4-4bff-995a-a67214f1623b",
+   "share_13": 0.368,
+   "share_8": 0.441,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/8d7e5a4b-a8e7-4b76-8dd2-aa3ef11d610f",
+   "level": "B",
+   "train": "dapo/ee68e234-bede-4b20-b25f-4c50a489a66c",
+   "share_13": 0.471,
+   "share_8": 0.544,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/9182ad4b-4e83-483c-a446-724a2014c78f",
+   "level": "B",
+   "train": "dapo/a6f38b6e-d05a-4139-bab6-9ef9e68830ed",
+   "share_13": 0.286,
+   "share_8": 0.475,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/98963bef-9354-450b-a12d-0f9e2cefe205",
+   "level": "B",
+   "train": "dapo/4aa6f424-fc7c-46e6-b616-c93082a527f0",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/98963bef-9354-450b-a12d-0f9e2cefe205",
+   "level": "B",
+   "train": "dapo/646f09cf-6931-4292-8c35-768ea6e56e85",
+   "share_13": 0.0,
+   "share_8": 0.4,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/9aac97f3-c2ff-490b-84ee-137ab06e3449",
+   "level": "B",
+   "train": "dapo/b1afb1c1-d878-440a-9aef-2d8d5e288032",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/9b1d3c50-336e-421b-b98e-a1771affe9c9",
+   "level": "B",
+   "train": "dapo/8b8db919-2554-4213-b8bb-98149d20b744",
+   "share_13": 0.0,
+   "share_8": 0.395,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/9bef5f43-b900-4d1f-8eab-fa5543dcd2d8",
+   "level": "B",
+   "train": "dapo/b52e98fe-c760-4f93-84e7-b9fd49dedb3a",
+   "share_13": 0.214,
+   "share_8": 0.405,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/a02df7bb-e02a-4675-bde4-442f539425fe",
+   "level": "B",
+   "train": "dapo/d85abace-67ec-4ee7-bf89-9827018f35e9",
+   "share_13": 0.231,
+   "share_8": 0.444,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/a74f3ba3-c5dd-4e1b-8e11-cb9755d8f1db",
+   "level": "B",
+   "train": "dapo/c40108e9-2928-4ab7-b4d1-25fb6f5a0f93",
+   "share_13": 0.32,
+   "share_8": 0.5,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/a793349b-e9ab-42d3-9e92-8eaa7942baf5",
+   "level": "B",
+   "train": "dapo/cd19c46a-7492-4d8e-9c25-89543888e0e4",
+   "share_13": 0.324,
+   "share_8": 0.564,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/a8dd6b44-c6e6-48a6-85fb-1d00e10f2507",
+   "level": "B",
+   "train": "dapo/3e0605ee-729d-4fcd-8617-5a0a1d97bbb5",
+   "share_13": 0.299,
+   "share_8": 0.309,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/a8dd6b44-c6e6-48a6-85fb-1d00e10f2507",
+   "level": "B",
+   "train": "dapo/c19f8742-2e7e-4b86-b83c-afa48da059c0",
+   "share_13": 0.299,
+   "share_8": 0.309,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/a98d6ab6-c393-4f26-982e-960f3d3a22bc",
+   "level": "B",
+   "train": "dapo/2533c8a2-2ad4-4f24-9a1f-3110925c3b2e",
+   "share_13": 0.281,
+   "share_8": 0.514,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/aa169863-f0e1-41ec-a52c-1c0e24f7adf1",
+   "level": "B",
+   "train": "dapo/c145bbed-f14c-45bc-8e71-53aaf31783bc",
+   "share_13": 0.25,
+   "share_8": 0.333,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/aa97d33b-716e-4d07-8cf0-ffd841167b14",
+   "level": "B",
+   "train": "dapo/0d8710fc-27a1-43ee-99cf-0a8c7597138c",
+   "share_13": 0.389,
+   "share_8": 0.667,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/aa97d33b-716e-4d07-8cf0-ffd841167b14",
+   "level": "B",
+   "train": "dapo/c840b854-c836-49d0-a625-a3dd641eb879",
+   "share_13": 0.333,
+   "share_8": 0.611,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/aa9c43a8-cafd-4909-917c-d59e3361b3d2",
+   "level": "B",
+   "train": "dapo/90c17299-e753-4538-83b6-0441a9a3b279",
+   "share_13": 0.0,
+   "share_8": 0.242,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/ab3b9712-679a-4e34-97f5-4f16eb7c050b",
+   "level": "B",
+   "train": "dapo/10308e37-9489-475b-8441-d19a21897e2f",
+   "share_13": 0.222,
+   "share_8": 0.391,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/ab3b9712-679a-4e34-97f5-4f16eb7c050b",
+   "level": "B",
+   "train": "dapo/b05005f4-0072-4c9f-980a-7498d4474e02",
+   "share_13": 0.0,
+   "share_8": 0.304,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/ab3b9712-679a-4e34-97f5-4f16eb7c050b",
+   "level": "B",
+   "train": "dapo/f0287dba-1973-46d5-8558-bf81c190a080",
+   "share_13": 0.222,
+   "share_8": 0.391,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/ad206284-bfcf-490c-b978-1ff00c88c00e",
+   "level": "B",
+   "train": "dapo/dfa4ade7-b252-403d-8b80-ef787bd23d09",
+   "share_13": 0.0,
+   "share_8": 0.481,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/adbda4e1-d92b-4e36-b101-c11e781337ea",
+   "level": "B",
+   "train": "dapo/0c3b93b6-fbd8-4e1b-a834-cef0c1acc991",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/adbda4e1-d92b-4e36-b101-c11e781337ea",
+   "level": "B",
+   "train": "dapo/c16860f4-cdf5-496c-9419-969bc561da0a",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/aeb1e1bd-376b-4e26-bdf2-df14856d6c74",
+   "level": "B",
+   "train": "dapo/75f1cfe0-0c17-4c14-b059-3b5eee2accc6",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/aeb1e1bd-376b-4e26-bdf2-df14856d6c74",
+   "level": "B",
+   "train": "dapo/ce9708f4-3139-47a3-a794-f5d6148fd3ea",
+   "share_13": 0.0,
+   "share_8": 0.333,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/aeb1e1bd-376b-4e26-bdf2-df14856d6c74",
+   "level": "B",
+   "train": "dapo/f4d60d44-e30d-4a33-bb36-4aaef861751b",
+   "share_13": 0.286,
+   "share_8": 0.524,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/b0d03a50-2d5c-49d1-bf37-1904b3a37fa7",
+   "level": "B",
+   "train": "dapo/0eade5cd-8450-4988-8cec-17db59822291",
+   "share_13": 0.0,
+   "share_8": 0.22,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b1110613-f6d3-4125-aaae-28b117baab4b",
+   "level": "B",
+   "train": "dapo/903e86a0-1f3f-45bf-9225-9d3db76a29b8",
+   "share_13": 0.301,
+   "share_8": 0.282,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b2b46318-5d35-4f1c-8ccd-87c0749d1583",
+   "level": "B",
+   "train": "dapo/0cd9bd92-aa30-4312-aed9-2c4e4e1f31de",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b497a083-c30d-4b4c-b4dc-ae214edd1352",
+   "level": "B",
+   "train": "dapo/50c78218-27d0-4fb3-8452-9e6d6ece1a09",
+   "share_13": 0.0,
+   "share_8": 0.281,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b49d5b25-34c3-45b2-b785-a72bb561d30e",
+   "level": "B",
+   "train": "dapo/6c316c52-52c7-4dc6-9cb4-8302db34914a",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/b53a00ad-b667-4ea7-828c-366b05b99d84",
+   "level": "B",
+   "train": "dapo/9ad9b84d-eed3-4966-84f5-260c63c192e5",
+   "share_13": 0.453,
+   "share_8": 0.672,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/b56f7144-3340-491b-a7b9-29eaa0af69d0",
+   "level": "B",
+   "train": "dapo/944027a8-f176-40a3-9ddd-6a0fadac4e53",
+   "share_13": 0.267,
+   "share_8": 0.371,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b6b47f88-ddd4-420e-bade-985dfe35fbc8",
+   "level": "B",
+   "train": "dapo/17856a1c-8e79-4d99-9192-8a074c273b87",
+   "share_13": 0.25,
+   "share_8": 0.25,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b6b47f88-ddd4-420e-bade-985dfe35fbc8",
+   "level": "B",
+   "train": "dapo/686272b2-b4e9-49fd-9b0e-728efdb714a5",
+   "share_13": 0.25,
+   "share_8": 0.25,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b6b47f88-ddd4-420e-bade-985dfe35fbc8",
+   "level": "B",
+   "train": "dapo/e8c7d0cb-73b8-4313-a6ca-27d6b8332ca4",
+   "share_13": 0.25,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b774570d-e90e-48db-a4b3-66c13dcf0a21",
+   "level": "B",
+   "train": "dapo/3271a10c-d7ca-4bec-a7ff-b2e6c45d3222",
+   "share_13": 0.483,
+   "share_8": 0.706,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/1d518931-3873-4ea4-b585-a9a482c8590d",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/21d36d0d-f273-4bfe-82f0-651eb02029fb",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/2a313ff1-96f8-4ea4-9165-915a93507593",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/2c6a87b5-fcbf-41df-b542-29e43f62f9e4",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/2fa7ff4d-bc9d-4c54-9ad8-5397d9e75ee2",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/37e9cdbe-f19a-4ebd-9e26-cf2ecb9efb5d",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/42ff0c40-ba1e-4d52-bd7b-6b359a7c40d9",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/5c6e2023-370d-4292-baee-524744217d42",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/88ebb206-1285-4416-8288-cfe78508afa2",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/98cd7cd4-c171-46e8-80a1-c9fda87aa129",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/b31fd922-4e99-4b1c-91da-8e4a58adcbf8",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/d14c7061-26d8-470a-8fac-cafe9805b868",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/d7fa071e-0c1f-4d91-8f49-bebf7734fef9",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/e19092cf-5222-4117-af93-7234bd2b69af",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/f6a13bf6-4fc1-4f3c-90ac-c0f6433e0a36",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b8b8c975-27b0-4ea7-9fe0-2be29678cfbb",
+   "level": "B",
+   "train": "dapo/fd5ad60d-9d4f-4b4e-b286-789e7532dddd",
+   "share_13": 0.226,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/b904e517-5e67-42bb-a99a-54b44b7c546b",
+   "level": "B",
+   "train": "dapo/a029a0ed-fcc4-42e4-a4c2-147e90454a23",
+   "share_13": 0.0,
+   "share_8": 0.4,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/bae9b795-e39f-4d24-8443-f2e48054bf1c",
+   "level": "B",
+   "train": "dapo/9a1e82d3-b08c-43bd-9b73-4781dec691d8",
+   "share_13": 0.333,
+   "share_8": 0.389,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/bc2a8d57-3ce7-44ff-8342-945d241582c1",
+   "level": "B",
+   "train": "dapo/08ecab5d-3cc0-4d34-89db-d140d1154426",
+   "share_13": 0.0,
+   "share_8": 0.211,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/bc2a8d57-3ce7-44ff-8342-945d241582c1",
+   "level": "B",
+   "train": "dapo/169b1e73-91c0-4e45-a266-88cf21443872",
+   "share_13": 0.0,
+   "share_8": 0.263,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/bc2a8d57-3ce7-44ff-8342-945d241582c1",
+   "level": "B",
+   "train": "dapo/7888677e-8f2a-4f85-987e-5aaf9aaa9897",
+   "share_13": 0.0,
+   "share_8": 0.211,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/bcdab04d-ffec-4433-af29-f4ac74bb29a3",
+   "level": "B",
+   "train": "dapo/f50b79b3-39a7-42bc-936b-a69bd49928f3",
+   "share_13": 0.0,
+   "share_8": 0.254,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/bd2386d8-a755-4466-bfd4-0ed79ebd7d7f",
+   "level": "B",
+   "train": "dapo/84c81fbc-29c3-4f62-bd82-0157a99d670d",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/c23db54b-a829-449f-a3a4-5995910fb662",
+   "level": "B",
+   "train": "dapo/798a0beb-583f-40c2-a7f3-ffd6799b64a5",
+   "share_13": 0.0,
+   "share_8": 0.438,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/c249c0f0-022f-4d71-b1a0-d27c21c14128",
+   "level": "B",
+   "train": "dapo/6168d66e-2133-4704-97cc-64bac471b73f",
+   "share_13": 0.217,
+   "share_8": 0.403,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/c5585f61-bfa7-48e2-aaca-52434b5515d4",
+   "level": "B",
+   "train": "dapo/a862df20-3126-4789-bacd-238d9c9a5027",
+   "share_13": 0.357,
+   "share_8": 0.532,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/c5af64c9-c791-452c-b130-706815b6feec",
+   "level": "B",
+   "train": "dapo/bd5c3ada-782a-40d1-9084-b40a6bb3a964",
+   "share_13": 0.257,
+   "share_8": 0.375,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/c5bce7dc-4c1f-48c8-bb09-8d5abe175397",
+   "level": "B",
+   "train": "dapo/426377a3-7ac0-49c8-ad4e-fca12cd9545a",
+   "share_13": 0.261,
+   "share_8": 0.0,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/c7e75461-c063-4a70-b10c-13d65710c9bc",
+   "level": "B",
+   "train": "dapo/12aedaf5-36f3-4bba-9cd5-8b430a03e2e9",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/c7e75461-c063-4a70-b10c-13d65710c9bc",
+   "level": "B",
+   "train": "dapo/88e9fcf3-a9d1-4300-bf24-133608374bc2",
+   "share_13": 0.0,
+   "share_8": 0.289,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/cac281e5-7ae1-426d-a69d-80355c2e0a40",
+   "level": "B",
+   "train": "dapo/b1afb1c1-d878-440a-9aef-2d8d5e288032",
+   "share_13": 0.0,
+   "share_8": 0.4,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/cb5eb26a-3d2b-422c-b584-c64537524315",
+   "level": "B",
+   "train": "dapo/4103e68f-9a53-424e-b8c7-46125f8f17ae",
+   "share_13": 0.0,
+   "share_8": 0.333,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/cb5eb26a-3d2b-422c-b584-c64537524315",
+   "level": "B",
+   "train": "dapo/7ec6872b-13e5-42d5-a8ba-05ed6547d368",
+   "share_13": 0.0,
+   "share_8": 0.37,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/cc4a18fd-882e-46fc-95bf-a19274570ecd",
+   "level": "B",
+   "train": "dapo/489cf729-2e47-43f2-a51d-8b3be07537d7",
+   "share_13": 0.344,
+   "share_8": 0.426,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/cc4a18fd-882e-46fc-95bf-a19274570ecd",
+   "level": "B",
+   "train": "dapo/8c0a64ac-bc1b-431d-af3e-5ddfc3bf718d",
+   "share_13": 0.344,
+   "share_8": 0.436,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/cdc0f809-ea19-464a-a84f-479b3dc36fd6",
+   "level": "B",
+   "train": "dapo/0fdc50f9-9e1e-48de-8d66-577d9d552f7d",
+   "share_13": 0.44,
+   "share_8": 0.673,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/ce3d206c-6131-4d13-b02a-116215d86321",
+   "level": "B",
+   "train": "dapo/adda8726-e225-4a7b-af85-aa6c01b49400",
+   "share_13": 0.0,
+   "share_8": 0.225,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/d10f9872-365e-45e4-b1e5-3720b8968ddd",
+   "level": "B",
+   "train": "dapo/7e33c3f0-9b47-4d88-a195-03c1d205db41",
+   "share_13": 0.0,
+   "share_8": 0.208,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/d6b38688-a76d-4642-8168-38c7b788bab9",
+   "level": "B",
+   "train": "dapo/25fcfffa-bf1f-494f-9c7d-a12468b25abc",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/d90bc308-03b6-4a60-92c8-d5004bc47a00",
+   "level": "B",
+   "train": "dapo/046c268e-7a4b-4d4d-9027-e56ad26121ef",
+   "share_13": 0.387,
+   "share_8": 0.452,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/d90bc308-03b6-4a60-92c8-d5004bc47a00",
+   "level": "B",
+   "train": "dapo/26cf5fcb-1bdb-483d-8a09-6910053033e6",
+   "share_13": 0.387,
+   "share_8": 0.452,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/d90bc308-03b6-4a60-92c8-d5004bc47a00",
+   "level": "B",
+   "train": "dapo/51df0e5b-7d81-4729-be08-1d7d3ca9f68c",
+   "share_13": 0.0,
+   "share_8": 0.258,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/d90bc308-03b6-4a60-92c8-d5004bc47a00",
+   "level": "B",
+   "train": "dapo/8dd930d1-7077-47d1-9b69-013ad927bb64",
+   "share_13": 0.0,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/d90bc308-03b6-4a60-92c8-d5004bc47a00",
+   "level": "B",
+   "train": "dapo/9bdc0e4f-5087-432e-943d-82ae1bd70dcb",
+   "share_13": 0.387,
+   "share_8": 0.452,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/d90bc308-03b6-4a60-92c8-d5004bc47a00",
+   "level": "B",
+   "train": "dapo/d83abf2b-0765-43f5-8fdf-d181a395313e",
+   "share_13": 0.0,
+   "share_8": 0.226,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/d90bc308-03b6-4a60-92c8-d5004bc47a00",
+   "level": "B",
+   "train": "dapo/f671458e-7707-4974-a1da-e4d857297f54",
+   "share_13": 0.29,
+   "share_8": 0.452,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/dea2d05e-8082-417b-b640-26873793b644",
+   "level": "B",
+   "train": "dapo/c5e7624e-6fda-4857-9a93-4183a3c824bc",
+   "share_13": 0.205,
+   "share_8": 0.513,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/e0afa3cb-9509-4c84-a623-b8de22df8742",
+   "level": "B",
+   "train": "dapo/48c2b92d-5074-49ad-8352-47ceca2a8781",
+   "share_13": 0.339,
+   "share_8": 0.419,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/e0afa3cb-9509-4c84-a623-b8de22df8742",
+   "level": "B",
+   "train": "dapo/493e6a87-4996-4e06-8b44-4e5e9b48a15c",
+   "share_13": 0.0,
+   "share_8": 0.306,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/e0afa3cb-9509-4c84-a623-b8de22df8742",
+   "level": "B",
+   "train": "dapo/9089035a-dcc1-46d1-983e-507c79713c60",
+   "share_13": 0.339,
+   "share_8": 0.484,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/e0fb8963-d8b5-4d53-849d-838123e491c2",
+   "level": "B",
+   "train": "dapo/e56bb76a-8a9c-4c49-b19f-2b9be1ae7603",
+   "share_13": 0.0,
+   "share_8": 0.209,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/e191ee71-ae9c-4931-9a8c-645443492b1d",
+   "level": "B",
+   "train": "dapo/93a102f7-0322-4002-ad50-9b5fa165fe98",
+   "share_13": 0.333,
+   "share_8": 0.621,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/e330acaf-9dc2-4a41-8c0a-51ec16b4c17a",
+   "level": "B",
+   "train": "dapo/237e82fb-5fff-4bc9-b4de-7d3dd4f6aad3",
+   "share_13": 0.2,
+   "share_8": 0.6,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/e5ff7dfb-586e-452f-87c7-e56299cbead5",
+   "level": "B",
+   "train": "dapo/8105d23b-bd1d-43ef-b437-e1b23394d98c",
+   "share_13": 0.44,
+   "share_8": 0.635,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/ed684a8f-8ae6-4014-8901-98a72d73bfd2",
+   "level": "B",
+   "train": "dapo/9e1a717b-cdd5-4f29-908e-91d9e87d36d4",
+   "share_13": 0.257,
+   "share_8": 0.45,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/f1db291a-9c0d-4869-b94d-2610f8f74e20",
+   "level": "B",
+   "train": "dapo/f795e909-fbc4-45d9-8f18-944fcb5d381d",
+   "share_13": 0.464,
+   "share_8": 0.637,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "dapo/f291a371-c36a-4dea-ac07-8028b43d1248",
+   "level": "B",
+   "train": "dapo/aa9b5424-63a5-4400-94bf-188e2b420216",
+   "share_13": 0.394,
+   "share_8": 0.545,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/f3315d27-2c27-4c7c-b046-4438a0836811",
+   "level": "B",
+   "train": "dapo/264df53b-3d5a-4815-9f8d-d6125b9fe231",
+   "share_13": 0.0,
+   "share_8": 0.467,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/fb4bcc69-252b-4467-8fd2-2b1120dd3315",
+   "level": "B",
+   "train": "dapo/a3c44e92-c7ed-4f7f-ac1c-abdcb0eddfcd",
+   "share_13": 0.279,
+   "share_8": 0.447,
+   "same_answer": true,
+   "category": "R"
+  },
+  {
+   "reference": "dapo/fb4f3637-faef-4392-989d-6322d0d42ad4",
+   "level": "B",
+   "train": "dapo/597ea941-ab34-4463-bcaf-d2a27220c351",
+   "share_13": 0.0,
+   "share_8": 0.367,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/fc514fbb-7bce-4b88-8871-b81d15c5e3ca",
+   "level": "B",
+   "train": "dapo/10308e37-9489-475b-8441-d19a21897e2f",
+   "share_13": 0.0,
+   "share_8": 0.292,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/fc514fbb-7bce-4b88-8871-b81d15c5e3ca",
+   "level": "B",
+   "train": "dapo/b05005f4-0072-4c9f-980a-7498d4474e02",
+   "share_13": 0.0,
+   "share_8": 0.292,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "dapo/fc514fbb-7bce-4b88-8871-b81d15c5e3ca",
+   "level": "B",
+   "train": "dapo/f0287dba-1973-46d5-8558-bf81c190a080",
+   "share_13": 0.0,
+   "share_8": 0.292,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/3",
+   "level": "C1",
+   "train": "dapo/4c677475-1461-4a47-8a96-02585f7b264a",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/algebra/1072.json",
+   "level": "A",
+   "train": "dapo/cf304e85-0e71-4d7b-a25f-8338532a537a",
+   "share_13": 0.25,
+   "share_8": 0.429,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/algebra/1282.json",
+   "level": "A",
+   "train": "dapo/473e7286-6f2a-4f07-b0b3-dcdff204056b",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/algebra/425.json",
+   "level": "A",
+   "train": "dapo/e9332bdc-6b5d-4718-b187-cd4670d24412",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/algebra/975.json",
+   "level": "A",
+   "train": "dapo/7eda10cf-df84-4450-95f6-9cb175efe3c9",
+   "share_13": 0.455,
+   "share_8": 0.625,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/1003.json",
+   "level": "A",
+   "train": "dapo/61c1bbba-9d10-461a-ac8e-bebaac62b671",
+   "share_13": 0.432,
+   "share_8": 0.579,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/1060.json",
+   "level": "A",
+   "train": "dapo/176002b5-cfdd-42df-a1c9-50617a592629",
+   "share_13": 0.0,
+   "share_8": 0.667,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/1060.json",
+   "level": "A",
+   "train": "dapo/19d294ab-a5be-4dae-9436-b90eaa3e6db8",
+   "share_13": 0.0,
+   "share_8": 0.833,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/1060.json",
+   "level": "A",
+   "train": "dapo/c778c7b6-6ada-4cbf-91d0-5f7d528b008d",
+   "share_13": 0.0,
+   "share_8": 0.833,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/1060.json",
+   "level": "A",
+   "train": "dapo/e7d483e5-599c-488d-b128-4416994e7267",
+   "share_13": 0.0,
+   "share_8": 0.833,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/134.json",
+   "level": "A",
+   "train": "dapo/279da1a2-a507-4871-af26-e5ab5ec5ef42",
+   "share_13": 0.0,
+   "share_8": 0.212,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/134.json",
+   "level": "A",
+   "train": "dapo/7fbfb5fc-4521-4de9-99cb-9dc6ff89d3e1",
+   "share_13": 0.0,
+   "share_8": 0.212,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/230.json",
+   "level": "A",
+   "train": "dapo/903075ef-d81e-48da-9690-1ec062cd18fb",
+   "share_13": 0.356,
+   "share_8": 0.42,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/counting_and_probability/803.json",
+   "level": "A",
+   "train": "dapo/3568ef20-4dc4-485b-949b-8d93e531d06f",
+   "share_13": 0.208,
+   "share_8": 0.517,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/geometry/221.json",
+   "level": "A",
+   "train": "dapo/ba0b5423-a339-44d6-ac76-bb9c3f62efec",
+   "share_13": 0.0,
+   "share_8": 0.364,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "math500/test/geometry/229.json",
+   "level": "A",
+   "train": "dapo/289ca48e-2a54-4b80-ab84-b28b5380f302",
+   "share_13": 0.205,
+   "share_8": 0.455,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "math500/test/geometry/802.json",
+   "level": "A",
+   "train": "dapo/0ba9a1d2-dc4c-4f8c-bdb2-7e5a1a4d267a",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/geometry/802.json",
+   "level": "A",
+   "train": "dapo/9fda62be-8b90-4ad4-b581-6136e17b785e",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/geometry/802.json",
+   "level": "A",
+   "train": "dapo/d2782125-1566-4632-b432-96b51b377156",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1014.json",
+   "level": "A",
+   "train": "dapo/2c3e7156-2b48-453d-9f7f-a227308ac990",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1014.json",
+   "level": "A",
+   "train": "dapo/4f92b57d-922f-4adb-999c-d418af68d0a3",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1014.json",
+   "level": "A",
+   "train": "dapo/8ea56462-8425-4adc-8687-e02d54a0a28d",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1063.json",
+   "level": "A",
+   "train": "dapo/218c9d4e-fa33-4f1e-91a0-e608838136a7",
+   "share_13": 0.222,
+   "share_8": 0.406,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1126.json",
+   "level": "A",
+   "train": "dapo/5b6155d4-f7d8-4efe-813d-0b1d901fd18f",
+   "share_13": 0.244,
+   "share_8": 0.326,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1300.json",
+   "level": "A",
+   "train": "dapo/769b07c9-2dc8-4d0b-8022-15111c8538b2",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1300.json",
+   "level": "A",
+   "train": "dapo/9570a0a0-ce56-4e59-904e-17d6193d8240",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1300.json",
+   "level": "A",
+   "train": "dapo/a648f535-11c0-43a6-8bce-03ae85c0fed1",
+   "share_13": 0.25,
+   "share_8": 0.6,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1300.json",
+   "level": "A",
+   "train": "dapo/c91b90b8-5e2a-40cf-946c-4c6fc7d9cd78",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1300.json",
+   "level": "A",
+   "train": "dapo/e040c0c8-3351-4b0e-b41b-c945c44654a4",
+   "share_13": 0.0,
+   "share_8": 0.2,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1388.json",
+   "level": "A",
+   "train": "dapo/7ca5207a-bdc6-48d7-a525-532621c09bb5",
+   "share_13": 0.0,
+   "share_8": 0.27,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1422.json",
+   "level": "A",
+   "train": "dapo/7102e6cf-ee94-4821-b14e-ad213d187121",
+   "share_13": 0.0,
+   "share_8": 0.429,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/1566.json",
+   "level": "A",
+   "train": "dapo/3bdcd15d-0f5e-4e20-b0f8-8934a0713596",
+   "share_13": 0.323,
+   "share_8": 0.417,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/158.json",
+   "level": "A",
+   "train": "dapo/147e6cff-05e7-4f75-b089-31aa1811197f",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/158.json",
+   "level": "A",
+   "train": "dapo/8b8db919-2554-4213-b8bb-98149d20b744",
+   "share_13": 0.0,
+   "share_8": 0.238,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/158.json",
+   "level": "A",
+   "train": "dapo/9002e3b0-3992-4817-8c6e-6503291e8cd7",
+   "share_13": 0.0,
+   "share_8": 0.238,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/190.json",
+   "level": "A",
+   "train": "dapo/3c476624-1d3c-4a46-bd16-4415c4d6c31e",
+   "share_13": 0.0,
+   "share_8": 0.278,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/190.json",
+   "level": "A",
+   "train": "dapo/63549018-83de-4a56-bce4-2c43a8da9bf5",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/190.json",
+   "level": "A",
+   "train": "dapo/c805b069-5cf8-45f3-8c57-5f1952ce2991",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/190.json",
+   "level": "A",
+   "train": "dapo/d2ae44d9-2650-4941-a30e-66aaf675b161",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/190.json",
+   "level": "A",
+   "train": "dapo/f1e6c1db-b465-4c62-93f7-09635d358b71",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/232.json",
+   "level": "A",
+   "train": "dapo/29b0640c-d24c-4b62-b9c7-98ced475be5d",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/232.json",
+   "level": "A",
+   "train": "dapo/4e381893-433e-4d25-bcc1-0960bde4475f",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/232.json",
+   "level": "A",
+   "train": "dapo/ac30fdd3-d3b4-44a5-88f9-20d375206d73",
+   "share_13": 0.0,
+   "share_8": 0.444,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/232.json",
+   "level": "A",
+   "train": "dapo/c926c97d-c509-4b37-b50d-30f71ad4a884",
+   "share_13": 0.25,
+   "share_8": 0.667,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/232.json",
+   "level": "A",
+   "train": "dapo/d0da039e-1006-4394-ba1b-80b2765d18cf",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/232.json",
+   "level": "A",
+   "train": "dapo/e3f66133-a9d5-4188-8cd7-7f3244d220cc",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/232.json",
+   "level": "A",
+   "train": "dapo/e7c56360-7ae2-46cb-9542-d7392384fb62",
+   "share_13": 0.0,
+   "share_8": 0.444,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/964.json",
+   "level": "A",
+   "train": "dapo/c5100a81-2240-4a82-8173-44cb556fcccf",
+   "share_13": 0.232,
+   "share_8": 0.424,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/966.json",
+   "level": "A",
+   "train": "dapo/3c476624-1d3c-4a46-bd16-4415c4d6c31e",
+   "share_13": 0.0,
+   "share_8": 0.294,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/966.json",
+   "level": "A",
+   "train": "dapo/63549018-83de-4a56-bce4-2c43a8da9bf5",
+   "share_13": 0.0,
+   "share_8": 0.235,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/966.json",
+   "level": "A",
+   "train": "dapo/c805b069-5cf8-45f3-8c57-5f1952ce2991",
+   "share_13": 0.0,
+   "share_8": 0.235,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/966.json",
+   "level": "A",
+   "train": "dapo/d2ae44d9-2650-4941-a30e-66aaf675b161",
+   "share_13": 0.0,
+   "share_8": 0.235,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/intermediate_algebra/966.json",
+   "level": "A",
+   "train": "dapo/f1e6c1db-b465-4c62-93f7-09635d358b71",
+   "share_13": 0.0,
+   "share_8": 0.235,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/255.json",
+   "level": "A",
+   "train": "dapo/e4a222b9-c769-449d-a52a-09c8e2447e3b",
+   "share_13": 0.0,
+   "share_8": 0.286,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/634.json",
+   "level": "A",
+   "train": "dapo/09f3502d-8710-4d18-8210-d9dc67f99231",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/634.json",
+   "level": "A",
+   "train": "dapo/8032cf62-417b-4f4b-b8e3-1b56aaf9081a",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/634.json",
+   "level": "A",
+   "train": "dapo/c57107b3-1c3a-4a8f-bfd7-cebbaca0d877",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/634.json",
+   "level": "A",
+   "train": "dapo/c8925eed-5493-4983-bd5c-82b42c822dd1",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/634.json",
+   "level": "A",
+   "train": "dapo/d0f518ab-88f2-48c6-b4a5-17636f5defe7",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/634.json",
+   "level": "A",
+   "train": "dapo/ebb94e46-132f-402d-bb8a-efc702f8331e",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/634.json",
+   "level": "A",
+   "train": "dapo/f3d36bce-6564-4760-9a71-f0ff08eee761",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/634.json",
+   "level": "A",
+   "train": "dapo/fd145fd9-9788-4a94-baab-89905e68d21d",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/679.json",
+   "level": "A",
+   "train": "dapo/c144fddb-bbb9-4eef-a193-a16af39d32a8",
+   "share_13": 0.0,
+   "share_8": 0.323,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/838.json",
+   "level": "A",
+   "train": "dapo/103bae19-0d7b-456c-a4dc-54f618838a11",
+   "share_13": 0.379,
+   "share_8": 0.471,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/number_theory/911.json",
+   "level": "A",
+   "train": "dapo/70bcc280-65bb-4a42-a57e-81282270fc9e",
+   "share_13": 0.0,
+   "share_8": 0.211,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/prealgebra/307.json",
+   "level": "A",
+   "train": "dapo/737975e5-a2c8-4a47-bc03-240d48eea486",
+   "share_13": 0.312,
+   "share_8": 0.476,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "math500/test/precalculus/1201.json",
+   "level": "A",
+   "train": "dapo/97b81f93-8ad3-45a3-8b39-1117c721260f",
+   "share_13": 0.271,
+   "share_8": 0.34,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "math500/test/precalculus/1201.json",
+   "level": "A",
+   "train": "dapo/b7c9c59d-cce0-46ca-bae2-2f7327313224",
+   "share_13": 0.271,
+   "share_8": 0.34,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "math500/test/precalculus/703.json",
+   "level": "A",
+   "train": "dapo/b39e5b07-8bbd-46c2-8a1e-a9627ab0938a",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1644",
+   "level": "A",
+   "train": "dapo/e5d8e598-739a-407e-addb-ba931ad9a32b",
+   "share_13": 0.479,
+   "share_8": 0.667,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1709",
+   "level": "A",
+   "train": "dapo/af97b851-2307-4504-b9ca-337b2e48f4da",
+   "share_13": 0.42,
+   "share_8": 0.473,
+   "same_answer": false,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/1718",
+   "level": "A",
+   "train": "dapo/969c6405-d43d-426f-81b0-5b18300ab811",
+   "share_13": 0.235,
+   "share_8": 0.462,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "olympiadbench_en/1724",
+   "level": "A",
+   "train": "dapo/0cea5fb4-01ed-400b-bbc0-bddc21068ad7",
+   "share_13": 0.321,
+   "share_8": 0.517,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/1737",
+   "level": "A",
+   "train": "dapo/b01b447e-8122-479f-9f70-9c5b2972846c",
+   "share_13": 0.0,
+   "share_8": 0.333,
+   "same_answer": false,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/1766",
+   "level": "A",
+   "train": "dapo/2043ba2a-5511-45fa-b847-1b5d1d0ebf4f",
+   "share_13": 0.286,
+   "share_8": 0.583,
+   "same_answer": false,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/1843",
+   "level": "A",
+   "train": "dapo/2c4720e3-42fd-48b8-87cd-83f6de56f38b",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1847",
+   "level": "A",
+   "train": "dapo/c3e0a3fe-1c42-4a54-ae63-2e35268249e3",
+   "share_13": 0.0,
+   "share_8": 0.225,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1847",
+   "level": "A",
+   "train": "dapo/fcabd287-8c09-4350-ac36-e157de849b92",
+   "share_13": 0.4,
+   "share_8": 0.6,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1869",
+   "level": "A",
+   "train": "dapo/145d1fc0-43f2-415e-a440-ae4f7db96add",
+   "share_13": 0.265,
+   "share_8": 0.487,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1873",
+   "level": "A",
+   "train": "dapo/fbfc2f27-8e36-4535-a6fd-20822c50ab81",
+   "share_13": 0.419,
+   "share_8": 0.593,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1930",
+   "level": "A",
+   "train": "dapo/78d3bd6d-0057-4c52-8f5d-da7bfa5ce2bc",
+   "share_13": 0.0,
+   "share_8": 0.214,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1930",
+   "level": "A",
+   "train": "dapo/c2370170-9525-440a-8303-1a9c5e7b13cb",
+   "share_13": 0.0,
+   "share_8": 0.214,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1962",
+   "level": "A",
+   "train": "dapo/63c67dd3-935d-4af6-850e-dd6231eedf58",
+   "share_13": 0.375,
+   "share_8": 0.568,
+   "same_answer": false,
+   "category": "R"
+  },
+  {
+   "reference": "olympiadbench_en/1964",
+   "level": "A",
+   "train": "dapo/b6398e4d-1e76-4cca-8894-2f58ffe58284",
+   "share_13": 0.273,
+   "share_8": 0.51,
+   "same_answer": false,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/1970",
+   "level": "A",
+   "train": "dapo/cb4acc17-a0cc-4c59-932b-04a452ac59a8",
+   "share_13": 0.256,
+   "share_8": 0.333,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/1988",
+   "level": "A",
+   "train": "dapo/d2db4614-5c6b-45bd-b41d-216dd3fe5b88",
+   "share_13": 0.381,
+   "share_8": 0.66,
+   "same_answer": false,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/2004",
+   "level": "A",
+   "train": "dapo/cc15c2ff-7d31-4d36-9312-b006b74b86ef",
+   "share_13": 0.29,
+   "share_8": 0.433,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/2024",
+   "level": "A",
+   "train": "dapo/eef59bf3-e668-4cb9-9c62-ddf0c0f26a23",
+   "share_13": 0.0,
+   "share_8": 0.5,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2075",
+   "level": "A",
+   "train": "dapo/9f964fbc-a883-4d73-a07c-286f7c939e71",
+   "share_13": 0.0,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2127",
+   "level": "A",
+   "train": "dapo/6affa4fa-9d22-47d9-aea6-840284e36e74",
+   "share_13": 0.481,
+   "share_8": 0.593,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2165",
+   "level": "A",
+   "train": "dapo/decd1f86-70bb-4b7f-b40c-6ae7ff4773a1",
+   "share_13": 0.0,
+   "share_8": 0.208,
+   "same_answer": false,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/2607",
+   "level": "A",
+   "train": "dapo/c8d40ede-9e08-42e7-96ed-7d31101fb813",
+   "share_13": 0.316,
+   "share_8": 0.628,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/2644",
+   "level": "A",
+   "train": "dapo/782f68bb-c2e5-4cda-9fde-417d404955e8",
+   "share_13": 0.0,
+   "share_8": 0.545,
+   "same_answer": false,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/2715",
+   "level": "A",
+   "train": "dapo/bced4823-80d3-423d-a7cb-5808cdd269fc",
+   "share_13": 0.0,
+   "share_8": 0.35,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2791",
+   "level": "A",
+   "train": "dapo/84186b86-cbff-4775-9405-7f72a9d93a58",
+   "share_13": 0.0,
+   "share_8": 0.368,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/2794",
+   "level": "A",
+   "train": "dapo/9bbf2189-e4f4-4491-9086-8b23cffc2534",
+   "share_13": 0.395,
+   "share_8": 0.581,
+   "same_answer": false,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/2821",
+   "level": "A",
+   "train": "dapo/57f67178-c43a-41d8-95b8-a49c3173f482",
+   "share_13": 0.0,
+   "share_8": 0.211,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2821",
+   "level": "A",
+   "train": "dapo/b4a5c633-f252-46c4-9a6d-0aa55c38a13f",
+   "share_13": 0.0,
+   "share_8": 0.211,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2821",
+   "level": "A",
+   "train": "dapo/b70de560-eb2c-4610-8e0a-41417ff9954b",
+   "share_13": 0.0,
+   "share_8": 0.211,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2858",
+   "level": "A",
+   "train": "dapo/1171e9f5-1429-47cb-b956-3b79a01f9ffd",
+   "share_13": 0.0,
+   "share_8": 0.214,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2912",
+   "level": "A",
+   "train": "dapo/c2918640-c532-4296-ba7f-850aa181ccb9",
+   "share_13": 0.0,
+   "share_8": 0.357,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2918",
+   "level": "A",
+   "train": "dapo/b2b80b78-75db-4147-98e0-ae7aefd2a58f",
+   "share_13": 0.333,
+   "share_8": 0.571,
+   "same_answer": true,
+   "category": "E"
+  },
+  {
+   "reference": "olympiadbench_en/2927",
+   "level": "A",
+   "train": "dapo/dd5fc85c-e3c3-45ae-a0cb-21032bfcfb08",
+   "share_13": 0.0,
+   "share_8": 0.214,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "olympiadbench_en/2953",
+   "level": "A",
+   "train": "dapo/4cdcd63a-07b0-431e-b5c7-8a5f31312b93",
+   "share_13": 0.465,
+   "share_8": 0.6,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "smt25/11",
+   "level": "C2",
+   "train": "dapo/95c8b785-592b-4144-8555-35cfac347266",
+   "share_13": 0.0,
+   "share_8": 0.214,
+   "same_answer": false,
+   "category": "V"
+  }
+ ]
 }
