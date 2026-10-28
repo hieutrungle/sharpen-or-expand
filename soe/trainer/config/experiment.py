@@ -91,11 +91,15 @@ class OptimSpec(FrozenModel):
 
 
 class RolloutSpec(FrozenModel):
-    """Batch shape only. Sampling (temperature, top-p, top-k: decision 014), prompt, thinking mode,
-    KV-cache dtype and the response cap all come from the suite."""
+    """Batch shape and the rollout sampler. Rollouts sample at the temperature / top-p given here,
+    the same for every algorithm (decision 017); top-k stays off as in evaluation. Prompt, thinking
+    mode, KV-cache dtype and the response cap come from the suite; in-loop validation samples
+    like evaluation."""
 
     prompts_per_step: int = Field(gt=0)
     group_size: int = Field(ge=2)
+    temperature: float = Field(gt=0, le=2)
+    top_p: float = Field(gt=0, le=1)
     max_prompt_tokens: int = Field(
         gt=0
     )  # from the measured maximum (docs/reports/m1_rl_prompts.json)
@@ -147,8 +151,8 @@ class CheckpointSpec(FrozenModel):
 
 
 class ValidationSpec(FrozenModel):
-    """In-loop pass@1 on the validation split (decision 012), at every checkpoint, sampled like the
-    rollouts (the suite's temperature 0.6, top-p 0.95, 16K; decision 014)."""
+    """In-loop pass@1 on the validation split (decision 012), at every checkpoint, sampled like
+    evaluation (the suite's temperature 0.6, top-p 0.95, 16K; decision 017), not like rollouts."""
 
     max_problems: int | None = Field(default=None, gt=0)  # None: the whole split
     samples_per_problem: int = Field(gt=0)
@@ -244,17 +248,24 @@ class ExperimentConfig(FrozenModel):
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
+class Sampler:
+    temperature: float
+    top_p: float
+    top_k: int  # -1: off
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
 class RolloutProtocol:
-    """What every RL rollout shares with evaluation (decisions 004, 006, 009, 014)."""
+    """What RL rollouts share with evaluation (decisions 004, 006, 009, 014), plus the samplers."""
 
     prompt: PromptSpec  # template and enable_thinking
     max_response_tokens: int
     kv_cache_dtype: str
-    # The suite's temperature / top-p / top-k, for rollouts and validation alike (decision 014). Its
-    # per-request seed is for evaluation only: rollouts take the engine seed from the run seed.
-    temperature: float
-    top_p: float
-    top_k: int
+    # The config's temperature / top-p with the suite's top-k (decision 017).
+    rollout: Sampler
+    # The suite's sampler: validation, the G1 stopping signal, measures what evaluation measures.
+    # The suite's per-request seed is for evaluation only; both take the engine seed (run seed).
+    validation: Sampler
 
 
 def rollout_protocol(config: ExperimentConfig, suite: EvalSuite) -> RolloutProtocol:
@@ -268,9 +279,16 @@ def rollout_protocol(config: ExperimentConfig, suite: EvalSuite) -> RolloutProto
         prompt=suite.prompt,
         max_response_tokens=cap if smoke is None else smoke,
         kv_cache_dtype=suite.sampling.kv_cache_dtype,
-        temperature=suite.sampling.temperature,
-        top_p=suite.sampling.top_p,
-        top_k=suite.sampling.top_k,
+        rollout=Sampler(
+            temperature=config.rollout.temperature,
+            top_p=config.rollout.top_p,
+            top_k=suite.sampling.top_k,
+        ),
+        validation=Sampler(
+            temperature=suite.sampling.temperature,
+            top_p=suite.sampling.top_p,
+            top_k=suite.sampling.top_k,
+        ),
     )
 
 

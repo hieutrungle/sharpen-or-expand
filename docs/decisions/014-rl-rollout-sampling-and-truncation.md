@@ -2,7 +2,8 @@
 
 - Date: 2026-10-28
 - Status: accepted (user, 2026-10-28: D3 "use the 0.6 / 0.95, equal to evaluation"; D4 the
-  recommendation, reward 0)
+  recommendation, reward 0). **Point 1 superseded by decision 017** (rollouts at 1.0 / 1.0,
+  validation at evaluation sampling); point 2 (reward 0 at the cap) stands.
 - Milestone: M1 (task M1.1/M1.3; extends the "One yardstick" rule to the RL sampling distribution)
 - Enforced in: `soe/trainer/config/experiment.py` (`RolloutSpec` has no temperature or top-p;
   `rollout_protocol` takes them from the suite) and the reward manager (M1.3)

@@ -132,7 +132,19 @@ def test_protocol_comes_from_the_suite() -> None:
     assert protocol.max_response_tokens == 16384
     assert protocol.kv_cache_dtype == "fp8"
     assert protocol.prompt.chat_template_kwargs() == {"enable_thinking": True}
-    assert (protocol.temperature, protocol.top_p, protocol.top_k) == (0.6, 0.95, -1)
+    # Decision 017: rollouts use the config's sampler, validation the suite's.
+    rollout, validation = protocol.rollout, protocol.validation
+    assert (rollout.temperature, rollout.top_p, rollout.top_k) == (1.0, 1.0, -1)
+    assert (validation.temperature, validation.top_p, validation.top_k) == (0.6, 0.95, -1)
+
+
+def test_rollout_sampler_is_required_and_bounded() -> None:
+    data = example()
+    del data["rollout"]["temperature"]
+    with pytest.raises(ValidationError, match="temperature"):
+        ExperimentConfig.model_validate(data)
+    with pytest.raises(ValidationError, match="top_p"):
+        ExperimentConfig.model_validate(with_block("rollout", top_p=1.5))
 
 
 def test_smoke_cap_only_lowers_and_only_for_development() -> None:
@@ -150,7 +162,9 @@ def test_smoke_cap_only_lowers_and_only_for_development() -> None:
         ExperimentConfig.model_validate(data)
 
 
-def test_rollout_sampling_cannot_be_set_in_the_config() -> None:
-    # Decision 014: rollouts sample with the suite's settings.
+def test_top_k_and_validation_sampling_cannot_be_set_in_the_config() -> None:
+    # Decision 017: only rollout temperature / top-p are RL settings; the rest is the suite's.
+    with pytest.raises(ValidationError, match="top_k"):
+        ExperimentConfig.model_validate(with_block("rollout", top_k=20))
     with pytest.raises(ValidationError, match="temperature"):
-        ExperimentConfig.model_validate(with_block("rollout", temperature=1.0))
+        ExperimentConfig.model_validate(with_block("validation", temperature=1.0))

@@ -12,6 +12,7 @@ from soe.trainer.config.experiment import (
     Algorithm,
     ExperimentConfig,
     RolloutProtocol,
+    Sampler,
     TrainingMode,
 )
 
@@ -51,6 +52,14 @@ def _flag(value: bool) -> str:
     return "true" if value else "false"
 
 
+def _sampling(sampler: Sampler) -> list[str]:
+    return [
+        f"temperature={sampler.temperature}",
+        f"top_p={sampler.top_p}",
+        f"top_k={sampler.top_k}",
+    ]
+
+
 def verl_overrides(
     config: ExperimentConfig,
     protocol: RolloutProtocol,
@@ -71,11 +80,8 @@ def verl_overrides(
         raise NotImplementedError("token-budget stopping is not wired yet; set budget.max_steps")
 
     prompt_tokens, response_tokens = rollout.max_prompt_tokens, protocol.max_response_tokens
-    sampling = [
-        f"temperature={protocol.temperature}",
-        f"top_p={protocol.top_p}",
-        f"top_k={protocol.top_k}",
-    ]
+    rollout_sampling = _sampling(protocol.rollout)
+    validation_sampling = _sampling(protocol.validation)
     fsdp = "actor_rollout_ref.actor.fsdp_config"
     vllm = "+actor_rollout_ref.rollout.engine_kwargs.vllm"
     thinking = _flag(bool(protocol.prompt.enable_thinking))
@@ -108,7 +114,9 @@ def verl_overrides(
         "actor_rollout_ref.rollout.name=vllm",
         "actor_rollout_ref.rollout.mode=async",
         f"actor_rollout_ref.rollout.n={rollout.group_size}",
-        *(f"actor_rollout_ref.rollout.{s}" for s in sampling),
+        # The rollout sampler (decision 017); verl's trainer applies the same temperature to its
+        # log-probs.
+        *(f"actor_rollout_ref.rollout.{s}" for s in rollout_sampling),
         f"actor_rollout_ref.rollout.seed={seed}",  # engine seed; no per-request seed (014)
         f"actor_rollout_ref.rollout.prompt_length={prompt_tokens}",
         f"actor_rollout_ref.rollout.response_length={response_tokens}",
@@ -124,8 +132,8 @@ def verl_overrides(
         f"{vllm}.worker_extension_cls=soe.workers.rollout.vllm_patches.SoeColocateWorkerExtension",
         f"actor_rollout_ref.rollout.agent.agent_loop_config_path={paths.agent_loops}",
         "actor_rollout_ref.rollout.agent.default_agent_loop=soe_single_turn",
-        # in-loop validation, sampled like the rollouts (decision 014), on the decision-012 split
-        *(f"actor_rollout_ref.rollout.val_kwargs.{s}" for s in sampling),
+        # in-loop validation, sampled like evaluation (decision 017), on the decision-012 split
+        *(f"actor_rollout_ref.rollout.val_kwargs.{s}" for s in validation_sampling),
         f"actor_rollout_ref.rollout.val_kwargs.n={validation.samples_per_problem}",
         "actor_rollout_ref.rollout.val_kwargs.do_sample=true",
         # data

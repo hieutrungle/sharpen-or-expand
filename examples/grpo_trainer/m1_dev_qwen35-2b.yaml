@@ -1,7 +1,7 @@
 # M1 pipeline-debugging run on Lane B (2B, development only). Values are starting points for
 # debugging the pipeline, not tuned hyperparameters; nothing from this run enters conclusions.
-# Sampling (0.6 / 0.95), prompt, thinking mode, FP8 KV cache and the 16,384-token cap come from
-# eval_suite (decisions 004, 006, 009, 014).
+# Rollouts sample at 1.0 / 1.0 (decision 017). Validation sampling (0.6 / 0.95), prompt, thinking
+# mode, FP8 KV cache and the 16,384-token cap come from eval_suite (decisions 004, 006, 009, 014).
 name: grpo_m1_dev_qwen35-2b
 milestone: m1
 development: true
@@ -24,6 +24,8 @@ optim:
 rollout:
   prompts_per_step: 64
   group_size: 8
+  temperature: 1.0  # rollout sampler, every algorithm (decision 017); validation samples like eval
+  top_p: 1.0
   max_prompt_tokens: 2048  # longest RL prompt is 1,446 tokens (docs/reports/m1_rl_prompts.json)
 policy_loss:
   clip_ratio_low: 0.2

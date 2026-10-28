@@ -48,7 +48,8 @@ def test_overrides_compose_into_verls_config(config_path: str) -> None:
     with initialize_config_dir(config_dir=str(config_dir), version_base=None):
         composed = compose(config_name="ppo_trainer", overrides=overrides)
     rollout = composed.actor_rollout_ref.rollout
-    assert (rollout.temperature, rollout.top_p, rollout.response_length) == (0.6, 0.95, 16384)
+    assert (rollout.temperature, rollout.top_p, rollout.response_length) == (1.0, 1.0, 16384)
+    assert (rollout.val_kwargs.temperature, rollout.val_kwargs.top_p) == (0.6, 0.95)
     assert dict(rollout.engine_kwargs.vllm) == {
         "kv_cache_dtype": "fp8",
         "language_model_only": True,

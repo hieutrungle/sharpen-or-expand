@@ -46,8 +46,8 @@ def test_snapshot() -> None:
 def test_frozen_protocol_is_always_set() -> None:
     overrides = set(overrides_for(load_config(SMOKE)))
     required = {
-        "actor_rollout_ref.rollout.temperature=0.6",
-        "actor_rollout_ref.rollout.top_p=0.95",
+        "actor_rollout_ref.rollout.temperature=1.0",  # decision 017
+        "actor_rollout_ref.rollout.top_p=1.0",
         "actor_rollout_ref.rollout.top_k=-1",
         "actor_rollout_ref.rollout.val_kwargs.temperature=0.6",
         "actor_rollout_ref.rollout.val_kwargs.top_p=0.95",

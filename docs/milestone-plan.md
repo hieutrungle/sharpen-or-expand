@@ -195,7 +195,7 @@ These hold for every run from M2 onward; breaking one makes the algorithm compar
 - **Level C stays untouched.** It is never used for hyperparameter or checkpoint selection.
 - **Everything logged.** All capability, transition, training, behaviour and efficiency metrics from the original scoping, plus commit hash, config, seed and hardware per run.
 - **Development results stay out.** Nothing from M1 on 2B appears in the conclusions.
-- **One yardstick.** Every checkpoint is evaluated on soe-eval-v3 with the decision-010 verifier and compared with the v3 base reference; RL rollouts and preference data use RL train v3.1 (11,868 problems: v3 minus the 256-problem in-loop validation split, decision 012) and the same sampling protocol as evaluation (temperature 0.6, top-p 0.95, thinking mode, FP8 KV cache; decision 014).
+- **One yardstick.** Every checkpoint is evaluated on soe-eval-v3 with the decision-010 verifier and compared with the v3 base reference; RL rollouts and preference data use RL train v3.1 (11,868 problems: v3 minus the 256-problem in-loop validation split, decision 012) and the same prompt, thinking mode, FP8 KV cache and 16,384-token cap as evaluation (decision 014). Preference data and in-loop validation also sample like evaluation (temperature 0.6, top-p 0.95); RL rollouts sample at temperature 1.0, top-p 1.0, the same for every algorithm (decision 017).
 
 ## Revisions
 
@@ -207,6 +207,7 @@ These hold for every run from M2 onward; breaking one makes the algorithm compar
 - The in-loop validation set is 256 problems carved from RL train v3, so the "One yardstick" rule now names RL train v3.1 (11,868 problems; decision 012). Level B stays a held-out measurement and is never used for stopping.
 - No RL algorithm uses a KL term or a reference model (decision 013).
 - While no Lane A run is in flight, Lane B jobs may use any free GPU of their type, fc098 included, so they do not wait. A run still never changes hardware mid-run, and runs compared with each other keep one GPU type.
-- RL rollouts sample with the evaluation settings (temperature 0.6, top-p 0.95), and a rollout cut off at the 16,384-token cap gets reward 0, as evaluation scores it incorrect (decision 014).
+- RL rollouts sample with the evaluation settings (temperature 0.6, top-p 0.95), and a rollout cut off at the 16,384-token cap gets reward 0, as evaluation scores it incorrect (decision 014). *Sampling replaced later the same day, see below.*
+- RL rollouts sample at temperature 1.0, top-p 1.0 for every algorithm, for exploration; in-loop validation keeps the evaluation settings (0.6 / 0.95), and evaluation is unchanged (decision 017, replacing the sampling half of decision 014). Reward 0 at the cap stands. The report states that RL optimises a different sampler from the one pass@k measures.
 
 Details: `docs/roadmap/M1.md`.

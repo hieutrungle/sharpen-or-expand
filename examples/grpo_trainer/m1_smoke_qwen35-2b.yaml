@@ -1,8 +1,8 @@
 # M1.3 smoke test of the verl wiring on Lane B (2B, development only): 3 steps of 16 prompts x 8,
 # the full 16,384-token cap, a checkpoint at step 2 and validation before training and at step 2.
 # Identical to m1_dev_qwen35-2b.yaml except the batch, step limit, checkpoint and validation sizes.
-# Sampling (0.6 / 0.95), prompt, thinking mode, FP8 KV cache and the 16,384-token cap come from
-# eval_suite (decisions 004, 006, 009, 014).
+# Rollouts sample at 1.0 / 1.0 (decision 017). Validation sampling (0.6 / 0.95), prompt, thinking
+# mode, FP8 KV cache and the 16,384-token cap come from eval_suite (decisions 004, 006, 009, 014).
 name: grpo_m1_smoke_qwen35-2b
 milestone: m1
 development: true
@@ -25,6 +25,8 @@ optim:
 rollout:
   prompts_per_step: 16
   group_size: 8
+  temperature: 1.0  # rollout sampler, every algorithm (decision 017); validation samples like eval
+  top_p: 1.0
   max_prompt_tokens: 2048  # longest RL prompt is 1,446 tokens (docs/reports/m1_rl_prompts.json)
 policy_loss:
   clip_ratio_low: 0.2
