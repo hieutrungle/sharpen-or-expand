@@ -242,6 +242,10 @@ def export_checkpoint(
     for file_name in sorted(set(file_of.values())):
         part = {n: out[n] for n in out if file_of[n] == file_name}
         save_file(part, str(tmp / file_name), metadata={"format": "pt"})
+        # safetensors writes 0600; give the weights the same mode as the copied files.
+        umask = os.umask(0)
+        os.umask(umask)
+        os.chmod(tmp / file_name, 0o666 & ~umask)
     for path in base_dir.iterdir():
         if not path.name.endswith(".safetensors") and path.is_file():
             shutil.copyfile(path, tmp / path.name)  # snapshot files are symlinks into blobs
