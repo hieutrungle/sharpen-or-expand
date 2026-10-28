@@ -30,6 +30,8 @@ def main() -> None:
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.9)
     parser.add_argument("--max-num-seqs", type=int, default=None)
     parser.add_argument("--draw-seed", type=int, default=20261026)
+    parser.add_argument("--kv-cache-dtype", default="auto")  # e.g. fp8; changes the samples
+    parser.add_argument("--calculate-kv-scales", action="store_true")
     args = parser.parse_args()
 
     suite = load_suite(args.suite)
@@ -45,7 +47,12 @@ def main() -> None:
         log_stats=True,
     )
     sampler = VllmSampler(
-        args.model, revision=revision, max_tokens=suite.sampling.max_tokens, engine=engine
+        args.model,
+        revision=revision,
+        max_tokens=suite.sampling.max_tokens,
+        engine=engine,
+        kv_cache_dtype=args.kv_cache_dtype,
+        calculate_kv_scales=args.calculate_kv_scales,
     )
     try:  # what the scheduler resolved; private API, so only printed for the log
         scheduler = sampler._llm.llm_engine.vllm_config.scheduler_config
@@ -53,7 +60,12 @@ def main() -> None:
         print(f"PROBE scheduler max_num_batched_tokens={scheduler.max_num_batched_tokens}")
     except AttributeError as e:
         print("PROBE scheduler config not readable:", e)
-    print(f"PROBE engine {engine} problems={args.problems} samples={args.samples}", flush=True)
+    print(
+        f"PROBE engine {engine} kv_cache_dtype={args.kv_cache_dtype} "
+        f"calculate_kv_scales={args.calculate_kv_scales} problems={args.problems} "
+        f"samples={args.samples}",
+        flush=True,
+    )
     sampling = suite.sampling.model_copy(update={"seed": 1})
     sampler.sample(
         problems, prompt=suite.prompt, sampling=sampling, n=args.samples, checkpoint=args.model
