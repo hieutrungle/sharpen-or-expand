@@ -34,6 +34,14 @@ hard subset.
 4. Suite `soe-eval-v2`: the v1 suite with the new Level B hash and v2 paths. Sampling, prompt,
    scoring and tiers are unchanged (a test pins this).
 
+4b. **Excluded problems** (user, 2026-10-28: "exclude, no refill; screen for more"). Six problems the
+   M0.8 audit found with a wrong or non-unique gold stay in the frozen files but are never sampled
+   or scored (`excluded_problems` in the suite, with reasons): OlympiadBench 2969 (gold is for
+   T=10, the question states T=8), 2862 and 2863 (any of several labels is valid), and three Level B
+   problems whose question asks for more than the gold holds. Public benchmarks are excluded, not
+   re-gold'ed, to stay comparable with published numbers. Two of them were in the hard subset,
+   which is not refilled: 248 of 250 remain. The suite is 2,467 problems, 51,376 samples.
+
 ## Consequences
 - The 4B-Base reference evaluation is carried to v2 by re-evaluating only the 42 repaired Level B
   problems (`main_eval --only-problems`) and reusing every other result (`scripts/merge_eval.py`,

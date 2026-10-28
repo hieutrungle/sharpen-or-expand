@@ -83,7 +83,8 @@ def eval_units(
         problems = sorted(
             read_jsonl(data_root / problem_set.path, Problem), key=lambda p: p.problem_id
         )
-        for problem in problems[:limit_per_set]:
+        kept = [p for p in problems if p.problem_id not in suite.excluded_problems]
+        for problem in kept[:limit_per_set]:
             if only is not None and problem.problem_id not in only:
                 continue
             hard = problem.problem_id in hard_ids
@@ -102,6 +103,13 @@ def eval_units(
         raise ValueError("problem ids must be unique across the suite")
     if only is not None and set(ids) != only:
         raise ValueError(f"not in the suite: {sorted(only - set(ids))[:5]}")
+    present = {
+        p.problem_id for s in suite.problem_sets for p in read_jsonl(data_root / s.path, Problem)
+    }
+    unknown = set(suite.excluded_problems) - present
+    if unknown:
+        raise ValueError(f"excluded problems not in the suite: {sorted(unknown)}")
+    hard_ids -= set(suite.excluded_problems)
     if limit_per_set is None and only is None and not hard_ids <= set(ids):
         raise ValueError("every hard-subset problem must belong to a suite problem set")
     return sorted(units, key=lambda u: u.problem.problem_id)

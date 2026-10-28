@@ -78,3 +78,14 @@ hard_subset:
   path: datasets/soe/v2/eval/hard_subset.jsonl
   sha256: bfb28bf49aa080d00da453b66f299fa419add2aebd5163b2f1afae25a8ca28dc
   selection_report: docs/reports/m0_hard_subset_v1.json
+
+# Problems that stay in the frozen files but are never sampled or scored (decision 007, found by the
+# M0.8 audit). Public benchmarks are excluded, not re-gold'ed, to stay comparable with published
+# numbers; the hard subset is not refilled (248 of its 250 problems remain).
+excluded_problems:
+  olympiadbench_en/2969: "gold 23 is for T=10; the question states T=8 (answer 6^{5/3}-1)"
+  olympiadbench_en/2862: "asks for 'another' label: many answers are valid, gold lists some"
+  olympiadbench_en/2863: "asks for 'two other' labels: any two of four are valid"
+  dapo/c6fd43d9-63f7-4739-b43c-4c74ff100ce8: "asks for all placements of 1..16; gold '1' is a count"
+  dapo/6e6b6dc3-6ead-484b-9c9f-12c5104395a7: "asks for m+n and the cut lengths; gold has m+n only"
+  dapo/f0410ebc-63f8-48a8-95c8-8fc591a9ba01: "asks for both factors (143 and 143); gold lists one"

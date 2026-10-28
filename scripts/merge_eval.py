@@ -55,10 +55,10 @@ def merge(
             reused += 1
         else:
             raise SystemExit(f"{pid} changed between the suites but was not re-evaluated")
-    unused = set(patch_results) - {r.problem_id for r in merged}
+    unused = set(patch_results) - {r.problem_id for r in merged} - set(new.excluded_problems)
     if unused:
         raise SystemExit(f"patch results for problems outside the new suite: {sorted(unused)[:5]}")
-    return merged, {"reused": reused, "patched": patched}
+    return merged, {"reused": reused, "patched": patched, "excluded": len(new.excluded_problems)}
 
 
 def main() -> None:

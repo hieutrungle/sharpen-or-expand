@@ -37,6 +37,7 @@ def suite_with(tmp: Path, name: str, questions: list[str]) -> EvalSuite:
     data |= {
         "name": name,
         "hard_subset": None,
+        "excluded_problems": {},
         "problem_sets": [
             {"name": "level_b", "level": "B", "path": path.name, "sha256": file_sha256(path)}
         ],
@@ -73,7 +74,7 @@ def test_unchanged_problems_reuse_old_results_and_changed_ones_take_the_patch(
     new = suite_with(tmp_path, "new", ["same", "broken \\frac{1}{2}"])
     old_results = {"b/0": result("b/0", 16), "b/1": result("b/1", 0)}
     merged, counts = m.merge(old, new, old_results, {"b/1": result("b/1", 12)}, tmp_path)
-    assert counts == {"reused": 1, "patched": 1}
+    assert counts == {"reused": 1, "patched": 1, "excluded": 0}
     assert [(r.problem_id, r.main.correct) for r in merged] == [("b/0", 16), ("b/1", 12)]
 
 

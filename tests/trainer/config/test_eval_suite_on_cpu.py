@@ -67,6 +67,13 @@ def test_v1_suite_is_kept_byte_for_byte_for_the_runs_that_used_it() -> None:
     assert old.sampling == new.sampling and old.prompt == new.prompt and old.scoring == new.scoring
 
 
+def test_excluded_problems_have_reasons_and_belong_to_the_suite() -> None:
+    suite = load_suite(SUITE)
+    assert len(suite.excluded_problems) == 6 and all(suite.excluded_problems.values())
+    prefixes = {pid.split("/")[0] for pid in suite.excluded_problems}
+    assert prefixes == {"olympiadbench_en", "dapo"}  # Level A and Level B only; Level C untouched
+
+
 def test_prompt_renders_problem_and_boxed_instruction() -> None:
     prompt = load_suite(SUITE).prompt.render("What is 1+1?")
     assert prompt.startswith("What is 1+1?\n\n")

@@ -108,6 +108,9 @@ class EvalSuite(FrozenModel):
     hard: KSpec  # the hard subset
     problem_sets: list[ProblemSet]
     hard_subset: HardSubset | None
+    # problem_id -> reason. Excluded problems stay in the frozen files but are never sampled or
+    # scored: gold that is wrong for the stated question, or an answer that is not unique.
+    excluded_problems: dict[str, str] = {}
 
     @model_validator(mode="after")
     def _check(self) -> Self:

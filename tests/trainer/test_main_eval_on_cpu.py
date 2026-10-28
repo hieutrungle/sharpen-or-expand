@@ -39,6 +39,7 @@ def tiny_suite(tmp_path: Path) -> tuple[Path, EvalSuite]:
     write_jsonl(hard, [read_jsonl(tmp_path / "a.jsonl", Problem)[0]])
     data = yaml.safe_load(SUITE.read_text())
     data["problem_sets"] = entries
+    data["excluded_problems"] = {}
     data["hard_subset"] = {
         "name": "hard",
         "path": hard.name,
@@ -139,3 +140,15 @@ def test_only_problems_selects_listed_ids_and_rejects_unknown_ones(tmp_path: Pat
     assert [(u.problem.problem_id, u.n) for u in units] == [("a/0", 64), ("b/1", 16)]
     with pytest.raises(ValueError, match="not in the suite"):
         main_eval.eval_units(suite, tmp_path, None, only=frozenset({"a/0", "zzz/9"}))
+
+
+def test_excluded_problems_are_skipped_and_leave_the_hard_tier(tmp_path: Path) -> None:
+    _, suite = tiny_suite(tmp_path)
+    excluded = suite.model_copy(
+        update={"excluded_problems": {"a/0": "bad gold", "b/1": "ambiguous"}}
+    )
+    units = main_eval.eval_units(excluded, tmp_path, None)
+    assert [u.problem.problem_id for u in units] == ["a/1", "a/2", "b/0"]  # a/0 was the hard one
+    unknown = suite.model_copy(update={"excluded_problems": {"zzz/1": "typo"}})
+    with pytest.raises(ValueError, match="excluded problems not in the suite"):
+        main_eval.eval_units(unknown, tmp_path, None)
