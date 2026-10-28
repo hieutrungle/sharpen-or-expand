@@ -3,13 +3,15 @@
 It reads the frozen runs/<run_id>/config.yaml, so a chained or resumed job trains exactly what the
 first job started, builds verl's Hydra overrides from it (soe/trainer/rl/verl_overrides.py) and runs
 `verl.trainer.main_ppo` in a subprocess. Every job segment writes its own metrics file, because
-verl's file logger truncates its target on open.
+verl's file logger truncates its target on open. A rollout failure (soe/workers/rollout/failures.py)
+stops the trainer within a minute, instead of verl training on the rest of the batch.
 """
 
 import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
@@ -18,6 +20,7 @@ from soe.trainer.config.eval_suite import file_sha256, load_suite
 from soe.trainer.config.experiment import ExperimentConfig, load_config, rollout_protocol
 from soe.trainer.rl.verl_overrides import LaunchPaths, verl_overrides
 from soe.utils.run import read_run_info
+from soe.workers.rollout.failures import FAILURES_ENV, read_failures
 
 REWARD_FUNCTION = Path("soe/workers/reward_manager/math_reward.py")
 AGENT_LOOPS = Path("soe/workers/rollout/agent_loops.yaml")
@@ -55,6 +58,30 @@ def frozen_overrides(run_dir: Path, overrides: list[str]) -> list[str]:
     return overrides
 
 
+class RolloutFailure(RuntimeError):
+    pass
+
+
+def run_until_failure(
+    cmd: list[str], env: dict[str, str], failures: Path, poll_seconds: float = 30.0
+) -> None:
+    """Run the trainer; stop it and raise at the first recorded rollout failure."""
+    with subprocess.Popen(cmd, env=env) as proc:
+        while proc.poll() is None:
+            time.sleep(poll_seconds)
+            if found := read_failures(failures):
+                proc.terminate()
+                try:
+                    proc.wait(timeout=120)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                raise RolloutFailure(f"{len(found)} rollout failure(s) in {failures}: {found[0]}")
+    if found := read_failures(failures):  # recorded during the last poll interval
+        raise RolloutFailure(f"{len(found)} rollout failure(s) in {failures}: {found[0]}")
+    if proc.returncode != 0:
+        raise subprocess.CalledProcessError(proc.returncode, cmd)
+
+
 class LaunchCli(BaseSettings):
     model_config = SettingsConfigDict(
         cli_prog_name="python -m soe.trainer.main_rl", env_prefix="SOE_LAUNCH_", cli_kebab_case=True
@@ -86,9 +113,10 @@ class LaunchCli(BaseSettings):
         segment = os.environ.get("SLURM_JOB_ID", "local")
         metrics = run_dir / "metrics" / f"segment-{segment}.jsonl"
         metrics.parent.mkdir(exist_ok=True)
-        env = os.environ | {"VERL_FILE_LOGGER_PATH": str(metrics)}
-        subprocess.run(
-            [sys.executable, "-m", "verl.trainer.main_ppo", *overrides], env=env, check=True
+        failures = run_dir / f"rollout_failures-{segment}.jsonl"
+        env = os.environ | {"VERL_FILE_LOGGER_PATH": str(metrics), FAILURES_ENV: str(failures)}
+        run_until_failure(
+            [sys.executable, "-m", "verl.trainer.main_ppo", *overrides], env, failures
         )
         # verl exits 0 only when the step budget is done; a killed job leaves no DONE marker.
         (run_dir / "DONE").write_text(f"finished in job {segment}\n")

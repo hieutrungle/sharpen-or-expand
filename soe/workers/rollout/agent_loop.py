@@ -3,7 +3,7 @@
 verl 0.9.1's vLLM server sends no stop tokens of its own, and Qwen3.5 base checkpoints list only
 <|endoftext|> as EOS, so without this every rollout would run past <|im_end|> to the length cap.
 The loop also flags truncation (no stop token at the end); the reward hook then
-gives reward 0.
+gives reward 0. A generation error is recorded so the run stops (soe/workers/rollout/failures.py).
 
 Registered for verl in soe/workers/rollout/agent_loops.yaml. GPU image only (imports verl).
 """
@@ -14,6 +14,7 @@ from verl.experimental.agent_loop.agent_loop import AgentLoopOutput
 from verl.experimental.agent_loop.single_turn_agent_loop import SingleTurnAgentLoop
 
 from soe.workers.rollout.chat import is_truncated, stop_token_ids, turn_end_text
+from soe.workers.rollout.failures import failures_recorded
 
 
 class StopAtTurnEndAgentLoop(SingleTurnAgentLoop):  # type: ignore[misc]
@@ -23,14 +24,19 @@ class StopAtTurnEndAgentLoop(SingleTurnAgentLoop):  # type: ignore[misc]
         turn_end = turn_end_text(
             lambda messages: tokenizer.apply_chat_template(messages, tokenize=False)
         )
-        self._stop_ids = stop_token_ids(
-            tokenizer.eos_token_id,
-            turn_end,
-            lambda text: tokenizer.encode(text, add_special_tokens=False),
-        )
+
+        def encode(text: str) -> list[int]:
+            return list(tokenizer.encode(text, add_special_tokens=False))
+
+        self._stop_ids = stop_token_ids(tokenizer.eos_token_id, turn_end, encode)
+        self._turn_end_id = encode(turn_end)[0]
 
     async def run(self, sampling_params: dict[str, Any], **kwargs: Any) -> AgentLoopOutput:
         params = {**sampling_params, "stop_token_ids": self._stop_ids}
-        output: AgentLoopOutput = await super().run(params, **kwargs)
-        output.extra_fields["truncated"] = is_truncated(output.response_ids, self._stop_ids)
+        with failures_recorded("agent_loop"):
+            output: AgentLoopOutput = await super().run(params, **kwargs)
+        ids = output.response_ids
+        output.extra_fields["truncated"] = is_truncated(ids, self._stop_ids)
+        # Diagnostic: a finished turn should close on <|im_end|>, not on the base model's EOS.
+        output.extra_fields["turn_end"] = bool(ids) and ids[-1] == self._turn_end_id
         return output

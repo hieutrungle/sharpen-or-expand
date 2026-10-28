@@ -13,7 +13,7 @@ def test_verl_reward_hook_uses_same_verifier() -> None:
 def test_truncated_rollout_gets_zero_even_with_the_right_box() -> None:
     # Decision 014: evaluation scores a truncated response incorrect, so RL must not reward it.
     result = compute_score("soe/dapo", r"\boxed{7}", "7", {"truncated": True})
-    assert result == {"score": 0.0, "acc": 0.0, "truncated": 1.0, "has_box": 1.0}
+    assert result == {"score": 0.0, "acc": 0.0, "truncated": 1.0, "has_box": 1.0, "turn_end": 0.0}
 
 
 def test_missing_truncation_flag_fails_loudly() -> None:
