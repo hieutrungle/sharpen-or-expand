@@ -46,6 +46,7 @@ def main() -> None:
     hard = set()
     if suite.hard_subset is not None:
         hard = {p.problem_id for p in read_jsonl(data_root / suite.hard_subset.path, Problem)}
+        hard -= set(suite.removed_from_hard_subset)
     problems = {
         p.problem_id: (p, s.name, s.level.value)
         for s in suite.problem_sets

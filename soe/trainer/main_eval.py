@@ -78,6 +78,9 @@ def eval_units(
     hard_ids: set[str] = set()
     if suite.hard_subset is not None:
         hard_ids = {p.problem_id for p in read_jsonl(data_root / suite.hard_subset.path, Problem)}
+    if not set(suite.removed_from_hard_subset) <= hard_ids:
+        raise ValueError("removed from the hard subset but not in it")
+    hard_ids -= set(suite.removed_from_hard_subset)
     units = []
     for problem_set in suite.problem_sets:
         problems = sorted(

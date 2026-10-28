@@ -40,6 +40,7 @@ def tiny_suite(tmp_path: Path) -> tuple[Path, EvalSuite]:
     data = yaml.safe_load(SUITE.read_text())
     data["problem_sets"] = entries
     data["excluded_problems"] = {}
+    data["removed_from_hard_subset"] = {}
     data["hard_subset"] = {
         "name": "hard",
         "path": hard.name,
@@ -152,3 +153,13 @@ def test_excluded_problems_are_skipped_and_leave_the_hard_tier(tmp_path: Path) -
     unknown = suite.model_copy(update={"excluded_problems": {"zzz/1": "typo"}})
     with pytest.raises(ValueError, match="excluded problems not in the suite"):
         main_eval.eval_units(unknown, tmp_path, None)
+
+
+def test_removed_from_hard_subset_keeps_the_problem_at_main_tier(tmp_path: Path) -> None:
+    _, suite = tiny_suite(tmp_path)
+    removed = suite.model_copy(update={"removed_from_hard_subset": {"a/0": "verifier"}})
+    units = main_eval.eval_units(removed, tmp_path, None)
+    assert [(u.problem.problem_id, u.n, u.hard) for u in units][0] == ("a/0", 16, False)
+    not_hard = suite.model_copy(update={"removed_from_hard_subset": {"a/1": "typo"}})
+    with pytest.raises(ValueError, match="not in it"):
+        main_eval.eval_units(not_hard, tmp_path, None)

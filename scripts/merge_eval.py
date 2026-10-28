@@ -31,6 +31,14 @@ def problems_by_id(suite: EvalSuite, data_root: Path) -> dict[str, Problem]:
     }
 
 
+def leave_hard_tier(result: ProblemResult, main_ks: list[int]) -> ProblemResult:
+    """The result the problem would have had outside the hard subset: its first main-tier
+    samples are its main tier already, and maj@k uses the first k samples."""
+    return result.model_copy(
+        update={"hard": False, "all": result.main, "maj": {k: result.maj[k] for k in main_ks}}
+    )
+
+
 def merge(
     old: EvalSuite,
     new: EvalSuite,
@@ -48,17 +56,27 @@ def merge(
     for unit in eval_units(new, data_root, None):
         pid = unit.problem.problem_id
         if pid in patch_results:
-            merged.append(patch_results[pid])
+            found = patch_results[pid]
             patched += 1
         elif old_problems.get(pid) == new_problems[pid] and pid in old_results:
-            merged.append(old_results[pid])
+            found = old_results[pid]
             reused += 1
         else:
             raise SystemExit(f"{pid} changed between the suites but was not re-evaluated")
+        if found.hard and not unit.hard:
+            found = leave_hard_tier(found, new.main.ks)
+        if found.hard != unit.hard:
+            raise SystemExit(f"{pid} joined the hard subset; re-evaluate it")
+        merged.append(found)
     unused = set(patch_results) - {r.problem_id for r in merged} - set(new.excluded_problems)
     if unused:
         raise SystemExit(f"patch results for problems outside the new suite: {sorted(unused)[:5]}")
-    return merged, {"reused": reused, "patched": patched, "excluded": len(new.excluded_problems)}
+    return merged, {
+        "reused": reused,
+        "patched": patched,
+        "excluded": len(new.excluded_problems),
+        "removed_from_hard_subset": len(new.removed_from_hard_subset),
+    }
 
 
 def main() -> None:

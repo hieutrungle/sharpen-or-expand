@@ -69,9 +69,17 @@ def test_v1_suite_is_kept_byte_for_byte_for_the_runs_that_used_it() -> None:
 
 def test_excluded_problems_have_reasons_and_belong_to_the_suite() -> None:
     suite = load_suite(SUITE)
-    assert len(suite.excluded_problems) == 6 and all(suite.excluded_problems.values())
+    assert len(suite.excluded_problems) == 19 and all(suite.excluded_problems.values())
     prefixes = {pid.split("/")[0] for pid in suite.excluded_problems}
-    assert prefixes == {"olympiadbench_en", "dapo"}  # Level A and Level B only; Level C untouched
+    assert prefixes == {"math500", "olympiadbench_en", "dapo"}  # Levels A and B; C untouched
+    assert len(suite.removed_from_hard_subset) == 4 and all(suite.removed_from_hard_subset.values())
+
+
+def test_a_problem_cannot_be_both_excluded_and_removed_from_the_hard_subset() -> None:
+    data = suite_dict()
+    data["removed_from_hard_subset"] = {next(iter(data["excluded_problems"])): "both"}
+    with pytest.raises(ValidationError, match="either excluded or removed"):
+        EvalSuite.model_validate(data)
 
 
 def test_prompt_renders_problem_and_boxed_instruction() -> None:

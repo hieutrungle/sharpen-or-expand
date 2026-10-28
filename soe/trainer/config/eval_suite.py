@@ -111,6 +111,9 @@ class EvalSuite(FrozenModel):
     # problem_id -> reason. Excluded problems stay in the frozen files but are never sampled or
     # scored: gold that is wrong for the stated question, or an answer that is not unique.
     excluded_problems: dict[str, str] = {}
+    # problem_id -> reason. Stay in their problem set but leave the hard tier: they met the
+    # selection rule only because the verifier rejected correct answers (decision 005, addendum).
+    removed_from_hard_subset: dict[str, str] = {}
 
     @model_validator(mode="after")
     def _check(self) -> Self:
@@ -119,6 +122,8 @@ class EvalSuite(FrozenModel):
             raise ValueError("problem set names must be unique")
         if self.hard.samples_per_problem < self.main.samples_per_problem:
             raise ValueError("the hard subset needs at least as many samples as the main tier")
+        if set(self.excluded_problems) & set(self.removed_from_hard_subset):
+            raise ValueError("a problem is either excluded or removed from the hard subset")
         return self
 
 

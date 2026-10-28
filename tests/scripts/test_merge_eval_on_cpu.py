@@ -38,6 +38,7 @@ def suite_with(tmp: Path, name: str, questions: list[str]) -> EvalSuite:
         "name": name,
         "hard_subset": None,
         "excluded_problems": {},
+        "removed_from_hard_subset": {},
         "problem_sets": [
             {"name": "level_b", "level": "B", "path": path.name, "sha256": file_sha256(path)}
         ],
@@ -74,7 +75,7 @@ def test_unchanged_problems_reuse_old_results_and_changed_ones_take_the_patch(
     new = suite_with(tmp_path, "new", ["same", "broken \\frac{1}{2}"])
     old_results = {"b/0": result("b/0", 16), "b/1": result("b/1", 0)}
     merged, counts = m.merge(old, new, old_results, {"b/1": result("b/1", 12)}, tmp_path)
-    assert counts == {"reused": 1, "patched": 1, "excluded": 0}
+    assert counts == {"reused": 1, "patched": 1, "excluded": 0, "removed_from_hard_subset": 0}
     assert [(r.problem_id, r.main.correct) for r in merged] == [("b/0", 16), ("b/1", 12)]
 
 
@@ -84,3 +85,15 @@ def test_a_changed_problem_without_a_patch_is_refused(tmp_path: Path) -> None:
     new = suite_with(tmp_path, "new", ["same", "broken \\frac{1}{2}"])
     with pytest.raises(SystemExit, match="not re-evaluated"):
         m.merge(old, new, {"b/0": result("b/0", 16), "b/1": result("b/1", 0)}, {}, tmp_path)
+
+
+def test_leaving_the_hard_tier_keeps_main_counts_and_main_ks() -> None:
+    m = script()
+    main = result("b/0", 2).main
+    every = main.model_copy(update={"n": 64, "correct": 20})
+    hard = result("b/0", 2).model_copy(
+        update={"hard": True, "all": every, "maj": {k: k > 16 for k in (1, 4, 8, 16, 32, 64)}}
+    )
+    left = m.leave_hard_tier(hard, [1, 4, 8, 16])
+    assert (left.hard, left.all, left.main) == (False, main, main)
+    assert left.maj == {1: False, 4: False, 8: False, 16: False}

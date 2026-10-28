@@ -58,3 +58,20 @@ evaluated pass rates are not biased by selection; the rule was fixed before samp
 - **Selecting with the evaluation seed:** cheaper (reuse the base model's evaluation samples) but
   biased, as above.
 - **SFT-checkpoint pass rates:** the plan fixes the subset in M0, before SFT exists.
+
+## Addendum (2026-10-28): measurement errors leave the subset, without refill
+
+The rule selects on the verifier's pass rate, so it is only as valid as the verifier. The gold
+screen (`scripts/gold_screen.py`) found two kinds of artefact among the 250:
+
+- **Wrong or ambiguous gold** (9 problems, 2 from the M0.8 audit and 7 from the screen): excluded
+  from the whole suite (`excluded_problems`), as for every other set.
+- **Verifier false negatives** (4 problems): the model gives the gold answer in another form in
+  64–80 of 80 samples (percent sign, tuple for a column vector, inequality for an interval,
+  labelled tuple). They stay in their problem sets, scored at the main tier, but leave the hard
+  tier (`removed_from_hard_subset`).
+
+Neither kind is replaced: a refill would be a second, post-hoc draw. The frozen file and its hash
+are unchanged; the hard tier is the file minus both lists, **237 problems**. When the verifier
+fixes land, any remaining hard-subset problem whose selection-seed count rises above 4/16 under
+the fixed verifier leaves the hard tier by the same rule.
