@@ -1,0 +1,55 @@
+# 007 — Data v2: repair encoding debris in DAPO-derived problem text, splits frozen
+
+- Date: 2026-10-28
+- Status: fix requested (user, 2026-10-28: "do the fix for level B problems"); the in-place method
+  (chosen after a full rebuild turned out to reshuffle Level B) is proposed, pending the user's review
+- Milestone: M0 (found while drafting the M0.8 audit)
+- Built by: `examples/data_preprocess/m0_repair_v2.py` from v1; report `docs/reports/m0_datasets_v2.json`
+- Frozen in: `soe/trainer/config/eval_suite.yaml` (`soe-eval-v2`); v1 kept as `eval_suite_v1.yaml`
+
+## Context
+The audit sheet could not be written because a Level B problem contained a form feed. Upstream
+DAPO text has encoding debris: "\frac" decoded as a form feed plus "rac" (604 of the 14,116 raw pool
+rows), stray form feeds inside ordinary words ("fi<FF>ve", "the <FF>first"), and a few other
+control bytes around "\le". In the v1 build this affects 42 of 994 Level B and 585 of 12,236 train
+questions. Level A, Level C, every gold answer and all 250 hard-subset problems are clean.
+
+Rebuilding v1 from scratch with clean text is not an option: the cleaned text changes which pool
+problems are exact duplicates, so Level B's seeded draw runs over a different list. A trial rebuild
+replaced 379 of the 994 Level B problems and dropped 27 of the 113 Level B problems in the frozen
+hard subset.
+
+## Decision
+1. v1 stays exactly as built and reproducible. v2 is derived from v1 by repairing the text in place:
+   "\x0crac" becomes "\frac"; every other control character (C0 except tab and newline, and C1)
+   is removed. Problem ids, order, answers and levels do not change.
+2. Decision 003's checks are re-run on the repaired text: exact duplicates, near-duplicates of
+   evaluation and Level B problems (13-grams, 0.5; boilerplate n-grams recounted over train + Level
+   B, a slightly stricter set), and the final coverage audit. Only train may lose problems; a leak
+   into Level B or an evaluation set stops the build.
+3. Result: Level B keeps its 994 problems (42 repaired); train has 12,232 (585 repaired, 4 dropped
+   as exact duplicates of other train problems, no new leaks; residual coverage empty). Only the
+   Level B and train files change (Level B sha256 `a4833e89b697…` → `de177396a6e9…`; train `f53e1cad352c…` →
+   `4c4b4a20acc1…`); the 11 evaluation files and the hard subset are byte-identical.
+4. Suite `soe-eval-v2`: the v1 suite with the new Level B hash and v2 paths. Sampling, prompt,
+   scoring and tiers are unchanged (a test pins this).
+
+## Consequences
+- The 4B-Base reference evaluation is carried to v2 by re-evaluating only the 42 repaired Level B
+  problems (`main_eval --only-problems`) and reusing every other result (`scripts/merge_eval.py`,
+  which refuses if any changed problem lacks a re-run).
+- The M0.6 selection scored the 42 affected Level B candidates on corrupted text. None of them is in
+  the hard subset; Level B's eligible count used for the stratified draw may differ by a few.
+- RL training (M1 on) and the SFT decontamination (M2) use v2 train. Nothing was trained on v1.
+- The probes in `scripts/` now read v2 train.
+
+## For the report
+"About 5% of the DAPO-derived problems contained encoding artefacts (a `\frac` decoded as a form
+feed); we repaired them in place before any training, keeping every split and the hard subset fixed."
+
+## Alternatives considered
+- **Full rebuild with clean text:** cleanest pipeline, but reshuffles 38% of Level B and breaks the
+  frozen hard subset.
+- **Leave the text as is:** comparisons stay consistent, but 4% of Level B prompts (and 5% of RL
+  prompts) are garbled, which no reader would accept once noticed.
+- **Drop the affected problems:** loses 42 Level B problems and still changes the frozen file.

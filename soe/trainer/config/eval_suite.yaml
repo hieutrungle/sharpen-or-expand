@@ -1,8 +1,10 @@
-# The frozen evaluation suite (decision 004). Every checkpoint -- base, SFT, DPO, every RL run --
+# The frozen evaluation suite (decision 004). v2 (decision 007): Level B text repaired (42 problems,
+# same ids); every other file is byte-identical to v1. v1 stays in eval_suite_v1.yaml.
+# Every checkpoint -- base, SFT, DPO, every RL run --
 # is evaluated with exactly these settings. Never edit after the M0 freeze: a change needs a new
 # decision note and a new suite name. Problem-set hashes come from the data build report below.
-name: soe-eval-v1
-data_build_report: docs/reports/m0_datasets_v1.json
+name: soe-eval-v2
+data_build_report: docs/reports/m0_datasets_v2.json
 
 # As in Yue et al. (2025), "Does Reinforcement Learning Really Incentivize Reasoning Capacity in
 # LLMs Beyond the Base Model?": identical for base and RL models.
@@ -41,38 +43,38 @@ hard:  # the hard subset: 64 samples per problem (its first 16 double as the mai
 
 problem_sets:
   # Level A: public benchmarks
-  - {name: math500, level: A, path: datasets/soe/v1/eval/math500.jsonl,
+  - {name: math500, level: A, path: datasets/soe/v2/eval/math500.jsonl,
      sha256: c7193f4d1de251d244eccdf31fa1557c400229933de91f19ddcc16d484cbcbd1}
-  - {name: aime24, level: A, path: datasets/soe/v1/eval/aime24.jsonl,
+  - {name: aime24, level: A, path: datasets/soe/v2/eval/aime24.jsonl,
      sha256: bb90460625301928cf49fa56701f1799030f998f84040832912581673eca0845}
-  - {name: aime25, level: A, path: datasets/soe/v1/eval/aime25.jsonl,
+  - {name: aime25, level: A, path: datasets/soe/v2/eval/aime25.jsonl,
      sha256: c3371b56153dded329797b4d65a26b2e58778c46d5d791805888721d8d12626c}
-  - {name: olympiadbench_en, level: A, path: datasets/soe/v1/eval/olympiadbench_en.jsonl,
+  - {name: olympiadbench_en, level: A, path: datasets/soe/v2/eval/olympiadbench_en.jsonl,
      sha256: abd8aeb67e701600d40724a94f371e587968245c99ecd1a665612065a2f2facb}
   # Level C1: after the base model's release (never used for selection)
-  - {name: aime26, level: C1, path: datasets/soe/v1/eval/aime26.jsonl,
+  - {name: aime26, level: C1, path: datasets/soe/v2/eval/aime26.jsonl,
      sha256: 8bf934043a664da4fb915f0f89b6f1bf300a74e56b4196865d928922cf625a49}
-  - {name: hmmt_feb26, level: C1, path: datasets/soe/v1/eval/hmmt_feb26.jsonl,
+  - {name: hmmt_feb26, level: C1, path: datasets/soe/v2/eval/hmmt_feb26.jsonl,
      sha256: ba031e94b0b35e7b616b52c3ad2fcaba677926a2b422f3380c8514a6c4438787}
   # Level C2: 2025 contests absent from the RL pool (never used for selection)
-  - {name: hmmt_nov25, level: C2, path: datasets/soe/v1/eval/hmmt_nov25.jsonl,
+  - {name: hmmt_nov25, level: C2, path: datasets/soe/v2/eval/hmmt_nov25.jsonl,
      sha256: e0aab96067e75fd13cd4ba65d95e45f44dd67a47067f9fd6ac8f15e29b89a75d}
-  - {name: hmmt_feb25, level: C2, path: datasets/soe/v1/eval/hmmt_feb25.jsonl,
+  - {name: hmmt_feb25, level: C2, path: datasets/soe/v2/eval/hmmt_feb25.jsonl,
      sha256: 65be3dfbe1eda324c432783dee088d8e0f0588ad97d8b3c9a45514a8d1a95812}
-  - {name: brumo25, level: C2, path: datasets/soe/v1/eval/brumo25.jsonl,
+  - {name: brumo25, level: C2, path: datasets/soe/v2/eval/brumo25.jsonl,
      sha256: 9dcb21a1de89dd4f023180efd613926a698d6c32a955433e5c3e383232271b90}
-  - {name: smt25, level: C2, path: datasets/soe/v1/eval/smt25.jsonl,
+  - {name: smt25, level: C2, path: datasets/soe/v2/eval/smt25.jsonl,
      sha256: 8af0b3eb8f0cb16064d2ce095f5bd5927bcd9ef97cf5ea3443360f4e56462ac5}
-  - {name: cmimc25, level: C2, path: datasets/soe/v1/eval/cmimc25.jsonl,
+  - {name: cmimc25, level: C2, path: datasets/soe/v2/eval/cmimc25.jsonl,
      sha256: 0132f3a9535d8f3bfa6239e0b6c2093393d9c158950b1b072c5fee84ef491330}
   # Level B: in-distribution held-out split of the RL pool
-  - {name: level_b, level: B, path: datasets/soe/v1/rl/level_b.jsonl,
-     sha256: a4833e89b697c3f3fd5073792a5a100be3c14bb5cbb7a1a4a6048c264e434fdc}
+  - {name: level_b, level: B, path: datasets/soe/v2/rl/level_b.jsonl,
+     sha256: de177396a6e935411c58dbcfb116c5fd9a6691bbf80e8093c9ec34bcd70eb3e9}
 
 # Hard subset (decision 005, halt rule per 006): 250 Level A/B problems that Qwen3.5-4B-Base solved
 # at most 4/16 times with sampling seed 1. Every sample of these problems uses the hard tier (64).
 hard_subset:
   name: hard_subset
-  path: datasets/soe/v1/eval/hard_subset.jsonl
+  path: datasets/soe/v2/eval/hard_subset.jsonl
   sha256: bfb28bf49aa080d00da453b66f299fa419add2aebd5163b2f1afae25a8ca28dc
   selection_report: docs/reports/m0_hard_subset_v1.json

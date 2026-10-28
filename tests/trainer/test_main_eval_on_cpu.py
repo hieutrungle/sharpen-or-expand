@@ -131,3 +131,11 @@ def test_plan_is_never_seen_half_written(tmp_path: Path) -> None:
     (out / "plan.json").write_text("")  # what a racing reader used to see
     with pytest.raises(ValueError):
         main_eval.write_or_check_plan(out, plan)
+
+
+def test_only_problems_selects_listed_ids_and_rejects_unknown_ones(tmp_path: Path) -> None:
+    _, suite = tiny_suite(tmp_path)
+    units = main_eval.eval_units(suite, tmp_path, None, only=frozenset({"a/0", "b/1"}))
+    assert [(u.problem.problem_id, u.n) for u in units] == [("a/0", 64), ("b/1", 16)]
+    with pytest.raises(ValueError, match="not in the suite"):
+        main_eval.eval_units(suite, tmp_path, None, only=frozenset({"a/0", "zzz/9"}))

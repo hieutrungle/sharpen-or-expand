@@ -1,0 +1,78 @@
+# The frozen evaluation suite (decision 004). Every checkpoint -- base, SFT, DPO, every RL run --
+# is evaluated with exactly these settings. Never edit after the M0 freeze: a change needs a new
+# decision note and a new suite name. Problem-set hashes come from the data build report below.
+name: soe-eval-v1
+data_build_report: docs/reports/m0_datasets_v1.json
+
+# As in Yue et al. (2025), "Does Reinforcement Learning Really Incentivize Reasoning Capacity in
+# LLMs Beyond the Base Model?": identical for base and RL models.
+sampling:
+  temperature: 0.6
+  top_p: 0.95
+  top_k: -1  # disabled
+  max_tokens: 16384  # also the cap on RL rollout length (enforced from M1)
+  seed: 0  # every request; the same random numbers for every checkpoint
+
+# Zero-shot, the same prompt for every model stage, wrapped in the model's chat template.
+# SFT data (M2) must use this format. Gemma 4 E4B base ships no chat template; M8 uses the one
+# from google/gemma-4-E4B-it (same tokenizer).
+prompt:
+  use_chat_template: true
+  # Generation prompt ends with an open "<think>\n" (decision 006); every renderer must pass this:
+  # evaluation, verl rollouts (apply_chat_template kwargs) and the SFT data format.
+  enable_thinking: true
+  template: |-
+    {problem}
+
+    Please reason step by step, and put your final answer within \boxed{}.
+
+scoring:
+  answer_extraction: last_boxed  # no \boxed{} -> incorrect
+  truncated_response: incorrect  # hit max_tokens; truncation rate is reported per set
+  maj_grouping: verifier_equivalence
+  transition_solved_threshold: 0.5  # solved at k when pass@k >= 0.5
+
+main:  # every problem set: 16 samples per problem
+  ks: [1, 4, 8, 16]
+  transition_ks: [1, 16]  # k=1: reliably solved (sharpening); k=16: solved at least once (expansion)
+hard:  # the hard subset: 64 samples per problem (its first 16 double as the main tier)
+  ks: [1, 4, 8, 16, 32, 64]
+  transition_ks: [1, 64]
+
+problem_sets:
+  # Level A: public benchmarks
+  - {name: math500, level: A, path: datasets/soe/v1/eval/math500.jsonl,
+     sha256: c7193f4d1de251d244eccdf31fa1557c400229933de91f19ddcc16d484cbcbd1}
+  - {name: aime24, level: A, path: datasets/soe/v1/eval/aime24.jsonl,
+     sha256: bb90460625301928cf49fa56701f1799030f998f84040832912581673eca0845}
+  - {name: aime25, level: A, path: datasets/soe/v1/eval/aime25.jsonl,
+     sha256: c3371b56153dded329797b4d65a26b2e58778c46d5d791805888721d8d12626c}
+  - {name: olympiadbench_en, level: A, path: datasets/soe/v1/eval/olympiadbench_en.jsonl,
+     sha256: abd8aeb67e701600d40724a94f371e587968245c99ecd1a665612065a2f2facb}
+  # Level C1: after the base model's release (never used for selection)
+  - {name: aime26, level: C1, path: datasets/soe/v1/eval/aime26.jsonl,
+     sha256: 8bf934043a664da4fb915f0f89b6f1bf300a74e56b4196865d928922cf625a49}
+  - {name: hmmt_feb26, level: C1, path: datasets/soe/v1/eval/hmmt_feb26.jsonl,
+     sha256: ba031e94b0b35e7b616b52c3ad2fcaba677926a2b422f3380c8514a6c4438787}
+  # Level C2: 2025 contests absent from the RL pool (never used for selection)
+  - {name: hmmt_nov25, level: C2, path: datasets/soe/v1/eval/hmmt_nov25.jsonl,
+     sha256: e0aab96067e75fd13cd4ba65d95e45f44dd67a47067f9fd6ac8f15e29b89a75d}
+  - {name: hmmt_feb25, level: C2, path: datasets/soe/v1/eval/hmmt_feb25.jsonl,
+     sha256: 65be3dfbe1eda324c432783dee088d8e0f0588ad97d8b3c9a45514a8d1a95812}
+  - {name: brumo25, level: C2, path: datasets/soe/v1/eval/brumo25.jsonl,
+     sha256: 9dcb21a1de89dd4f023180efd613926a698d6c32a955433e5c3e383232271b90}
+  - {name: smt25, level: C2, path: datasets/soe/v1/eval/smt25.jsonl,
+     sha256: 8af0b3eb8f0cb16064d2ce095f5bd5927bcd9ef97cf5ea3443360f4e56462ac5}
+  - {name: cmimc25, level: C2, path: datasets/soe/v1/eval/cmimc25.jsonl,
+     sha256: 0132f3a9535d8f3bfa6239e0b6c2093393d9c158950b1b072c5fee84ef491330}
+  # Level B: in-distribution held-out split of the RL pool
+  - {name: level_b, level: B, path: datasets/soe/v1/rl/level_b.jsonl,
+     sha256: a4833e89b697c3f3fd5073792a5a100be3c14bb5cbb7a1a4a6048c264e434fdc}
+
+# Hard subset (decision 005, halt rule per 006): 250 Level A/B problems that Qwen3.5-4B-Base solved
+# at most 4/16 times with sampling seed 1. Every sample of these problems uses the hard tier (64).
+hard_subset:
+  name: hard_subset
+  path: datasets/soe/v1/eval/hard_subset.jsonl
+  sha256: bfb28bf49aa080d00da453b66f299fa419add2aebd5163b2f1afae25a8ca28dc
+  selection_report: docs/reports/m0_hard_subset_v1.json

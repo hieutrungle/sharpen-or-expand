@@ -44,7 +44,7 @@ def main() -> None:
 
     data_root = Path(os.environ["SOE_DATA"])
     suite = load_suite(args.suite)
-    pool = read_jsonl(data_root / "datasets/soe/v1/rl/train.jsonl", Problem)
+    pool = read_jsonl(data_root / "datasets/soe/v2/rl/train.jsonl", Problem)
     problems = random.Random(args.draw_seed).sample(
         sorted(pool, key=lambda p: p.problem_id), args.problems
     )

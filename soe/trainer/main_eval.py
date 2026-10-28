@@ -21,7 +21,7 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict
@@ -61,12 +61,20 @@ class EvalPlan(BaseModel):
     revision: str | None
     num_shards: int
     limit_per_set: int | None  # smoke tests only; full evaluations have None
+    only_problems_sha256: str | None = None  # partial re-evaluation of listed problems (e.g. 007)
     units: int
     samples: int
 
 
-def eval_units(suite: EvalSuite, data_root: Path, limit_per_set: int | None) -> list[EvalUnit]:
-    """Every (problem, number of samples) of the suite, sorted by problem id."""
+def eval_units(
+    suite: EvalSuite,
+    data_root: Path,
+    limit_per_set: int | None,
+    *,
+    only: frozenset[str] | None = None,
+) -> list[EvalUnit]:
+    """Every (problem, number of samples) of the suite, sorted by problem id; with `only`, just
+    those problems (each must exist)."""
     hard_ids: set[str] = set()
     if suite.hard_subset is not None:
         hard_ids = {p.problem_id for p in read_jsonl(data_root / suite.hard_subset.path, Problem)}
@@ -76,6 +84,8 @@ def eval_units(suite: EvalSuite, data_root: Path, limit_per_set: int | None) -> 
             read_jsonl(data_root / problem_set.path, Problem), key=lambda p: p.problem_id
         )
         for problem in problems[:limit_per_set]:
+            if only is not None and problem.problem_id not in only:
+                continue
             hard = problem.problem_id in hard_ids
             n = (suite.hard if hard else suite.main).samples_per_problem
             units.append(
@@ -90,7 +100,9 @@ def eval_units(suite: EvalSuite, data_root: Path, limit_per_set: int | None) -> 
     ids = [u.problem.problem_id for u in units]
     if len(ids) != len(set(ids)):
         raise ValueError("problem ids must be unique across the suite")
-    if limit_per_set is None and not hard_ids <= set(ids):
+    if only is not None and set(ids) != only:
+        raise ValueError(f"not in the suite: {sorted(only - set(ids))[:5]}")
+    if limit_per_set is None and only is None and not hard_ids <= set(ids):
         raise ValueError("every hard-subset problem must belong to a suite problem set")
     return sorted(units, key=lambda u: u.problem.problem_id)
 
@@ -147,6 +159,8 @@ def make_plan(
     units: list[EvalUnit],
     num_shards: int,
     limit_per_set: int | None,
+    *,
+    only_problems_sha256: str | None = None,
 ) -> EvalPlan:
     return EvalPlan(
         suite_name=suite.name,
@@ -155,6 +169,7 @@ def make_plan(
         revision=pinned_revision(checkpoint),
         num_shards=num_shards,
         limit_per_set=limit_per_set,
+        only_problems_sha256=only_problems_sha256,
         units=len(units),
         samples=sum(u.n for u in units),
     )
@@ -242,6 +257,46 @@ def same_answer(a: str, b: str) -> bool:
     return answers_equivalent(a, b)
 
 
+def report_tables(results: list[ProblemResult], suite: EvalSuite) -> dict[str, Any]:
+    """Main-tier tables per problem set and per level; hard-tier tables overall and per level."""
+    main = {
+        "per_set": {
+            name: tier_table(rs, suite.main.ks, hard=False)
+            for name, rs in group_by(results, lambda r: r.problem_set).items()
+        },
+        "per_level": {
+            level: tier_table(rs, suite.main.ks, hard=False)
+            for level, rs in group_by(results, lambda r: r.level.value).items()
+        },
+    }
+    hard = [r for r in results if r.hard]
+    hard_tables = None
+    if hard:
+        hard_tables = {
+            "all": tier_table(hard, suite.hard.ks, hard=True),
+            "per_level": {
+                level: tier_table(rs, suite.hard.ks, hard=True)
+                for level, rs in group_by(hard, lambda r: r.level.value).items()
+            },
+        }
+    return {"main": main, "hard": hard_tables}
+
+
+def print_main_table(main: dict[str, Any], ks: list[int]) -> None:
+    print(
+        f"{'set':18} {'n':>5} "
+        + " ".join(f"{'p@' + str(k):>6}" for k in ks)
+        + f" {'maj@' + str(ks[-1]):>7} {'trunc':>6}"
+    )
+    per_level = main["per_level"].items()
+    for name, row in [*main["per_set"].items(), *((f"level {k}", v) for k, v in per_level)]:
+        print(
+            f"{name:18} {int(row['problems']):5} "
+            + " ".join(f"{row[f'pass@{k}']:6.3f}" for k in ks)
+            + f" {row[f'maj@{ks[-1]}']:7.3f} {row['truncation_rate']:6.3f}"
+        )
+
+
 def run_report(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan: EvalPlan) -> int:
     left = unfinished_shards(cli.output, plan.num_shards)
     if left:
@@ -274,42 +329,9 @@ def run_report(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan
         raise SystemExit(f"samples for problems outside the plan: {sorted(by_problem)[:5]}")
     write_jsonl(cli.output / "per_problem.jsonl", results)
 
-    per_set = {
-        name: tier_table(rs, suite.main.ks, hard=False)
-        for name, rs in group_by(results, lambda r: r.problem_set).items()
-    }
-    per_level = {
-        level: tier_table(rs, suite.main.ks, hard=False)
-        for level, rs in group_by(results, lambda r: r.level.value).items()
-    }
-    hard = [r for r in results if r.hard]
-    hard_tables = None
-    if hard:
-        hard_tables = {
-            "all": tier_table(hard, suite.hard.ks, hard=True),
-            "per_level": {
-                level: tier_table(rs, suite.hard.ks, hard=True)
-                for level, rs in group_by(hard, lambda r: r.level.value).items()
-            },
-        }
-    report = {
-        "plan": plan.model_dump(),
-        "main": {"per_set": per_set, "per_level": per_level},
-        "hard": hard_tables,
-    }
+    report = {"plan": plan.model_dump(), **report_tables(results, suite)}
     (cli.output / "report.json").write_text(json.dumps(report, indent=1) + "\n")
-    print(
-        f"{'set':18} {'n':>5} "
-        + " ".join(f"{'p@' + str(k):>6}" for k in suite.main.ks)
-        + f" {'maj@' + str(suite.main.ks[-1]):>7} {'trunc':>6}"
-    )
-    rows = [*per_set.items(), *((f"level {k}", v) for k, v in per_level.items())]
-    for name, row in rows:
-        print(
-            f"{name:18} {int(row['problems']):5} "
-            + " ".join(f"{row[f'pass@{k}']:6.3f}" for k in suite.main.ks)
-            + f" {row[f'maj@{suite.main.ks[-1]}']:7.3f} {row['truncation_rate']:6.3f}"
-        )
+    print_main_table(report["main"], suite.main.ks)
     return 0
 
 
@@ -325,6 +347,7 @@ class EvaluateCli(BaseSettings):
     shard: int | None = None  # sample this shard only (default: claim free ones)
     num_shards: int = 32
     limit_per_set: int | None = None  # smoke tests: the first N problems (by id) of each set
+    only_problems: Path | None = None  # file with one problem id per line: evaluate just those
     # vLLM speed knobs only (recorded per shard); sampling always comes from the suite
     gpu_memory_utilization: float = 0.9
     max_num_seqs: int | None = None
@@ -335,9 +358,20 @@ class EvaluateCli(BaseSettings):
         bad = hash_mismatches(suite, data_root)
         if bad:
             raise SystemExit(f"refusing to evaluate: problem sets changed or missing: {bad}")
-        units = eval_units(suite, data_root, self.limit_per_set)
+        only, only_sha = None, None
+        if self.only_problems is not None:
+            text = self.only_problems.read_bytes()
+            only = frozenset(line.strip() for line in text.decode().splitlines() if line.strip())
+            only_sha = hashlib.sha256(text).hexdigest()
+        units = eval_units(suite, data_root, self.limit_per_set, only=only)
         plan = make_plan(
-            self.suite, suite, self.checkpoint, units, self.num_shards, self.limit_per_set
+            self.suite,
+            suite,
+            self.checkpoint,
+            units,
+            self.num_shards,
+            self.limit_per_set,
+            only_problems_sha256=only_sha,
         )
         write_or_check_plan(self.output, plan)
         if self.stage == "sample":

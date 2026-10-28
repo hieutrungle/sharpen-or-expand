@@ -43,9 +43,28 @@ def test_hard_subset_hash_matches_the_committed_selection_report() -> None:
     assert suite.hard_subset is not None
     report = json.loads(Path(suite.hard_subset.selection_report).read_text())
     assert suite.hard_subset.sha256 == report["output_sha256"]
-    assert suite.hard_subset.path.endswith(report["output"])
+    build = json.loads(Path(suite.data_build_report).read_text())
+    assert build["hard_subset"] == {
+        "path": suite.hard_subset.path,
+        "sha256": suite.hard_subset.sha256,
+    }
     assert report["selected"] == len(report["selected_problem_ids"]) == 250
     assert report["halted_format"] is False and report["sampling_seed"] != suite.sampling.seed
+
+
+def test_v1_suite_is_kept_byte_for_byte_for_the_runs_that_used_it() -> None:
+    v1 = Path("soe/trainer/config/eval_suite_v1.yaml")
+    base_eval = json.loads(Path("docs/reports/qwen35-4b-base_soe-eval-v1_report.json").read_text())
+    assert file_sha256(v1) == base_eval["plan"]["suite_file_sha256"]
+    old, new = load_suite(v1), load_suite(SUITE)
+    assert (old.name, new.name) == ("soe-eval-v1", "soe-eval-v2")
+    changed = {
+        p.name
+        for p, q in zip(old.problem_sets, new.problem_sets, strict=True)
+        if p.sha256 != q.sha256
+    }
+    assert changed == {"level_b"}  # decision 007: only the repaired Level B text changed
+    assert old.sampling == new.sampling and old.prompt == new.prompt and old.scoring == new.scoring
 
 
 def test_prompt_renders_problem_and_boxed_instruction() -> None:
