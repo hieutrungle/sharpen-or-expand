@@ -1,0 +1,36 @@
+"""verl agent loop for RL rollouts: verl's single-turn loop plus the evaluation sampler's stop rule.
+
+verl 0.9.1's vLLM server sends no stop tokens of its own, and Qwen3.5 base checkpoints list only
+<|endoftext|> as EOS, so without this every rollout would run past <|im_end|> to the length cap.
+The loop also flags truncation (no stop token at the end); the reward hook then
+gives reward 0.
+
+Registered for verl in soe/workers/rollout/agent_loops.yaml. GPU image only (imports verl).
+"""
+
+from typing import Any
+
+from verl.experimental.agent_loop.agent_loop import AgentLoopOutput
+from verl.experimental.agent_loop.single_turn_agent_loop import SingleTurnAgentLoop
+
+from soe.workers.rollout.chat import is_truncated, stop_token_ids, turn_end_text
+
+
+class StopAtTurnEndAgentLoop(SingleTurnAgentLoop):  # type: ignore[misc]
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        tokenizer = self.tokenizer
+        turn_end = turn_end_text(
+            lambda messages: tokenizer.apply_chat_template(messages, tokenize=False)
+        )
+        self._stop_ids = stop_token_ids(
+            tokenizer.eos_token_id,
+            turn_end,
+            lambda text: tokenizer.encode(text, add_special_tokens=False),
+        )
+
+    async def run(self, sampling_params: dict[str, Any], **kwargs: Any) -> AgentLoopOutput:
+        params = {**sampling_params, "stop_token_ids": self._stop_ids}
+        output: AgentLoopOutput = await super().run(params, **kwargs)
+        output.extra_fields["truncated"] = is_truncated(output.response_ids, self._stop_ids)
+        return output

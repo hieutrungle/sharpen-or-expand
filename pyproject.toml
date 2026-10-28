@@ -91,9 +91,9 @@ plugins = ["pydantic.mypy"]
 module = ["math_verify", "math_verify.*"]
 ignore_missing_imports = true
 
-# vLLM exists only in the GPU image; CI type-checks the CPU code paths.
+# vLLM and verl exist only in the GPU image; CI type-checks the CPU code paths.
 [[tool.mypy.overrides]]
-module = ["vllm", "vllm.*"]
+module = ["vllm", "vllm.*", "verl", "verl.*", "huggingface_hub", "huggingface_hub.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

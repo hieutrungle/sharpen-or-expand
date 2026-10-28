@@ -124,6 +124,8 @@ class BudgetSpec(FrozenModel):
     """Runs are compared at equal rollout-token budgets, never equal steps."""
 
     rollout_tokens: int = Field(gt=0)
+    # Development only (smoke tests, memory-study cells): stop after this many steps.
+    max_steps: int | None = Field(default=None, gt=0)
     # G1 stopping rule: stop when in-loop validation pass@1 has not improved by stop_min_delta
     # over stop_patience_evals evaluations. Unset until gate G1 fixes it.
     stop_patience_evals: int | None = Field(default=None, gt=0)
@@ -227,6 +229,8 @@ class ExperimentConfig(FrozenModel):
         smoke = self.rollout is not None and self.rollout.smoke_max_response_tokens is not None
         if smoke and not self.development:
             raise ValueError("smoke_max_response_tokens is for development runs only")
+        if self.budget is not None and self.budget.max_steps is not None and not self.development:
+            raise ValueError("budget.max_steps is for development runs only")
         return self
 
     def _check_clip_consistency(self, loss: PolicyLossSpec) -> None:

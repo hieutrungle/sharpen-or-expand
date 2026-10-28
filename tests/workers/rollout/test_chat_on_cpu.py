@@ -24,3 +24,13 @@ def test_stop_ids_add_the_turn_end_token_to_eos() -> None:
 def test_stop_ids_reject_a_multi_token_turn_end() -> None:
     with pytest.raises(ValueError, match="one token"):
         stop_token_ids(1, "<end>", lambda text: [5, 6])
+
+
+def test_truncated_means_not_ended_on_a_stop_token() -> None:
+    from soe.workers.rollout.chat import is_truncated
+
+    stops = [248044, 248046]
+    assert not is_truncated([1, 2, 248046], stops)
+    assert not is_truncated([1, 248044], stops)
+    assert is_truncated([1, 2, 3], stops)
+    assert is_truncated([], stops)

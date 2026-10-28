@@ -1,0 +1,4 @@
+# verl agent-loop registry entries (rollout.agent.agent_loop_config_path). Every soe RL run uses
+# soe_single_turn: verl's single-turn loop plus the evaluation stop rule and the truncation flag.
+- name: soe_single_turn
+  _target_: soe.workers.rollout.agent_loop.StopAtTurnEndAgentLoop

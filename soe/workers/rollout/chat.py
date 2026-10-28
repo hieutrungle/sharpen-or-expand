@@ -1,6 +1,6 @@
 """Chat-template helpers that need no GPU stack (the tokenizer is passed in as plain callables)."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Collection, Sequence
 
 # A string no model emits on its own, so it marks where the assistant reply sits in a rendered turn.
 _REPLY_MARKER = "SOE_REPLY_MARKER"
@@ -31,3 +31,9 @@ def stop_token_ids(
     if len(ids) != 1:
         raise ValueError(f"expected the turn end {turn_end!r} to be one token, got {ids}")
     return sorted({eos_token_id, ids[0]})
+
+
+def is_truncated(response_ids: Sequence[int], stop_ids: Collection[int]) -> bool:
+    """True when generation did not end on a stop token, i.e. it hit the length cap (decision 004:
+    a truncated response is incorrect). vLLM keeps the stop token at the end of the output."""
+    return not response_ids or response_ids[-1] not in stop_ids

@@ -1,0 +1,54 @@
+# M1.3 smoke test of the verl wiring on Lane B (2B, development only): 3 steps of 16 prompts x 8,
+# the full 16,384-token cap, a checkpoint at step 2 and validation before training and at step 2.
+# Identical to m1_dev_qwen35-2b.yaml except the batch, step limit, checkpoint and validation sizes.
+# Sampling (0.6 / 0.95), prompt, thinking mode, FP8 KV cache and the 16,384-token cap come from
+# eval_suite (decisions 004, 006, 009, 014).
+name: grpo_m1_smoke_qwen35-2b
+milestone: m1
+development: true
+lane: B
+model:
+  hf_id: Qwen/Qwen3.5-2B-Base
+  revision: b1485b2fa6dfa1287294f269f5fb618e03d52d7c
+init_checkpoint: null  # dev runs may start from the base model
+training_mode: lora_bf16
+lora:
+  rank: 64
+  alpha: 128
+  target_modules: all-linear
+  exclude_modules: "(model\\.visual|mtp)\\..*"  # language model only
+algorithm: grpo
+optim:
+  learning_rate: 1.0e-5
+  warmup_steps: 10
+  weight_decay: 0.0
+rollout:
+  prompts_per_step: 16
+  group_size: 8
+  max_prompt_tokens: 2048  # longest RL prompt is 1,446 tokens (docs/reports/m1_rl_prompts.json)
+policy_loss:
+  clip_ratio_low: 0.2
+  clip_ratio_high: 0.2
+  entropy_coef: 0.0
+budget:
+  rollout_tokens: 30000000
+  max_steps: 3
+checkpoint:
+  save_every_steps: 2
+  keep_last: 1
+validation:
+  max_problems: 16
+  samples_per_problem: 1
+hardware:
+  n_gpus: 2
+  rollout_tensor_parallel: 1
+  gpu_memory_utilization: 0.6
+  param_offload: false
+  optimizer_offload: false
+  max_token_len_per_gpu: 36864  # two full-length sequences (2 x (2,048 + 16,384))
+data:  # RL data v3.1 (decision 012; docs/reports/m1_datasets_v3.1.json)
+  train_file: datasets/soe/v3.1/rl/verl/train.parquet
+  train_sha256: 2ea38a35b7d5a1b8bfa8b2d85bc94e45996b7163934c6955618b8ca123d805d3
+  val_file: datasets/soe/v3.1/rl/verl/val.parquet
+  val_sha256: 92e97417fb22727127ed4ef4ca7e5c857841a9cec9d579c23f66bd1722754e0f
+eval_suite: soe/trainer/config/eval_suite.yaml
