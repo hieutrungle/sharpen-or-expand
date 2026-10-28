@@ -42,6 +42,13 @@ hard subset.
    re-gold'ed, to stay comparable with published numbers. Two of them were in the hard subset,
    which is not refilled: 248 of 250 remain. The suite is 2,467 problems, 51,376 samples.
 
+4c. **Effect on the 4B-Base reference** (`docs/reports/qwen35-4b-base_soe-eval-v2_report.json`).
+   Level B pass@1 is 0.665 under v1 (994 problems) and v2 (991). On the 42 repaired problems
+   pass@1 is 0.897 on the damaged text and 0.872 on the repaired text (672 samples each, 20
+   problems change, none by more than 3 of 16): within seed noise, so the debris did not make
+   these problems easier or harder. The hard subset is 0.0629 pass@1 on its 248 problems, the
+   same as v1 restricted to them.
+
 ## Consequences
 - The 4B-Base reference evaluation is carried to v2 by re-evaluating only the 42 repaired Level B
   problems (`main_eval --only-problems`) and reusing every other result (`scripts/merge_eval.py`,
