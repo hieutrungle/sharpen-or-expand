@@ -146,7 +146,11 @@ def main() -> None:
     out["data"] = table(
         ["File", "v2 (decision 007)", "v3 (decision 011)"],
         [
-            ["rl/level_b (Level B)", v2["counts"]["rl/level_b"], "unchanged"],
+            [
+                "rl/level_b (Level B; 983 after the suite's exclusions)",
+                v2["counts"]["rl/level_b"],
+                "unchanged",
+            ],
             ["rl/train (RL pool)", v2["counts"]["rl/train"], v3["counts"]["rl/train"]],
             ["evaluation files", "11 sets, byte-identical to v1", "unchanged"],
         ],
@@ -186,10 +190,15 @@ def main() -> None:
     out["compute"] = table(
         ["Job family", "Jobs", "GPU-hours", "By GPU type"],
         [
-            [k, v["jobs"], v["gpu_hours"], ", ".join(f"{g} {h}" for g, h in v["by_gpu"].items())]
+            [
+                k,
+                v["jobs"],
+                f"{v['gpu_hours']:.1f}",
+                ", ".join(f"{g} {h}" for g, h in v["by_gpu"].items()),
+            ]
             for k, v in comp["families"].items()
         ]
-        + [["total", "", comp["total_gpu_hours"], ""]],
+        + [["total", "", f"{comp['total_gpu_hours']:.1f}", ""]],
     )
     for name, text in out.items():
         print(f"<!-- table: {name} -->\n{text}\n")

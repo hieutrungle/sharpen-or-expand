@@ -1,0 +1,87 @@
+{
+ "since": "2026-10-25",
+ "until": "2026-10-29",
+ "total_gpu_hours": 304.0,
+ "families": {
+  "soe-eval-4b": {
+   "jobs": 16,
+   "gpu_hours": 141.5,
+   "by_gpu": {
+    "a10": 64.7,
+    "a30": 29.5,
+    "a40": 47.3
+   }
+  },
+  "soe-eval-v3": {
+   "jobs": 14,
+   "gpu_hours": 90.3,
+   "by_gpu": {
+    "a10": 26.7,
+    "a30": 25.6,
+    "a40": 38.1
+   }
+  },
+  "soe-select": {
+   "jobs": 14,
+   "gpu_hours": 65.3,
+   "by_gpu": {
+    "a10": 20.3,
+    "a30": 18.5,
+    "a40": 26.5
+   }
+  },
+  "soe-format-probe": {
+   "jobs": 2,
+   "gpu_hours": 4.1,
+   "by_gpu": {
+    "a40": 4.1
+   }
+  },
+  "soe-eval-v2b": {
+   "jobs": 4,
+   "gpu_hours": 0.9,
+   "by_gpu": {
+    "a30": 0.5,
+    "a40": 0.4
+   }
+  },
+  "soe-eval-smoke": {
+   "jobs": 1,
+   "gpu_hours": 0.7,
+   "by_gpu": {
+    "a10": 0.7
+   }
+  },
+  "soe-fp8-probe": {
+   "jobs": 2,
+   "gpu_hours": 0.7,
+   "by_gpu": {
+    "a40": 0.7
+   }
+  },
+  "soe-check": {
+   "jobs": 4,
+   "gpu_hours": 0.3,
+   "by_gpu": {
+    "a10": 0.0,
+    "a100": 0.1,
+    "a30": 0.0,
+    "a40": 0.1
+   }
+  },
+  "soe-tput-a10-m95": {
+   "jobs": 1,
+   "gpu_hours": 0.2,
+   "by_gpu": {
+    "a10": 0.2
+   }
+  },
+  "soe-tput-a30-m95": {
+   "jobs": 1,
+   "gpu_hours": 0.0,
+   "by_gpu": {
+    "a30": 0.0
+   }
+  }
+ }
+}
