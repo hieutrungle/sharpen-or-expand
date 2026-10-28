@@ -21,6 +21,7 @@ class LaunchPaths:
     """Absolute paths resolved at launch (offline model snapshot, data, repo files)."""
 
     model: Path
+    run_dir: Path
     train_file: Path
     val_file: Path
     checkpoints: Path
@@ -159,6 +160,8 @@ def verl_overrides(
         "trainer.val_before_train=true",
         f"trainer.total_training_steps={budget.max_steps}",
         "trainer.total_epochs=1000",  # the step (later token) budget stops a run, never epochs
+        # Hydra's resolved config goes with the run, not into the repo's working directory
+        f"hydra.run.dir={paths.run_dir}/hydra",
     ]
     if config.training_mode is TrainingMode.LORA_BF16:
         if config.lora is None:

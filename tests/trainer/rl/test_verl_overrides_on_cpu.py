@@ -14,6 +14,7 @@ SMOKE = Path("examples/grpo_trainer/m1_smoke_qwen35-2b.yaml")
 SNAPSHOT = Path("tests/trainer/rl/m1_smoke_qwen35-2b.overrides.txt")
 PATHS = LaunchPaths(
     model=Path("/models/qwen35-2b"),
+    run_dir=Path("/runs/r"),
     train_file=Path("/data/train.parquet"),
     val_file=Path("/data/val.parquet"),
     checkpoints=Path("/runs/r/checkpoints"),

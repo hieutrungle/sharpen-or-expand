@@ -35,7 +35,13 @@ def test_overrides_compose_into_verls_config(config_path: str) -> None:
     protocol = rollout_protocol(config, load_suite(Path(config.eval_suite)))
     p = Path("/x")
     paths = LaunchPaths(
-        model=p, train_file=p, val_file=p, checkpoints=p, reward_function=p, agent_loops=p
+        model=p,
+        run_dir=p,
+        train_file=p,
+        val_file=p,
+        checkpoints=p,
+        reward_function=p,
+        agent_loops=p,
     )
     overrides = verl_overrides(config, protocol, seed=1, run_id="r", paths=paths)
     config_dir = Path(verl.__file__).parent / "trainer" / "config"

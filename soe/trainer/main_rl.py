@@ -70,6 +70,7 @@ class LaunchCli(BaseSettings):
         data_root = Path(os.environ["SOE_DATA"])
         paths = LaunchPaths(
             model=model_path(config, data_root),
+            run_dir=run_dir,
             train_file=checked_data_file(
                 data_root, config.data.train_file, config.data.train_sha256
             ),

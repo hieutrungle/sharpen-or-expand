@@ -74,6 +74,7 @@ trainer.test_freq=2
 trainer.val_before_train=true
 trainer.total_training_steps=3
 trainer.total_epochs=1000
+hydra.run.dir=/runs/r/hydra
 actor_rollout_ref.model.lora_rank=64
 actor_rollout_ref.model.lora_alpha=128
 actor_rollout_ref.model.target_modules=all-linear
