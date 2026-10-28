@@ -53,6 +53,8 @@ def test_frozen_protocol_is_always_set() -> None:
         "actor_rollout_ref.rollout.response_length=16384",
         "+actor_rollout_ref.rollout.engine_kwargs.vllm.kv_cache_dtype=fp8",
         "+actor_rollout_ref.rollout.engine_kwargs.vllm.language_model_only=true",
+        "+actor_rollout_ref.rollout.engine_kwargs.vllm.worker_extension_cls="
+        "soe.workers.rollout.vllm_patches.SoeColocateWorkerExtension",
         "+data.apply_chat_template_kwargs.enable_thinking=true",
         "actor_rollout_ref.rollout.agent.default_agent_loop=soe_single_turn",
         "reward.custom_reward_function.name=compute_score",

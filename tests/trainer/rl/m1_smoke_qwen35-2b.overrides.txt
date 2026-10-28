@@ -38,6 +38,7 @@ actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=true
 actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu=36864
 +actor_rollout_ref.rollout.engine_kwargs.vllm.kv_cache_dtype=fp8
 +actor_rollout_ref.rollout.engine_kwargs.vllm.language_model_only=true
++actor_rollout_ref.rollout.engine_kwargs.vllm.worker_extension_cls=soe.workers.rollout.vllm_patches.SoeColocateWorkerExtension
 actor_rollout_ref.rollout.agent.agent_loop_config_path=/repo/soe/workers/rollout/agent_loops.yaml
 actor_rollout_ref.rollout.agent.default_agent_loop=soe_single_turn
 actor_rollout_ref.rollout.val_kwargs.temperature=0.6

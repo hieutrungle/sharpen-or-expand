@@ -34,3 +34,11 @@ def test_truncated_means_not_ended_on_a_stop_token() -> None:
     assert not is_truncated([1, 248044], stops)
     assert is_truncated([1, 2, 3], stops)
     assert is_truncated([], stops)
+
+
+def test_flat_cache_tensors_unpacks_hybrid_layer_state_lists() -> None:
+    from soe.workers.rollout.chat import flat_cache_tensors
+
+    full, s1, s2, s3 = object(), object(), object(), object()
+    assert flat_cache_tensors([None, full, [s1, s2], None, (s3,)]) == [full, s1, s2, s3]
+    assert flat_cache_tensors([]) == []

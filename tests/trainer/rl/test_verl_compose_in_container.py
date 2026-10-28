@@ -46,6 +46,7 @@ def test_overrides_compose_into_verls_config(config_path: str) -> None:
     assert dict(rollout.engine_kwargs.vllm) == {
         "kv_cache_dtype": "fp8",
         "language_model_only": True,
+        "worker_extension_cls": "soe.workers.rollout.vllm_patches.SoeColocateWorkerExtension",
     }
     assert dict(composed.data.apply_chat_template_kwargs) == {"enable_thinking": True}
     if config.lora is not None:

@@ -119,6 +119,8 @@ def verl_overrides(
         f"actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu={hardware.max_token_len_per_gpu}",
         f"{vllm}.kv_cache_dtype={protocol.kv_cache_dtype}",
         f"{vllm}.language_model_only=true",  # decision 001: text only
+        # Backport of vLLM PR #41602: FP8 KV wake-up on hybrid models (decision 015)
+        f"{vllm}.worker_extension_cls=soe.workers.rollout.vllm_patches.SoeColocateWorkerExtension",
         f"actor_rollout_ref.rollout.agent.agent_loop_config_path={paths.agent_loops}",
         "actor_rollout_ref.rollout.agent.default_agent_loop=soe_single_turn",
         # in-loop validation, sampled like the rollouts (decision 014), on the decision-012 split

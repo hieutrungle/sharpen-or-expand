@@ -20,3 +20,4 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [012](012-rl-validation-split.md) | In-loop validation split (256) carved from RL train v3; RL data v3.1 (11,868 train) | accepted |
 | [013](013-rl-no-kl-step-checkpoints.md) | RL runs: no KL term; a checkpoint every N steps with its rollout-token count | accepted |
 | [014](014-rl-rollout-sampling-and-truncation.md) | RL rollouts sample like evaluation (0.6 / 0.95, no fixed seed); truncated rollout reward 0 | accepted |
+| [015](015-vllm-fp8-wakeup-backport.md) | Backport vLLM PR #41602 (FP8 KV wake-up on hybrid models) to the pinned vLLM 0.24.0 | proposed |
