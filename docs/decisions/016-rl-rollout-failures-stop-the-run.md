@@ -1,7 +1,7 @@
 # 016 — A rollout failure stops the run; RL rewards are scored in a process pool
 
 - Date: 2026-10-28
-- Status: proposed
+- Status: accepted (user, 2026-10-28)
 - Milestone: M1 (task M1.3)
 - Code: `soe/workers/rollout/failures.py`, `soe/workers/reward_manager/math_reward.py`,
   `soe/workers/rollout/agent_loop.py`, `soe/trainer/main_rl.py` (`run_until_failure`)

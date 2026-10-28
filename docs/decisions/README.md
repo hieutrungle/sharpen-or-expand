@@ -21,5 +21,5 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [013](013-rl-no-kl-step-checkpoints.md) | RL runs: no KL term; a checkpoint every N steps with its rollout-token count | accepted |
 | [014](014-rl-rollout-sampling-and-truncation.md) | RL rollouts sample like evaluation (0.6 / 0.95, no fixed seed); truncated rollout reward 0 | accepted; sampling superseded by 017 |
 | [015](015-vllm-fp8-wakeup-backport.md) | Backport vLLM PR #41602 (FP8 KV wake-up on hybrid models) to the pinned vLLM 0.24.0 | proposed |
-| [016](016-rl-rollout-failures-stop-the-run.md) | A rollout failure stops the RL run; RL rewards scored in a process pool (math-verify time limits) | proposed |
+| [016](016-rl-rollout-failures-stop-the-run.md) | A rollout failure stops the RL run; RL rewards scored in a process pool (math-verify time limits) | accepted |
 | [017](017-rl-rollout-sampling-1.0.md) | RL rollouts and DPO preference data sample at 1.0 / 1.0 for every algorithm; in-loop validation stays at evaluation sampling | accepted |
