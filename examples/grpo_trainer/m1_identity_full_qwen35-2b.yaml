@@ -39,7 +39,7 @@ hardware:
   n_gpus: 2
   rollout_tensor_parallel: 1
   gpu_memory_utilization: 0.6
-  param_offload: false
+  param_offload: true  # full BF16 2B does not fit 2 x 24 GB otherwise (job 3222834 OOM); not under test
   optimizer_offload: true  # FP32 Adam states of 2B; not under test
   max_token_len_per_gpu: 8192  # fits 24 GB A30s; above the longest sequence (2,048 + 1,024)
 data:  # RL data v3.1 (decision 012; docs/reports/m1_datasets_v3.1.json)
