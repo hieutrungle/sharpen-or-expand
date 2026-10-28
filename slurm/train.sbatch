@@ -4,14 +4,15 @@
 # New run:     CHAIN_LEFT=2 sbatch slurm/train.sbatch <config.yaml> <seed>
 # Resume:      RUN_DIR=runs/<run_id> sbatch slurm/train.sbatch <config.yaml>
 # Fallback:    SBATCH_GRES=gpu:a100:2 CHAIN_LEFT=2 sbatch --nodelist=<A100 node> slurm/train.sbatch <config.yaml> <seed>
-#              (whole seeds only, under the G0 fallback rule)
+#              (only on the user's request, for a whole comparison block; plan revision 2026-10-28)
 # Lane B dev:  SBATCH_GRES=gpu:a40:2 CHAIN_LEFT=1 sbatch --nodelist=fc096 slurm/train.sbatch <config.yaml> <seed>
 # GPU type and count: set SBATCH_GRES, not --gres. sbatch reads it, and chained jobs inherit it.
 # Node: Slurm has no nodelist input variable, so a --nodelist given on the command line is not
 # inherited. chain_next_job therefore pins every successor to the node its predecessor ran on.
-# CPUs and RAM are per GPU so that a 2-GPU job on a shared A100 node does not take the whole node:
-# 4 GPUs -> 60 CPUs and 240G (all of fc098), 2 GPUs -> 30 CPUs and 120G. Override with
-# SBATCH_CPUS_PER_GPU / SBATCH_MEM_PER_GPU, which chained jobs inherit too.
+# CPUs scale with the GPU count and RAM with the CPUs, so that a 2-GPU job on a shared node does
+# not take the whole node: 4 GPUs -> 60 CPUs and 240G (fc098 has 250G), 2 GPUs -> 30 CPUs and 120G.
+# FASTER's submit filter accepts only --mem or --mem-per-cpu, not --mem-per-gpu. Override with
+# SBATCH_CPUS_PER_GPU / SBATCH_MEM_PER_CPU, which chained jobs inherit too.
 #SBATCH --job-name=soe-train
 #SBATCH --account=142788516569
 #SBATCH --partition=gpu
@@ -20,7 +21,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-gpu=15
-#SBATCH --mem-per-gpu=60G
+#SBATCH --mem-per-cpu=4G
 #SBATCH --time=72:00:00
 #SBATCH --output=logs/slurm/%x-%j.out
 

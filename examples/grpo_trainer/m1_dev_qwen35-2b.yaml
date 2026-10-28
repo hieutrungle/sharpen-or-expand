@@ -1,6 +1,6 @@
 # M1 pipeline-debugging run on Lane B (2B, development only). Values are starting points for
 # debugging the pipeline, not tuned hyperparameters; nothing from this run enters conclusions.
-# Data paths are relative to $SOE_DATA and are created in M1.
+# Prompt, thinking mode, FP8 KV cache and the 16,384-token response cap come from eval_suite.
 name: grpo_m1_dev_qwen35-2b
 milestone: m1
 development: true
@@ -8,12 +8,13 @@ lane: B
 model:
   hf_id: Qwen/Qwen3.5-2B-Base
   revision: b1485b2fa6dfa1287294f269f5fb618e03d52d7c
-init_checkpoint: null  # becomes the 2B SFT checkpoint once M1 has one
+init_checkpoint: null  # dev runs may start from the base model
 training_mode: lora_bf16
 lora:
   rank: 64
   alpha: 128
   target_modules: all-linear
+  exclude_modules: "(model\\.visual|mtp)\\..*"  # language model only
 algorithm: grpo
 optim:
   learning_rate: 1.0e-5
@@ -22,19 +23,31 @@ optim:
 rollout:
   prompts_per_step: 64
   group_size: 8
-  temperature: 1.0
+  temperature: 1.0  # D3 (recommended, not yet confirmed): RL sampling differs from evaluation's
   top_p: 1.0
-  max_prompt_tokens: 1024
-  max_response_tokens: 4096
+  max_prompt_tokens: 1024  # provisional until docs/reports/m1_rl_prompts.json measures the maximum
 policy_loss:
   clip_ratio_low: 0.2
   clip_ratio_high: 0.2
-  kl_coef: 0.0
   entropy_coef: 0.0
 budget:
-  rollout_tokens: 20000000
-  checkpoint_every_rollout_tokens: 2000000
-data:
-  train_file: datasets/rl/dev_train.parquet
-  val_file: datasets/rl/dev_val.parquet
+  rollout_tokens: 30000000
+checkpoint:
+  save_every_steps: 10  # reset from the measured step time (2-4 h per save) in M1.3
+  keep_last: 2
+validation:
+  max_problems: 128
+  samples_per_problem: 2
+hardware:
+  n_gpus: 2
+  rollout_tensor_parallel: 1
+  gpu_memory_utilization: 0.6
+  param_offload: false
+  optimizer_offload: false
+  max_token_len_per_gpu: 36864  # two full-length sequences (2 x (2,048 + 16,384))
+data:  # RL data v3.1 (decision 012; docs/reports/m1_datasets_v3.1.json)
+  train_file: datasets/soe/v3.1/rl/verl/train.parquet
+  train_sha256: 2ea38a35b7d5a1b8bfa8b2d85bc94e45996b7163934c6955618b8ca123d805d3
+  val_file: datasets/soe/v3.1/rl/verl/val.parquet
+  val_sha256: 92e97417fb22727127ed4ef4ca7e5c857841a9cec9d579c23f66bd1722754e0f
 eval_suite: soe/trainer/config/eval_suite.yaml

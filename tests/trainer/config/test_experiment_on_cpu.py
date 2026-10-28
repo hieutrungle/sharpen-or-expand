@@ -5,14 +5,21 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
-from soe.trainer.config.experiment import ExperimentConfig
+from soe.trainer.config.eval_suite import load_suite
+from soe.trainer.config.experiment import ExperimentConfig, rollout_protocol
 
 EXAMPLE = Path("examples/grpo_trainer/m1_dev_qwen35-2b.yaml")
+SUITE = Path("soe/trainer/config/eval_suite.yaml")
 
 
 def example() -> dict[str, Any]:
     data: dict[str, Any] = yaml.safe_load(EXAMPLE.read_text())
     return data
+
+
+def with_block(block: str, **changes: Any) -> dict[str, Any]:
+    data = example()
+    return data | {block: data[block] | changes}
 
 
 def test_unknown_key_rejected() -> None:
@@ -39,6 +46,17 @@ def test_lora_block_matches_mode() -> None:
         ExperimentConfig.model_validate(data)
 
 
+@pytest.mark.parametrize("exclude", ["model\\.visual\\..*", "mtp\\..*", "nothing"])
+def test_lora_must_exclude_vision_and_mtp(exclude: str) -> None:
+    with pytest.raises(ValidationError, match="vision tower and MTP"):
+        ExperimentConfig.model_validate(with_block("lora", exclude_modules=exclude))
+
+
+def test_lora_must_not_exclude_the_language_model() -> None:
+    with pytest.raises(ValidationError, match="must not exclude the language model"):
+        ExperimentConfig.model_validate(with_block("lora", exclude_modules=".*"))
+
+
 def test_dapo_needs_components_and_clip_higher_consistency() -> None:
     with pytest.raises(ValidationError, match="dapo block"):
         ExperimentConfig.model_validate(example() | {"algorithm": "dapo"})
@@ -58,9 +76,14 @@ def test_dapo_needs_components_and_clip_higher_consistency() -> None:
 
 
 def test_decoupled_clip_without_dapo_rejected() -> None:
-    loss = example()["policy_loss"] | {"clip_ratio_high": 0.28}
     with pytest.raises(ValidationError, match="must equal"):
-        ExperimentConfig.model_validate(example() | {"policy_loss": loss})
+        ExperimentConfig.model_validate(with_block("policy_loss", clip_ratio_high=0.28))
+
+
+def test_no_kl_term_can_be_configured() -> None:
+    # Decision 013: no RL algorithm has a KL term, so the field does not exist.
+    with pytest.raises(ValidationError, match="kl_coef"):
+        ExperimentConfig.model_validate(with_block("policy_loss", kl_coef=0.001))
 
 
 def test_rs_grpo_needs_beta() -> None:
@@ -70,13 +93,17 @@ def test_rs_grpo_needs_beta() -> None:
     assert cfg.rs_grpo_beta == 2.0
 
 
-def test_budget_checkpoint_interval_and_stop_rule() -> None:
-    budget = example()["budget"] | {"checkpoint_every_rollout_tokens": 10**12}
-    with pytest.raises(ValidationError, match="checkpoint interval"):
-        ExperimentConfig.model_validate(example() | {"budget": budget})
-    budget = example()["budget"] | {"stop_patience_evals": 3}
+def test_stop_rule_needs_both_fields() -> None:
     with pytest.raises(ValidationError, match="both"):
-        ExperimentConfig.model_validate(example() | {"budget": budget})
+        ExperimentConfig.model_validate(with_block("budget", stop_patience_evals=3))
+
+
+@pytest.mark.parametrize("block", ["checkpoint", "validation", "hardware"])
+def test_rl_needs_checkpoint_validation_and_hardware(block: str) -> None:
+    data = example()
+    del data[block]
+    with pytest.raises(ValidationError, match=f"{block} is required for RL"):
+        ExperimentConfig.model_validate(data)
 
 
 def test_sft_has_no_rl_blocks() -> None:
@@ -87,3 +114,37 @@ def test_sft_has_no_rl_blocks() -> None:
 def test_name_must_be_directory_safe() -> None:
     with pytest.raises(ValidationError):
         ExperimentConfig.model_validate(example() | {"name": "GRPO dev/run"})
+
+
+def test_data_hashes_must_be_sha256() -> None:
+    with pytest.raises(ValidationError):
+        ExperimentConfig.model_validate(with_block("data", train_sha256="abc"))
+
+
+def test_hardware_gpus_must_split_into_rollout_replicas() -> None:
+    with pytest.raises(ValidationError, match="multiple of rollout_tensor_parallel"):
+        ExperimentConfig.model_validate(with_block("hardware", n_gpus=3, rollout_tensor_parallel=2))
+
+
+def test_protocol_comes_from_the_suite() -> None:
+    config = ExperimentConfig.model_validate(example())
+    protocol = rollout_protocol(config, load_suite(SUITE))
+    assert protocol.max_response_tokens == 16384
+    assert protocol.kv_cache_dtype == "fp8"
+    assert protocol.prompt.chat_template_kwargs() == {"enable_thinking": True}
+    assert protocol.validation_sampling.temperature == 0.6
+
+
+def test_smoke_cap_only_lowers_and_only_for_development() -> None:
+    suite = load_suite(SUITE)
+    smoke = ExperimentConfig.model_validate(with_block("rollout", smoke_max_response_tokens=4096))
+    assert rollout_protocol(smoke, suite).max_response_tokens == 4096
+    above = ExperimentConfig.model_validate(with_block("rollout", smoke_max_response_tokens=32768))
+    with pytest.raises(ValueError, match="above the suite's cap"):
+        rollout_protocol(above, suite)
+    data = with_block("rollout", smoke_max_response_tokens=4096) | {
+        "development": False,
+        "init_checkpoint": "sft",
+    }
+    with pytest.raises(ValidationError, match="development runs only"):
+        ExperimentConfig.model_validate(data)

@@ -1,0 +1,18 @@
+# RL data v3.1 (decision 012): the in-loop validation split carved from RL train v3, and both
+# splits in verl's parquet format. Paths are relative to $SOE_DATA unless marked as repo paths.
+version: v3.1
+source: datasets/soe/v3/rl/train.jsonl
+source_sha256: 2b332f99d271145fad19b1f50c552f8f29cabe505558a47024cc2a0a3d2d9a79  # decision 011
+suite: soe/trainer/config/eval_suite.yaml  # repo path; its prompt template is rendered into the rows
+output_dir: datasets/soe/v3.1/rl
+report: docs/reports/m1_datasets_v3.1.json  # repo path
+
+validation:
+  size: 256
+  seed: 20261029
+# The leak rule of decision 003, applied as an eligibility test: a problem can enter the validation
+# split only if the rest of train covers less than min_fraction of its word n-grams.
+near_duplicate:
+  ngram: 13
+  min_fraction: 0.5
+  boilerplate_max_count: 20  # n-grams in more than this many problems are ignored

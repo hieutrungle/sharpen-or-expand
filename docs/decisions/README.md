@@ -16,4 +16,6 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [008](008-verifier-notations-and-hard-tier.md) | Verifier accepts audited notations; report re-scores; measurement errors leave the hard tier | accepted |
 | [009](009-fp8-kv-cache.md) | FP8 KV cache for all sampling and RL rollouts; suite soe-eval-v3 | accepted |
 | [010](010-split-answers.md) | Multi-part answers boxed separately: last 2-3 final-answer boxes joined | accepted |
-| [011](011-rl-train-v3.md) | RL train v3: hand-reviewed copies of evaluation problems removed (12,124) | accepted |
+| [011](011-rl-train-v3.md) | RL train v3: hand-reviewed copies of evaluation problems removed (12,124) | accepted; 256 problems moved to validation by 012 |
+| [012](012-rl-validation-split.md) | In-loop validation split (256) carved from RL train v3; RL data v3.1 (11,868 train) | accepted |
+| [013](013-rl-no-kl-step-checkpoints.md) | RL runs: no KL term; a checkpoint every N steps with its rollout-token count | accepted |

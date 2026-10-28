@@ -2,14 +2,34 @@
 
 The validators encode the study's standing rules (docs/milestone-plan.md), so a config that would
 confound the algorithm comparison fails at load time instead of after a 70-hour run.
+
+The rollout protocol (prompt, thinking mode, KV-cache dtype, response cap) is not repeated here: it
+is read from the frozen evaluation suite the config names (`rollout_protocol`), so RL rollouts and
+evaluation cannot drift apart.
 """
 
+import re
+from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 from typing import Self
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from soe.trainer.config.eval_suite import EvalSuite, PromptSpec, SamplingSpec
+
+SHA256_PATTERN = r"^[0-9a-f]{64}$"
+
+# Qwen3.5 checkpoints are multimodal and carry a multi-token-prediction head. LoRA must adapt only
+# the language model, so its exclude pattern must match these names and not the language-model one.
+# (Module names as peft sees them; Gemma 4 names are added when M8 needs them.)
+NON_LANGUAGE_MODULES = (
+    "model.visual.blocks.0.mlp.linear_fc1",
+    "model.visual.merger.linear_fc1",
+    "mtp.layers.0.mlp.down_proj",
+)
+LANGUAGE_MODULE = "model.language_model.layers.0.mlp.down_proj"
 
 
 class FrozenModel(BaseModel):
@@ -35,8 +55,8 @@ class TrainingMode(StrEnum):
 
 
 class Lane(StrEnum):
-    A = "A"  # 2xA100: every 4B / Gemma training run
-    B = "B"  # 2xA40: 2B development, evaluation, preference generation, small sweeps
+    A = "A"  # 4xA40 on fc098: every 4B / Gemma training run (2xA100 only on request)
+    B = "B"  # A40 pairs on fc096/fc097: 2B development; sampling runs on 1-GPU workers
 
 
 class ModelSpec(FrozenModel):
@@ -48,6 +68,20 @@ class LoraSpec(FrozenModel):
     rank: int = Field(gt=0)
     alpha: int = Field(gt=0)
     target_modules: str | list[str]
+    # A regex over full module names (peft's `exclude_modules`); must cover NON_LANGUAGE_MODULES.
+    exclude_modules: str
+
+    @model_validator(mode="after")
+    def _check(self) -> Self:
+        exclude = re.compile(self.exclude_modules)
+        missed = [name for name in NON_LANGUAGE_MODULES if not exclude.fullmatch(name)]
+        if missed:
+            raise ValueError(
+                f"lora.exclude_modules must exclude the vision tower and MTP: {missed}"
+            )
+        if exclude.fullmatch(LANGUAGE_MODULE):
+            raise ValueError("lora.exclude_modules must not exclude the language model")
+        return self
 
 
 class OptimSpec(FrozenModel):
@@ -57,18 +91,24 @@ class OptimSpec(FrozenModel):
 
 
 class RolloutSpec(FrozenModel):
+    """RL sampling. Prompt, thinking mode, KV-cache dtype and response cap come from the suite."""
+
     prompts_per_step: int = Field(gt=0)
     group_size: int = Field(ge=2)
     temperature: float = Field(gt=0)
     top_p: float = Field(gt=0, le=1)
-    max_prompt_tokens: int = Field(gt=0)
-    max_response_tokens: int = Field(gt=0)
+    max_prompt_tokens: int = Field(
+        gt=0
+    )  # from the measured maximum (docs/reports/m1_rl_prompts.json)
+    # Development smoke runs only: a lower cap than the suite's (decision 004 forbids a higher one).
+    smoke_max_response_tokens: int | None = Field(default=None, gt=0)
 
 
 class PolicyLossSpec(FrozenModel):
+    """No KL term exists for any RL algorithm (decision 013), so there is no field for one."""
+
     clip_ratio_low: float = Field(gt=0)
     clip_ratio_high: float = Field(gt=0)
-    kl_coef: float = Field(ge=0)
     entropy_coef: float = Field(ge=0)
 
 
@@ -85,7 +125,6 @@ class BudgetSpec(FrozenModel):
     """Runs are compared at equal rollout-token budgets, never equal steps."""
 
     rollout_tokens: int = Field(gt=0)
-    checkpoint_every_rollout_tokens: int = Field(gt=0)
     # G1 stopping rule: stop when in-loop validation pass@1 has not improved by stop_min_delta
     # over stop_patience_evals evaluations. Unset until gate G1 fixes it.
     stop_patience_evals: int | None = Field(default=None, gt=0)
@@ -93,18 +132,51 @@ class BudgetSpec(FrozenModel):
 
     @model_validator(mode="after")
     def _check(self) -> Self:
-        if self.checkpoint_every_rollout_tokens > self.rollout_tokens:
-            raise ValueError("checkpoint interval is larger than the whole rollout budget")
         if (self.stop_patience_evals is None) != (self.stop_min_delta is None):
             raise ValueError("set both stop_patience_evals and stop_min_delta, or neither")
         return self
 
 
+class CheckpointSpec(FrozenModel):
+    """Decision 013: save every N steps (N set so saves land every 2-4 h); each checkpoint records
+    its cumulative rollout tokens; runs are compared at the checkpoint nearest each token mark."""
+
+    save_every_steps: int = Field(gt=0)
+    keep_last: int = Field(ge=1)  # FSDP shards kept for resume; HF exports for evaluation all stay
+
+
+class ValidationSpec(FrozenModel):
+    """In-loop pass@1 on the validation split (decision 012), at every checkpoint, sampled with the
+    suite's evaluation settings (temperature 0.6, top-p 0.95, 16K, seed 0)."""
+
+    max_problems: int | None = Field(default=None, gt=0)  # None: the whole split
+    samples_per_problem: int = Field(gt=0)
+
+
+class HardwareSpec(FrozenModel):
+    """Speed and memory knobs: how fast a step runs, never the algorithm or its batch."""
+
+    n_gpus: int = Field(gt=0)
+    rollout_tensor_parallel: int = Field(gt=0)
+    gpu_memory_utilization: float = Field(gt=0, lt=1)
+    param_offload: bool
+    optimizer_offload: bool
+    max_token_len_per_gpu: int = Field(gt=0)
+
+    @model_validator(mode="after")
+    def _check(self) -> Self:
+        if self.n_gpus % self.rollout_tensor_parallel:
+            raise ValueError("n_gpus must be a multiple of rollout_tensor_parallel")
+        return self
+
+
 class DataSpec(FrozenModel):
-    """Paths are relative to the data root ($SOE_DATA); existence is checked at launch."""
+    """Paths are relative to the data root ($SOE_DATA); hashes are checked at launch."""
 
     train_file: str
+    train_sha256: str = Field(pattern=SHA256_PATTERN)
     val_file: str
+    val_sha256: str = Field(pattern=SHA256_PATTERN)
 
 
 class ExperimentConfig(FrozenModel):
@@ -121,6 +193,9 @@ class ExperimentConfig(FrozenModel):
     rollout: RolloutSpec | None = None
     policy_loss: PolicyLossSpec | None = None
     budget: BudgetSpec | None = None
+    checkpoint: CheckpointSpec | None = None
+    validation: ValidationSpec | None = None
+    hardware: HardwareSpec | None = None
     dapo: DapoComponents | None = None
     rs_grpo_beta: float | None = Field(default=None, gt=0)
     data: DataSpec
@@ -141,7 +216,7 @@ class ExperimentConfig(FrozenModel):
                 "every non-development RL/DPO run starts from the frozen SFT checkpoint"
             )
         is_rl = self.algorithm in RL_ALGORITHMS
-        for block in ("rollout", "policy_loss", "budget"):
+        for block in ("rollout", "policy_loss", "budget", "checkpoint", "validation", "hardware"):
             if is_rl != (getattr(self, block) is not None):
                 raise ValueError(f"{block} is required for RL algorithms and forbidden otherwise")
         if (self.algorithm is Algorithm.DAPO) != (self.dapo is not None):
@@ -150,6 +225,9 @@ class ExperimentConfig(FrozenModel):
             raise ValueError("rs_grpo_beta is required for RS-GRPO and forbidden otherwise")
         if self.policy_loss is not None:
             self._check_clip_consistency(self.policy_loss)
+        smoke = self.rollout is not None and self.rollout.smoke_max_response_tokens is not None
+        if smoke and not self.development:
+            raise ValueError("smoke_max_response_tokens is for development runs only")
         return self
 
     def _check_clip_consistency(self, loss: PolicyLossSpec) -> None:
@@ -160,6 +238,33 @@ class ExperimentConfig(FrozenModel):
             raise ValueError("dapo.clip_higher needs clip_ratio_high > clip_ratio_low")
         if not wants_clip_higher and loss.clip_ratio_high != loss.clip_ratio_low:
             raise ValueError("clip_ratio_high must equal clip_ratio_low without Clip-Higher")
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class RolloutProtocol:
+    """What every RL rollout shares with evaluation (decisions 004, 006, 009)."""
+
+    prompt: PromptSpec  # template and enable_thinking
+    max_response_tokens: int
+    kv_cache_dtype: str
+    validation_sampling: (
+        SamplingSpec  # the suite's evaluation sampling, used for in-loop validation
+    )
+
+
+def rollout_protocol(config: ExperimentConfig, suite: EvalSuite) -> RolloutProtocol:
+    if config.rollout is None:
+        raise ValueError(f"{config.name} is not an RL config")
+    cap = suite.sampling.max_tokens
+    smoke = config.rollout.smoke_max_response_tokens
+    if smoke is not None and smoke > cap:
+        raise ValueError(f"smoke_max_response_tokens {smoke} is above the suite's cap {cap}")
+    return RolloutProtocol(
+        prompt=suite.prompt,
+        max_response_tokens=cap if smoke is None else smoke,
+        kv_cache_dtype=suite.sampling.kv_cache_dtype,
+        validation_sampling=suite.sampling,
+    )
 
 
 def load_config(path: Path) -> ExperimentConfig:

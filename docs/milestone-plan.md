@@ -16,12 +16,12 @@ Lane A trains; Lane B evaluates and develops. One wall-clock hour on Lane A equa
 
 | Lane | Hardware | Runs here | Never runs here |
 | --- | --- | --- | --- |
-| A | 4×A40 (48 GB) on node fc098, requested explicitly (`--nodelist=fc098 --gres=gpu:a40:4`); a target confirmed at G0. Fallback: 2×A100 (40 GB), by whole seed only, under the rule G0 fixes | Qwen3.5-4B SFT, DPO, every RL run (screening, full, seeds, ablations), Gemma 4 E4B SFT and RL | Evaluation sweeps, preference sampling, 2B work |
+| A | 4×A40 (48 GB) on node fc098, requested explicitly (`--nodelist=fc098 --gres=gpu:a40:4`); a target confirmed at G0. Fallback: 2×A100 (40 GB), only when you request it, and then for a whole comparison block | Qwen3.5-4B SFT, DPO, every RL run (screening, full, seeds, ablations), Gemma 4 E4B SFT and RL | Evaluation sweeps, preference sampling, 2B work |
 | B | Split by job type. Development training (2B, 2-GPU jobs): the A40 pairs on fc096 and fc097. Evaluation and preference sampling (1-GPU workers): the four A30s (fc123, fc124) first, A10s for overflow, spare A40s when free | Qwen3.5-2B development, RS-GRPO β sweep, ablation pilots on 2B, base/SFT/DPO evaluation, preference generation, pass@k evaluation of every saved checkpoint | Training that feeds final 4B conclusions |
 
-Evaluation is decoupled from training. RL jobs on Lane A only run a small in-loop pass@1 validation set and write checkpoints at fixed rollout-token intervals; Lane B picks those checkpoints up and runs the full K=1,4,8,16 suite and transition tables. This keeps Lane A training, and it means most of the final high-K evaluation is done by the time the last run finishes.
+Evaluation is decoupled from training. RL jobs on Lane A only run a small in-loop pass@1 validation set and write a checkpoint every N steps (set so that saves land every 2–4 hours), each recording its cumulative rollout tokens; Lane B picks those checkpoints up and runs the full K=1,4,8,16 suite and transition tables. This keeps Lane A training, and it means most of the final high-K evaluation is done by the time the last run finishes.
 
-There is only one 4×A40 node, so when a second training lane is needed it is the A100 pair. A whole seed (every algorithm of that seed) may run there, either under the fallback rule when fc098 is unavailable or to run seeds in parallel (see Cut order and compression). A run never switches hardware mid-run, and no single algorithm moves on its own; G0 fixes the rule.
+There is only one 4×A40 node, so when a second training lane is needed it is the A100 pair. Runs go there only on your explicit request, because the A100s are busy most of the time; otherwise a run waits for fc098. What moves is always a whole **comparison block**: every run that is compared with another run, for example all algorithms of one seed, or the M7 ablations together with the seed-1 runs they are measured against. A run never switches hardware mid-run, and no single algorithm moves on its own. The same applies to running a block in parallel (see Cut order and compression).
 
 Answered in M0: FASTER's A100s are the PCIe 40 GB model, which makes full-parameter 4B RL on 2×A100 tight. The M1 memory study measures 4×A40 (the Lane A target) and 2×A100 (the fallback), both mandatory and at equal priority; asking for more than two A100s means competing with other users.
 
@@ -56,7 +56,7 @@ Moved to M2: the SFT half of the contamination report, because the SFT data is c
 
 ### M1 — Working pipeline and 4B memory study (Weeks 1–2, Lanes A and B)
 
-Lane B builds and debugs the full pipeline on Qwen3.5-2B; Lane A spends about two days measuring what 4B training costs. Budget: 100–200 GPU-hours, mostly A40. None of these results count toward conclusions.
+Lane B builds and debugs the full pipeline on Qwen3.5-2B; Lane A spends about two days measuring what 4B training costs. Budget: about 145–220 GPU-hours, mostly A40 (estimate in `docs/roadmap/M1.md`; the earlier 100–200 cap was lifted on 2026-10-28). None of these results count toward conclusions.
 
 - Lane B: SFT, rollout generation (vLLM/SGLang), GRPO, checkpoint/resume, evaluation hand-off, logging of every mandatory metric.
 - Lane A: Qwen3.5-4B full BF16 vs BF16 LoRA at G=8 — peak memory, KV-cache headroom, rollout tokens/sec, training tokens/sec — on 4×A40 (fc098, the Lane A target) and on 2×A100 (40 GB, the fallback), both mandatory and at equal priority.
@@ -179,7 +179,7 @@ If the schedule slips, cut in this order:
 
 Three ways to finish sooner, in order of payoff:
 
-- **Run a seed on the A100 pair too.** There is no second 4×A40 node, so the A100 pair is the only second training lane. It takes whole seeds only (every algorithm of that seed), never a single algorithm or part of a run, and only if the G0 training mode fits 2×A100. Seeds stay matched by rollout tokens, the hardware is logged per run, and the report states that the seed spread then includes a hardware difference. The saving (roughly 2–3 weeks in the original sizing) is re-estimated at G0.
+- **Run a seed on the A100 pair too.** There is no second 4×A40 node, so the A100 pair is the only second training lane. It takes whole comparison blocks only (for example every algorithm of one seed), never a single algorithm or part of a run, only on your request, and only if the G0 training mode fits 2×A100. Seeds stay matched by rollout tokens, the hardware is logged per run, and the report states that the seed spread then includes a hardware difference. The saving (roughly 2–3 weeks in the original sizing) is re-estimated at G0.
 - **Automate job chaining.** Each job resubmits itself from its last checkpoint, so queue gaps cost hours rather than overnight idle time.
 - **Start SFT data curation in week 1.** If the SFT set is ready when the M1 memory study ends, M2 can start mid-week 2 and shift everything up by several days.
 
@@ -195,10 +195,16 @@ These hold for every run from M2 onward; breaking one makes the algorithm compar
 - **Level C stays untouched.** It is never used for hyperparameter or checkpoint selection.
 - **Everything logged.** All capability, transition, training, behaviour and efficiency metrics from the original scoping, plus commit hash, config, seed and hardware per run.
 - **Development results stay out.** Nothing from M1 on 2B appears in the conclusions.
-- **One yardstick.** Every checkpoint is evaluated on soe-eval-v3 with the decision-010 verifier and compared with the v3 base reference; RL rollouts and preference data use RL train v3 (12,124 problems) and the same sampling protocol (thinking mode, FP8 KV cache).
+- **One yardstick.** Every checkpoint is evaluated on soe-eval-v3 with the decision-010 verifier and compared with the v3 base reference; RL rollouts and preference data use RL train v3.1 (11,868 problems: v3 minus the 256-problem in-loop validation split, decision 012) and the same sampling protocol (thinking mode, FP8 KV cache).
 
 ## Revisions
 
 **2026-10-28, closing M0.** M0's exit criteria are ticked. The SFT half of the contamination report moves to M2, which chooses the SFT data; the base-model evaluation listed under M2 was run in M0. The A100 question is answered (40 GB). Lane B sampling may use A30/A10 workers. M0 added two protocol settings (thinking mode, decision 006; FP8 KV cache, decision 009) and a standing rule that fixes the yardstick. The G0 memo also settles the development model and the GPU-type assignment. Details: `docs/roadmap/M0.md` and the M0 report chapter.
 
-**2026-10-28, Lane A on 4×A40.** Lane A targets the 4×A40 node fc098, requested explicitly, for every 4B and Gemma training run; G0 confirms it from the M1 measurements. When fc098 is unavailable, a rule fixed in advance applies, never a judgement by eye: wait, or move a whole seed (all algorithms of that seed) to 2×A100. No run switches hardware mid-run and no single algorithm moves on its own; G0 picks which. The A100 pair becomes the fallback and the only possible second training lane (by whole seed), replacing the earlier exception that let Lane B run seeds on the A40 pair. Lane B splits by job type: development training on the A40 pairs of fc096 and fc097; evaluation and preference sampling on the A30s first, then A10s, then spare A40s. Qwen3.5-2B-Base stays the development model. In M1 the 4×A40 and 2×A100 measurements are both mandatory, and the G0 exit criterion now names the Lane A type and the fallback rule. The 16-week schedule, computed for 2×A100, is re-checked at G0. Details: `docs/roadmap/M1.md`.
+**2026-10-28, Lane A on 4×A40.** Lane A targets the 4×A40 node fc098, requested explicitly, for every 4B and Gemma training run; G0 confirms it from the M1 measurements. When fc098 is unavailable, runs wait. They move to 2×A100 only when you request it, and then as a whole comparison block (every run compared with another, for example all algorithms of one seed, or the ablations with the seed-1 runs they are measured against). No run switches hardware mid-run, and no single algorithm moves on its own. The A100 pair is the only possible second training lane, replacing the earlier exception that let Lane B run seeds on the A40 pair. Lane B splits by job type: development training on the A40 pairs of fc096 and fc097; evaluation and preference sampling on the A30s first, then A10s, then spare A40s. Qwen3.5-2B-Base stays the development model. In M1 the 4×A40 and 2×A100 measurements are both mandatory, and the G0 exit criterion names the Lane A type and the fallback rule. The 16-week schedule, computed for 2×A100, is re-checked at G0. Further changes the same day:
+- The M1 budget cap is lifted; the estimate is about 145–220 GPU-hours.
+- RL jobs write a checkpoint every N steps (2–4 hours) and record the cumulative rollout tokens of each, instead of saving at fixed rollout-token intervals (decision 013). Runs are compared at the checkpoint nearest each token mark.
+- The in-loop validation set is 256 problems carved from RL train v3, so the "One yardstick" rule now names RL train v3.1 (11,868 problems; decision 012). Level B stays a held-out measurement and is never used for stopping.
+- No RL algorithm uses a KL term or a reference model (decision 013).
+
+Details: `docs/roadmap/M1.md`.
