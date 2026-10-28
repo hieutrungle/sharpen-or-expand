@@ -1,10 +1,13 @@
 """Export one RL checkpoint to HF: `python -m soe.trainer.main_export --run-dir runs/<id> --step N`.
 
 Started by the checkpoint callback after each save and by main_rl's sweep (decision 018). Writes
-`$SOE_DATA/checkpoints/<run_id>/step_<N>/hf`; does nothing if that export exists already.
+`$SOE_DATA/checkpoints/<run_id>/step_<N>/hf`; does nothing if that export exists already. Peak host
+memory is about 6 bytes per parameter (FP32 model, BF16 base and BF16 output; measured in M1.4).
 """
 
+import fcntl
 import os
+import shutil
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
@@ -39,20 +42,28 @@ class ExportCli(BaseSettings):
         config = load_config(run_dir / "config.yaml")
         data_root = Path(os.environ["SOE_DATA"])
         out = export_dir(data_root, info.run_id, self.step)
-        if out.exists():
-            print(f"step {self.step}: already exported to {out}")
-            return
-        records = {record.step: record for record in read_records(run_dir)}
-        record = records.get(self.step)
-        exported = export_checkpoint(
-            run_dir / "checkpoints" / f"global_step_{self.step}" / "actor",
-            model_path(config, data_root),
-            out,
-            run_id=info.run_id,
-            step=self.step,
-            rollout_tokens=None if record is None else record.rollout_tokens,
-            base_model=base_model_name(config),
-        )
+        out.parent.mkdir(parents=True, exist_ok=True)
+        # One export per step at a time: the callback's background export and main_rl's sweep can
+        # start the same step, and two at once would double the peak memory in the job. The kernel
+        # releases the lock if the holder dies.
+        with open(out.parent / ".export.lock", "w") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            if out.exists():
+                print(f"step {self.step}: already exported to {out}")
+                return
+            for stale in out.parent.glob(f".{out.name}.tmp-*"):
+                shutil.rmtree(stale)  # left by a killed export; nobody else holds the lock
+            records = {record.step: record for record in read_records(run_dir)}
+            record = records.get(self.step)
+            exported = export_checkpoint(
+                run_dir / "checkpoints" / f"global_step_{self.step}" / "actor",
+                model_path(config, data_root),
+                out,
+                run_id=info.run_id,
+                step=self.step,
+                rollout_tokens=None if record is None else record.rollout_tokens,
+                base_model=base_model_name(config),
+            )
         print(exported.model_dump_json(indent=1))
 
 

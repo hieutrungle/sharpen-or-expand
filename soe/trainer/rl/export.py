@@ -66,21 +66,26 @@ def _rank_files(actor_dir: Path, kind: str) -> list[Path]:
 
 
 def load_full_state_dict(actor_dir: Path) -> dict[str, torch.Tensor]:
-    """The unsharded FP32 state dict, in the checkpoint's key order."""
+    """The unsharded FP32 state dict, in the checkpoint's key order.
+
+    Shards are memory-mapped and each key is dropped from them once joined, so resident memory
+    stays near one FP32 copy of the model (about 4 bytes per parameter)."""
     shards = [
-        torch.load(f, map_location="cpu", weights_only=False)
+        torch.load(f, map_location="cpu", weights_only=False, mmap=True)
         for f in _rank_files(actor_dir, "model")
     ]
     full: dict[str, torch.Tensor] = {}
-    for key, first in shards[0].items():
+    for key in list(shards[0]):
+        parts = [shard.pop(key) for shard in shards]
+        first = parts[0]
         if not isinstance(first, DTensor):
-            full[key] = first.float()
+            full[key] = first.float().clone()
             continue
         (placement,) = first.placements  # FSDP2 without tensor parallelism: a 1-D mesh
         if isinstance(placement, Replicate):
-            full[key] = first._local_tensor.float()
+            full[key] = first._local_tensor.float().clone()
         elif isinstance(placement, Shard):
-            locals_ = [shard[key]._local_tensor.float() for shard in shards]
+            locals_ = [part._local_tensor.float() for part in parts]
             full[key] = torch.cat(locals_, dim=placement.dim)
         else:
             raise ExportError(f"unsupported placement {placement} for {key}")
@@ -96,7 +101,10 @@ def trained_keys(actor_dir: Path, state_dict_keys: list[str]) -> list[str]:
 
     torch's optimizer numbers parameters in `model.parameters()` order, which is the state-dict
     order without the tied lm_head duplicate."""
-    optim = torch.load(_rank_files(actor_dir, "optim")[0], map_location="cpu", weights_only=False)
+    # Memory-mapped: only the parameter groups and which entries have state are read.
+    optim = torch.load(
+        _rank_files(actor_dir, "optim")[0], map_location="cpu", weights_only=False, mmap=True
+    )
     param_ids = [i for group in optim["param_groups"] for i in group["params"]]
     params = [k for k in state_dict_keys if k.removeprefix(PEFT_PREFIX) != "lm_head.weight"]
     if len(params) != len(param_ids):
@@ -237,7 +245,7 @@ def export_checkpoint(
         created_at=datetime.now(UTC),
     )
 
-    tmp = out_dir.parent / f".{out_dir.name}.tmp-{os.getpid()}"
+    tmp = out_dir.parent / f".{out_dir.name}.tmp-{os.getpid()}"  # main_export removes stale ones
     tmp.mkdir(parents=True)
     for file_name in sorted(set(file_of.values())):
         part = {n: out[n] for n in out if file_of[n] == file_name}
