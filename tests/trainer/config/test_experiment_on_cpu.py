@@ -132,7 +132,7 @@ def test_protocol_comes_from_the_suite() -> None:
     assert protocol.max_response_tokens == 16384
     assert protocol.kv_cache_dtype == "fp8"
     assert protocol.prompt.chat_template_kwargs() == {"enable_thinking": True}
-    assert protocol.validation_sampling.temperature == 0.6
+    assert (protocol.temperature, protocol.top_p, protocol.top_k) == (0.6, 0.95, -1)
 
 
 def test_smoke_cap_only_lowers_and_only_for_development() -> None:
@@ -148,3 +148,9 @@ def test_smoke_cap_only_lowers_and_only_for_development() -> None:
     }
     with pytest.raises(ValidationError, match="development runs only"):
         ExperimentConfig.model_validate(data)
+
+
+def test_rollout_sampling_cannot_be_set_in_the_config() -> None:
+    # Decision 014: rollouts sample with the suite's settings.
+    with pytest.raises(ValidationError, match="temperature"):
+        ExperimentConfig.model_validate(with_block("rollout", temperature=1.0))
