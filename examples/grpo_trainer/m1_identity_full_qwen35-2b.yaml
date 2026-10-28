@@ -1,0 +1,50 @@
+# M1.4 step-0 identity run (full BF16, 2B, development only): one step at learning rate 0 and a save
+# at step 1, so the checkpoint holds the base weights after verl's real save path. Its HF export
+# must equal the base snapshot tensor for tensor (decision 018). Otherwise the smoke config.
+name: grpo_m1_identity_full_qwen35-2b
+milestone: m1
+development: true
+lane: B
+model:
+  hf_id: Qwen/Qwen3.5-2B-Base
+  revision: b1485b2fa6dfa1287294f269f5fb618e03d52d7c
+init_checkpoint: null  # dev runs may start from the base model
+training_mode: full_bf16
+algorithm: grpo
+optim:
+  learning_rate: 0.0  # development identity run only: the update leaves every weight unchanged
+  warmup_steps: 0
+  weight_decay: 0.0
+rollout:
+  prompts_per_step: 4
+  group_size: 8
+  temperature: 1.0  # rollout sampler, every algorithm (decision 017); validation samples like eval
+  top_p: 1.0
+  max_prompt_tokens: 2048  # longest RL prompt is 1,446 tokens (docs/reports/m1_rl_prompts.json)
+  smoke_max_response_tokens: 1024  # the weights, not the rollouts, are under test
+policy_loss:
+  clip_ratio_low: 0.2
+  clip_ratio_high: 0.2
+  entropy_coef: 0.0
+budget:
+  rollout_tokens: 30000000
+  max_steps: 1
+checkpoint:
+  save_every_steps: 1
+  keep_last: 1
+validation:
+  max_problems: 2
+  samples_per_problem: 1
+hardware:
+  n_gpus: 2
+  rollout_tensor_parallel: 1
+  gpu_memory_utilization: 0.6
+  param_offload: false
+  optimizer_offload: true  # FP32 Adam states of 2B; not under test
+  max_token_len_per_gpu: 36864  # two full-length sequences (2 x (2,048 + 16,384))
+data:  # RL data v3.1 (decision 012; docs/reports/m1_datasets_v3.1.json)
+  train_file: datasets/soe/v3.1/rl/verl/train.parquet
+  train_sha256: 2ea38a35b7d5a1b8bfa8b2d85bc94e45996b7163934c6955618b8ca123d805d3
+  val_file: datasets/soe/v3.1/rl/verl/val.parquet
+  val_sha256: 92e97417fb22727127ed4ef4ca7e5c857841a9cec9d579c23f66bd1722754e0f
+eval_suite: soe/trainer/config/eval_suite.yaml

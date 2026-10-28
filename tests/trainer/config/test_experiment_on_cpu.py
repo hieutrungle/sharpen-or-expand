@@ -147,6 +147,18 @@ def test_rollout_sampler_is_required_and_bounded() -> None:
         ExperimentConfig.model_validate(with_block("rollout", top_p=1.5))
 
 
+def test_learning_rate_zero_only_for_development_identity_runs() -> None:
+    # Decision 018: the export identity test needs a checkpoint the update left unchanged.
+    data = with_block("optim", learning_rate=0.0)
+    assert ExperimentConfig.model_validate(data).optim.learning_rate == 0.0
+    with pytest.raises(ValidationError, match="learning_rate 0"):
+        ExperimentConfig.model_validate(
+            data | {"development": False, "init_checkpoint": "checkpoints/sft/hf"}
+        )
+    with pytest.raises(ValidationError):
+        ExperimentConfig.model_validate(with_block("optim", learning_rate=-1e-5))
+
+
 def test_smoke_cap_only_lowers_and_only_for_development() -> None:
     suite = load_suite(SUITE)
     smoke = ExperimentConfig.model_validate(with_block("rollout", smoke_max_response_tokens=4096))

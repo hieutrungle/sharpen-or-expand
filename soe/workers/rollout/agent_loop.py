@@ -13,6 +13,7 @@ from typing import Any
 from verl.experimental.agent_loop.agent_loop import AgentLoopOutput
 from verl.experimental.agent_loop.single_turn_agent_loop import SingleTurnAgentLoop
 
+from soe.trainer.rl.rollout_tokens import record_rollout
 from soe.workers.rollout.chat import is_truncated, stop_token_ids, turn_end_text
 from soe.workers.rollout.failures import failures_recorded
 
@@ -35,6 +36,9 @@ class StopAtTurnEndAgentLoop(SingleTurnAgentLoop):  # type: ignore[misc]
         params = {**sampling_params, "stop_token_ids": self._stop_ids}
         with failures_recorded("agent_loop"):
             output: AgentLoopOutput = await super().run(params, **kwargs)
+            # Rollout-token accounting (decision 018): training rollouts only, by verl step.
+            if kwargs["extra_info"]["split"] == "train":
+                record_rollout(step=int(kwargs["global_steps"]), tokens=len(output.response_ids))
         ids = output.response_ids
         output.extra_fields["truncated"] = is_truncated(ids, self._stop_ids)
         # Diagnostic: a finished turn should close on <|im_end|>, not on the base model's EOS.

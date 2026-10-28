@@ -18,6 +18,8 @@ from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
 from soe.trainer.config.eval_suite import file_sha256, load_suite
 from soe.trainer.config.experiment import ExperimentConfig, load_config, rollout_protocol
+from soe.trainer.rl.checkpoints import RUN_DIR_ENV, missing_exports
+from soe.trainer.rl.rollout_tokens import TOKENS_ENV
 from soe.trainer.rl.verl_overrides import LaunchPaths, verl_overrides
 from soe.utils.run import read_run_info
 from soe.workers.rollout.failures import FAILURES_ENV, read_failures
@@ -82,6 +84,23 @@ def run_until_failure(
         raise subprocess.CalledProcessError(proc.returncode, cmd)
 
 
+def export_missing(run_dir: Path, data_root: Path, run_id: str) -> None:
+    """Export every saved checkpoint that has no HF export yet, one after another."""
+    for step in missing_exports(run_dir / "checkpoints", data_root, run_id):
+        subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "soe.trainer.main_export",
+                "--run-dir",
+                str(run_dir),
+                "--step",
+                str(step),
+            ],
+            check=True,
+        )
+
+
 class LaunchCli(BaseSettings):
     model_config = SettingsConfigDict(
         cli_prog_name="python -m soe.trainer.main_rl", env_prefix="SOE_LAUNCH_", cli_kebab_case=True
@@ -114,10 +133,20 @@ class LaunchCli(BaseSettings):
         metrics = run_dir / "metrics" / f"segment-{segment}.jsonl"
         metrics.parent.mkdir(exist_ok=True)
         failures = run_dir / f"rollout_failures-{segment}.jsonl"
-        env = os.environ | {"VERL_FILE_LOGGER_PATH": str(metrics), FAILURES_ENV: str(failures)}
+        tokens = run_dir / "rollout_tokens" / f"segment-{segment}.jsonl"
+        tokens.parent.mkdir(exist_ok=True)
+        env = os.environ | {
+            "VERL_FILE_LOGGER_PATH": str(metrics),
+            FAILURES_ENV: str(failures),
+            TOKENS_ENV: str(tokens),
+            RUN_DIR_ENV: str(run_dir),
+        }
+        # A checkpoint whose export the previous job did not finish (decision 018).
+        export_missing(run_dir, data_root, info.run_id)
         run_until_failure(
             [sys.executable, "-m", "verl.trainer.main_ppo", *overrides], env, failures
         )
+        export_missing(run_dir, data_root, info.run_id)
         # verl exits 0 only when the step budget is done; a killed job leaves no DONE marker.
         (run_dir / "DONE").write_text(f"finished in job {segment}\n")
 

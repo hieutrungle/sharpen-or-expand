@@ -161,6 +161,8 @@ def verl_overrides(
         f"trainer.experiment_name={run_id}",
         "trainer.logger=[console,file]",
         f"trainer.default_local_dir={paths.checkpoints}",
+        # Manifest entry and HF export after each save (decision 018)
+        "trainer.checkpoint_callback_class=soe.trainer.rl.checkpoint_callback.SoeCheckpointCallback",
         # Every rollout's text and reward, for re-scoring and behaviour metrics (~4 bytes/token).
         f"trainer.rollout_data_dir={paths.run_dir}/generations/train",
         f"trainer.validation_data_dir={paths.run_dir}/generations/val",

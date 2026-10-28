@@ -85,7 +85,9 @@ class LoraSpec(FrozenModel):
 
 
 class OptimSpec(FrozenModel):
-    learning_rate: float = Field(gt=0)
+    # 0 only for development identity runs: the M1.4 export test needs a checkpoint whose weights
+    # the update left unchanged (decision 018).
+    learning_rate: float = Field(ge=0)
     warmup_steps: int = Field(ge=0)
     weight_decay: float = Field(ge=0)
 
@@ -235,6 +237,8 @@ class ExperimentConfig(FrozenModel):
             raise ValueError("smoke_max_response_tokens is for development runs only")
         if self.budget is not None and self.budget.max_steps is not None and not self.development:
             raise ValueError("budget.max_steps is for development runs only")
+        if self.optim.learning_rate == 0 and not self.development:
+            raise ValueError("learning_rate 0 is for development identity runs only")
         return self
 
     def _check_clip_consistency(self, loss: PolicyLossSpec) -> None:
