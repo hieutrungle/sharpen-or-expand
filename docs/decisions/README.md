@@ -12,5 +12,5 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [004](004-evaluation-protocol.md) | Evaluation protocol: Yue et al. sampling, zero-shot prompt, scoring, transitions | accepted |
 | [005](005-hard-subset.md) | Hard subset: 4B-Base c ≤ 4/16 on Levels A+B, independent seed 1, 250 | accepted (pre-registered); item 6 superseded by 006; hard tier amended by 008 |
 | [006](006-thinking-mode-and-truncation.md) | Thinking mode on (amends 004); 16K kept; selection halts on format only | accepted |
-| [007](007-data-v2-text-repair.md) | Data v2: DAPO text debris repaired in place, splits frozen; suite soe-eval-v2 | proposed |
-| [008](008-verifier-notations-and-hard-tier.md) | Verifier accepts audited notations; report re-scores; measurement errors leave the hard tier | proposed |
+| [007](007-data-v2-text-repair.md) | Data v2: DAPO text debris repaired in place, splits frozen; suite soe-eval-v2 | accepted |
+| [008](008-verifier-notations-and-hard-tier.md) | Verifier accepts audited notations; report re-scores; measurement errors leave the hard tier | accepted |

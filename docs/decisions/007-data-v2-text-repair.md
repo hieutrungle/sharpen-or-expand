@@ -1,8 +1,8 @@
 # 007 — Data v2: repair encoding debris in DAPO-derived problem text, splits frozen
 
 - Date: 2026-10-28
-- Status: fix requested (user, 2026-10-28: "do the fix for level B problems"); the in-place method
-  (chosen after a full rebuild turned out to reshuffle Level B) is proposed, pending the user's review
+- Status: accepted (2026-10-28). The fix was requested by the user ("do the fix for level B
+  problems"); the in-place method was chosen after a full rebuild turned out to reshuffle Level B
 - Milestone: M0 (found while drafting the M0.8 audit)
 - Built by: `examples/data_preprocess/m0_repair_v2.py` from v1; report `docs/reports/m0_datasets_v2.json`
 - Frozen in: `soe/trainer/config/eval_suite.yaml` (`soe-eval-v2`); v1 kept as `eval_suite_v1.yaml`

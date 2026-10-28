@@ -1,7 +1,7 @@
 # 008 — Verifier accepts audited notations; measurement errors leave the hard tier
 
 - Date: 2026-10-28
-- Status: proposed
+- Status: accepted (2026-10-28)
 - Milestone: M0.8 (amends 004's scoring and 005's hard subset)
 
 ## Context
