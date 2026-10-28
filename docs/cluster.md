@@ -82,6 +82,15 @@ worker-hours per shard of 96 (A40/A30/A10 mix; 14 workers finished in about 6.5 
 5. Bring results home with rsync from your own terminal, excluding checkpoints:
    `rsync -av --exclude 'checkpoints/' faster-claude:/scratch/user/hieult/research/sharpen-or-expand/runs/ runs/`
 
+## Submission pitfalls on FASTER (seen 2026-10-28)
+- FASTER's `sbatch` wrapper (it prints the SU charge notice) re-splits the script's arguments, so an
+  argument containing spaces arrives in pieces. `sbatch slurm/cpu.sbatch bash -c 'a && b'` ran only
+  `bash -c python`, which exited 0 at once with no output (job 3222582). Pass plain commands only,
+  and submit separate jobs instead of chaining commands in one string.
+- "Socket timed out on send/recv operation" does not mean the job was rejected: it may already be
+  queued. Check `squeue -u hieult` before resubmitting.
+- `--parsable` output is mixed with the wrapper's notice; read job ids from `squeue`/`sacct`.
+
 ## Rules the templates enforce
 - Assets are staged as complete Hub snapshots (no file filters): offline, vLLM and
   huggingface_hub refuse a snapshot with any repo file missing.

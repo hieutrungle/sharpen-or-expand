@@ -103,3 +103,19 @@ def test_dev_config_points_at_the_built_files() -> None:
     for split in ("train", "val"):
         assert data[f"{split}_file"] == report["files"][split]["parquet"]
         assert data[f"{split}_sha256"] == report["files"][split]["parquet_sha256"]
+
+
+def test_prompt_cap_covers_every_rl_prompt() -> None:
+    # verl silently cuts text prompts longer than rollout.prompt_length.
+    import yaml
+
+    checked = json.loads(Path("docs/reports/m1_rl_prompts.json").read_text())
+    report = json.loads(REPORT.read_text())
+    assert checked["parquet_sha256"] == {s: i["parquet_sha256"] for s, i in report["files"].items()}
+    cap = yaml.safe_load(Path("examples/grpo_trainer/m1_dev_qwen35-2b.yaml").read_text())[
+        "rollout"
+    ]["max_prompt_tokens"]
+    for model in checked["models"].values():
+        for split in ("train", "val"):
+            assert model[split]["mismatches"] == 0
+            assert model[split]["prompt_tokens"]["max"] <= cap
