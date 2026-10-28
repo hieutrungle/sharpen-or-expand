@@ -19,8 +19,10 @@ Sampling throughput is bound by KV-cache memory, not by vLLM's request limit: wi
 reasoning, vLLM starts about 180 sequences, the cache fills as they grow, and steady state holds about
 50 on an A10 (about 900 tokens/s; about 1,300 on an A40). `max_num_seqs` therefore does not help.
 Keep `gpu_memory_utilization` at 0.90: at 0.95 the Qwen3.5 linear-attention prefill kernel runs out
-of memory on 24 GB cards (A30 probe, job 3221501). An fp8 KV cache would roughly double concurrency
-but changes the sampled tokens, so it needs a decision and would apply to every checkpoint.
+of memory on 24 GB cards (A30 probe, job 3221501). Since soe-eval-v3 the KV cache is FP8 (decision
+009): 1.75× the cache capacity on an A40 (1.69M tokens), about 1.25× the throughput (about 1,650
+tokens/s), FlashInfer attention on every GPU type. The full 4B-Base suite then costs about 0.94
+worker-hours per shard of 96 (A40/A30/A10 mix; 14 workers finished in about 6.5 hours).
 
 ## One-time setup
 1. Locally: `make container` (needs sudo + apptainer) builds `../soe-data/sif/soe.sif`.
