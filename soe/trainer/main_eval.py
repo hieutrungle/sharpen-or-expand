@@ -32,7 +32,7 @@ from soe.utils.dataset.problems import Level, Problem
 from soe.utils.dataset.records import SampleRecord, SamplingRunInfo
 from soe.utils.jsonl import read_jsonl, write_jsonl
 from soe.utils.metric.eval_tables import ProblemResult, problem_result, tier_table
-from soe.utils.reward_score.math_verify import answers_equivalent
+from soe.utils.reward_score.math_verify import answers_equivalent, timed_out_comparisons
 from soe.utils.run import gpu_names, library_versions
 from soe.utils.shards import claim_shard, mark_done, shard_path, unfinished_shards
 
@@ -362,10 +362,18 @@ def run_report(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan
     write_jsonl(cli.output / "per_problem.jsonl", results)
 
     commit = git_commit()
-    scoring = {"git_commit": commit, "verdicts_changed_from_sampling": changed}
+    timeouts = [[p[:200], g[:200]] for p, g in timed_out_comparisons()]
+    scoring = {
+        "git_commit": commit,
+        "verdicts_changed_from_sampling": changed,
+        "verifier_timeouts": timeouts,  # (predicted, gold) pairs math-verify's time limit decided
+    }
     report = {"plan": plan.model_dump(), "scoring": scoring, **report_tables(results, suite)}
     (cli.output / "report.json").write_text(json.dumps(report, indent=1) + "\n")
-    print(f"scored at {commit[:7]}; {changed} verdicts differ from sampling time")
+    print(
+        f"scored at {commit[:7]}; {changed} verdicts differ from sampling time; "
+        f"{len(timeouts)} comparisons hit the verifier's time limit"
+    )
     print_main_table(report["main"], suite.main.ks)
     return 0
 

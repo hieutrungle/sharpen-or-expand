@@ -2,9 +2,13 @@
 screen) are real base-model answers whose verdict was settled by hand; any change to an expected
 value needs a decision note."""
 
+import logging
+
 import pytest
 
+from soe.utils.reward_score import math_verify as mv
 from soe.utils.reward_score.math_verify import (
+    all_boxed,
     answers_equivalent,
     extract_boxed,
     normalize,
@@ -152,3 +156,17 @@ def test_normalize_keeps_function_names_and_matrices() -> None:
     assert normalize(r"\sin x + cos x", percent="strip") == r"\sin x + cos x"
     matrix = r"\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}"
     assert normalize(matrix, percent="strip") == matrix
+
+
+def test_all_boxed_handles_nesting_and_order() -> None:
+    text = r"so \boxed{\frac{1}{2}} or rather \fbox{3} and finally \boxed{x^{2}}"
+    assert all_boxed(text) == [r"\frac{1}{2}", "3", "x^{2}"]
+
+
+def test_timed_out_comparisons_are_recorded_with_their_pair() -> None:
+    before = len(mv.timed_out_comparisons())
+    mv._timeouts.pair = ("x", "y")
+    logging.getLogger("math_verify.grader").warning("Timeout during comparison")
+    mv._timeouts.pair = None
+    logging.getLogger("math_verify.grader").warning("Timeout during comparison")  # no pair: ignored
+    assert mv.timed_out_comparisons()[before:] == [("x", "y")]

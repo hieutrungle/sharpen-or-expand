@@ -11,6 +11,7 @@ Known limit kept on purpose: math-verify compares a bare comma list as a set, so
 repeats are ignored ("1,5" equals "5,1", "2" equals "2,2").
 """
 
+import logging
 import re
 from dataclasses import dataclass
 from typing import Literal
@@ -24,6 +25,43 @@ _BOX_COMMANDS = ("\\boxed", "\\fbox")
 class Verdict:
     extracted: str | None
     correct: bool
+
+
+class _TimeoutRecorder(logging.Handler):
+    """math-verify returns False when a comparison exceeds its 5 s wall-clock limit and only logs
+    a warning. This keeps the pairs it happened to, so a report can say which verdicts the limit
+    decided (they could in principle depend on machine load)."""
+
+    def __init__(self) -> None:
+        super().__init__(level=logging.WARNING)
+        self.pair: tuple[str, str] | None = None
+        self.timed_out: list[tuple[str, str]] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if record.getMessage().startswith("Timeout") and self.pair is not None:
+            self.timed_out.append(self.pair)
+
+
+_timeouts = _TimeoutRecorder()
+logging.getLogger("math_verify").addHandler(_timeouts)
+
+
+def timed_out_comparisons() -> list[tuple[str, str]]:
+    """(predicted, gold) pairs whose comparison hit math-verify's time limit, in this process."""
+    return list(_timeouts.timed_out)
+
+
+def all_boxed(text: str) -> list[str]:
+    """Contents of every \\boxed{...} / \\fbox{...}, in order (nested braces handled)."""
+    found = []
+    for match in re.finditer(r"\\(?:boxed|fbox)\{", text):
+        depth = 0
+        for i in range(match.end() - 1, len(text)):
+            depth += {"{": 1, "}": -1}.get(text[i], 0)
+            if depth == 0:
+                found.append(text[match.end() : i].strip())
+                break
+    return found
 
 
 def extract_boxed(text: str) -> str | None:
@@ -45,9 +83,13 @@ def extract_boxed(text: str) -> str | None:
 
 def _verify(predicted: str, gold: str) -> bool:
     # Both sides are wrapped in \\boxed{} so math-verify parses them with the same rules.
-    gold_parsed = parse(f"\\boxed{{{gold}}}")
-    predicted_parsed = parse(f"\\boxed{{{predicted}}}")
-    return bool(verify(gold_parsed, predicted_parsed))
+    _timeouts.pair = (predicted, gold)
+    try:
+        gold_parsed = parse(f"\\boxed{{{gold}}}")
+        predicted_parsed = parse(f"\\boxed{{{predicted}}}")
+        return bool(verify(gold_parsed, predicted_parsed))
+    finally:
+        _timeouts.pair = None
 
 
 _SPACING = re.compile(r"(?<!\\)\\[,;:! ]|\\q?quad\b|\\displaystyle|\$")

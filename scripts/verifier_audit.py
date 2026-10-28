@@ -23,6 +23,7 @@ from typing import Any
 from soe.trainer.config.eval_suite import load_suite
 from soe.utils.dataset.problems import Problem
 from soe.utils.jsonl import read_jsonl
+from soe.utils.reward_score.math_verify import all_boxed
 
 # Items per category; categories are drawn in this order and a problem is used once.
 QUOTAS = {
@@ -64,19 +65,6 @@ def parts(answer: str) -> list[str]:
     """Comma-separated parts with outer brackets removed, sorted: order-insensitive comparison."""
     text = norm(answer).strip("()[]{}").replace("\\{", "").replace("\\}", "")
     return sorted(p for p in text.split(",") if p)
-
-
-def all_boxed(text: str) -> list[str]:
-    """Contents of every \\boxed{...} / \\fbox{...}, in order (nested braces handled)."""
-    found = []
-    for match in re.finditer(r"\\(?:boxed|fbox)\{", text):
-        depth = 0
-        for i in range(match.end() - 1, len(text)):
-            depth += {"{": 1, "}": -1}.get(text[i], 0)
-            if depth == 0:
-                found.append(text[match.end() : i].strip())
-                break
-    return found
 
 
 def categories(gold: str, extracted: str, correct: bool, boxes: list[str]) -> list[str]:

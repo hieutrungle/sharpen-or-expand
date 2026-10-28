@@ -1,0 +1,486 @@
+{
+ "train": {
+  "path": "datasets/soe/v2/rl/train.jsonl",
+  "problems": 12232
+ },
+ "frozen_rule": {
+  "ngram": 13,
+  "min_fraction": 0.5
+ },
+ "13-gram": {
+  "ignored_boilerplate": 49,
+  "per_set": {
+   "math500": {
+    "level": "A",
+    "problems": 500,
+    "max_share>=0.2": 15,
+    "max_share>=0.3": 6,
+    "max_share>=0.5": 0
+   },
+   "aime24": {
+    "level": "A",
+    "problems": 30,
+    "max_share>=0.2": 1,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "aime25": {
+    "level": "A",
+    "problems": 30,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "olympiadbench_en": {
+    "level": "A",
+    "problems": 674,
+    "max_share>=0.2": 18,
+    "max_share>=0.3": 12,
+    "max_share>=0.5": 0
+   },
+   "aime26": {
+    "level": "C1",
+    "problems": 29,
+    "max_share>=0.2": 1,
+    "max_share>=0.3": 1,
+    "max_share>=0.5": 0
+   },
+   "hmmt_feb26": {
+    "level": "C1",
+    "problems": 33,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "hmmt_nov25": {
+    "level": "C2",
+    "problems": 30,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "hmmt_feb25": {
+    "level": "C2",
+    "problems": 30,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "brumo25": {
+    "level": "C2",
+    "problems": 30,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "smt25": {
+    "level": "C2",
+    "problems": 53,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "cmimc25": {
+    "level": "C2",
+    "problems": 40,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "level_b": {
+    "level": "B",
+    "problems": 994,
+    "max_share>=0.2": 65,
+    "max_share>=0.3": 38,
+    "max_share>=0.5": 0
+   }
+  },
+  "closest": [
+   {
+    "reference": "dapo/b774570d-e90e-48db-a4b3-66c13dcf0a21",
+    "train": "dapo/3271a10c-d7ca-4bec-a7ff-b2e6c45d3222",
+    "share": 0.483,
+    "same_answer": true
+   },
+   {
+    "reference": "olympiadbench_en/2127",
+    "train": "dapo/6affa4fa-9d22-47d9-aea6-840284e36e74",
+    "share": 0.481,
+    "same_answer": false
+   },
+   {
+    "reference": "olympiadbench_en/1644",
+    "train": "dapo/e5d8e598-739a-407e-addb-ba931ad9a32b",
+    "share": 0.479,
+    "same_answer": false
+   },
+   {
+    "reference": "dapo/3b0aa3f3-39f6-43c4-addf-5b997353a4cf",
+    "train": "dapo/cdc80908-87b7-4d4d-8812-3af1c51052b9",
+    "share": 0.474,
+    "same_answer": true
+   },
+   {
+    "reference": "dapo/8d7e5a4b-a8e7-4b76-8dd2-aa3ef11d610f",
+    "train": "dapo/ee68e234-bede-4b20-b25f-4c50a489a66c",
+    "share": 0.471,
+    "same_answer": false
+   },
+   {
+    "reference": "dapo/06645011-e7b3-4115-8363-f721861f2eee",
+    "train": "dapo/f54cf5ff-9fc1-488a-87f8-fe45a254d744",
+    "share": 0.467,
+    "same_answer": true
+   },
+   {
+    "reference": "olympiadbench_en/2953",
+    "train": "dapo/4cdcd63a-07b0-431e-b5c7-8a5f31312b93",
+    "share": 0.465,
+    "same_answer": false
+   },
+   {
+    "reference": "dapo/7aeeeb42-111d-4e8f-b0f1-2a7e372ff603",
+    "train": "dapo/4b5e4fc8-8c38-4f73-b50f-7f545e7e52e1",
+    "share": 0.464,
+    "same_answer": true
+   },
+   {
+    "reference": "dapo/f1db291a-9c0d-4869-b94d-2610f8f74e20",
+    "train": "dapo/f795e909-fbc4-45d9-8f18-944fcb5d381d",
+    "share": 0.464,
+    "same_answer": true
+   },
+   {
+    "reference": "math500/test/algebra/975.json",
+    "train": "dapo/7eda10cf-df84-4450-95f6-9cb175efe3c9",
+    "share": 0.455,
+    "same_answer": false
+   }
+  ]
+ },
+ "residual_at_frozen_rule": {
+  "single_problem": [],
+  "covered_by_union": []
+ },
+ "8-gram": {
+  "ignored_boilerplate": 185,
+  "per_set": {
+   "math500": {
+    "level": "A",
+    "problems": 500,
+    "max_share>=0.2": 32,
+    "max_share>=0.3": 19,
+    "max_share>=0.5": 6
+   },
+   "aime24": {
+    "level": "A",
+    "problems": 30,
+    "max_share>=0.2": 1,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "aime25": {
+    "level": "A",
+    "problems": 30,
+    "max_share>=0.2": 1,
+    "max_share>=0.3": 1,
+    "max_share>=0.5": 0
+   },
+   "olympiadbench_en": {
+    "level": "A",
+    "problems": 674,
+    "max_share>=0.2": 31,
+    "max_share>=0.3": 24,
+    "max_share>=0.5": 15
+   },
+   "aime26": {
+    "level": "C1",
+    "problems": 29,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "hmmt_feb26": {
+    "level": "C1",
+    "problems": 33,
+    "max_share>=0.2": 1,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "hmmt_nov25": {
+    "level": "C2",
+    "problems": 30,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "hmmt_feb25": {
+    "level": "C2",
+    "problems": 30,
+    "max_share>=0.2": 0,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "brumo25": {
+    "level": "C2",
+    "problems": 30,
+    "max_share>=0.2": 1,
+    "max_share>=0.3": 1,
+    "max_share>=0.5": 0
+   },
+   "smt25": {
+    "level": "C2",
+    "problems": 53,
+    "max_share>=0.2": 1,
+    "max_share>=0.3": 0,
+    "max_share>=0.5": 0
+   },
+   "cmimc25": {
+    "level": "C2",
+    "problems": 40,
+    "max_share>=0.2": 1,
+    "max_share>=0.3": 1,
+    "max_share>=0.5": 0
+   },
+   "level_b": {
+    "level": "B",
+    "problems": 994,
+    "max_share>=0.2": 128,
+    "max_share>=0.3": 86,
+    "max_share>=0.5": 35
+   }
+  },
+  "closest": [
+   {
+    "reference": "math500/test/counting_and_probability/1060.json",
+    "train": "dapo/19d294ab-a5be-4dae-9436-b90eaa3e6db8",
+    "share": 0.833,
+    "same_answer": false
+   },
+   {
+    "reference": "dapo/b774570d-e90e-48db-a4b3-66c13dcf0a21",
+    "train": "dapo/3271a10c-d7ca-4bec-a7ff-b2e6c45d3222",
+    "share": 0.706,
+    "same_answer": true
+   },
+   {
+    "reference": "dapo/23449582-afc5-467c-bc32-970811aedc7c",
+    "train": "dapo/2d0e61e5-b411-436b-b183-42d672af5fb7",
+    "share": 0.7,
+    "same_answer": true
+   },
+   {
+    "reference": "dapo/7aeeeb42-111d-4e8f-b0f1-2a7e372ff603",
+    "train": "dapo/4b5e4fc8-8c38-4f73-b50f-7f545e7e52e1",
+    "share": 0.697,
+    "same_answer": true
+   },
+   {
+    "reference": "dapo/cdc0f809-ea19-464a-a84f-479b3dc36fd6",
+    "train": "dapo/0fdc50f9-9e1e-48de-8d66-577d9d552f7d",
+    "share": 0.673,
+    "same_answer": true
+   },
+   {
+    "reference": "dapo/b53a00ad-b667-4ea7-828c-366b05b99d84",
+    "train": "dapo/9ad9b84d-eed3-4966-84f5-260c63c192e5",
+    "share": 0.672,
+    "same_answer": true
+   },
+   {
+    "reference": "math500/test/intermediate_algebra/232.json",
+    "train": "dapo/c926c97d-c509-4b37-b50d-30f71ad4a884",
+    "share": 0.667,
+    "same_answer": false
+   },
+   {
+    "reference": "olympiadbench_en/1644",
+    "train": "dapo/e5d8e598-739a-407e-addb-ba931ad9a32b",
+    "share": 0.667,
+    "same_answer": false
+   },
+   {
+    "reference": "dapo/4df1c812-9816-467a-bf27-6b2a8a29317f",
+    "train": "dapo/a8228b0c-a1fe-4c68-b01f-134734264c51",
+    "share": 0.667,
+    "same_answer": true
+   },
+   {
+    "reference": "dapo/aa97d33b-716e-4d07-8cf0-ffd841167b14",
+    "train": "dapo/0d8710fc-27a1-43ee-99cf-0a8c7597138c",
+    "share": 0.667,
+    "same_answer": true
+   }
+  ]
+ },
+ "suspects": {
+  "rule": {
+   "13-gram share": 0.3,
+   "8-gram share": 0.5,
+   "same_answer": true
+  },
+  "per_set": {
+   "math500": 1,
+   "olympiadbench_en": 5,
+   "level_b": 33
+  },
+  "pairs": [
+   {
+    "reference": "dapo/04681a34-9bb5-406f-b6db-79a22c568a73",
+    "train": "dapo/34aa1040-f2de-4a63-aa93-6242f91396c2"
+   },
+   {
+    "reference": "dapo/06645011-e7b3-4115-8363-f721861f2eee",
+    "train": "dapo/f54cf5ff-9fc1-488a-87f8-fe45a254d744"
+   },
+   {
+    "reference": "dapo/08462e96-6219-42b4-8b32-4c03dcb85685",
+    "train": "dapo/1e9513cb-3c44-4b5a-ab7a-542863314daf"
+   },
+   {
+    "reference": "dapo/1cc089e2-8560-431c-b946-3a1672587006",
+    "train": "dapo/4c4b0fe1-31f7-4a9e-91da-315aaf77f53e"
+   },
+   {
+    "reference": "dapo/21501126-e3d3-43a1-946a-53fef1646263",
+    "train": "dapo/924c3398-c70b-4006-9e7f-6a392a649038"
+   },
+   {
+    "reference": "dapo/23449582-afc5-467c-bc32-970811aedc7c",
+    "train": "dapo/2d0e61e5-b411-436b-b183-42d672af5fb7"
+   },
+   {
+    "reference": "dapo/252634f8-27e6-410a-b282-fdbe0e150ac3",
+    "train": "dapo/d0f93a47-2f13-45db-a0f5-0d3ba26f9143"
+   },
+   {
+    "reference": "dapo/273daed8-850f-48d5-bc3e-132bcc548d8f",
+    "train": "dapo/a800a4c2-b468-4df2-beb6-4434f2f2b558"
+   },
+   {
+    "reference": "dapo/317490df-1c3a-414b-8541-51fba43e19b1",
+    "train": "dapo/6714096e-4d0d-4b01-b534-de90f0edfd8b"
+   },
+   {
+    "reference": "dapo/39421b71-e244-440b-b581-ac8a305af715",
+    "train": "dapo/62d880bf-6584-4f9c-908e-c34c49505529"
+   },
+   {
+    "reference": "dapo/3b0aa3f3-39f6-43c4-addf-5b997353a4cf",
+    "train": "dapo/cdc80908-87b7-4d4d-8812-3af1c51052b9"
+   },
+   {
+    "reference": "dapo/4441de5f-ca2f-4289-bdb8-1d8d3eae3a16",
+    "train": "dapo/6b8c2b38-1ae3-44a1-b459-f52bd0531eaf"
+   },
+   {
+    "reference": "dapo/4df1c812-9816-467a-bf27-6b2a8a29317f",
+    "train": "dapo/a8228b0c-a1fe-4c68-b01f-134734264c51"
+   },
+   {
+    "reference": "dapo/51eff7ab-b4f4-4175-a485-5bb46212a2f6",
+    "train": "dapo/0c773d00-0ad3-4da7-9e66-54bee8748d10"
+   },
+   {
+    "reference": "dapo/54e0cec6-09d3-4b22-a870-034dab22a5d3",
+    "train": "dapo/756522a1-9d81-4e4e-b192-5b3363ae6c08"
+   },
+   {
+    "reference": "dapo/586a38b8-d0c2-45cc-91cd-862f42b22d37",
+    "train": "dapo/e73bff7b-53ed-4bd8-b941-fc562a049388"
+   },
+   {
+    "reference": "dapo/5afc4629-ffcd-4ea1-8b57-1f0e1e09ba02",
+    "train": "dapo/03f9d87e-a7a4-4a6c-9bdc-2de3d08fca56"
+   },
+   {
+    "reference": "dapo/7aeeeb42-111d-4e8f-b0f1-2a7e372ff603",
+    "train": "dapo/4b5e4fc8-8c38-4f73-b50f-7f545e7e52e1"
+   },
+   {
+    "reference": "dapo/a74f3ba3-c5dd-4e1b-8e11-cb9755d8f1db",
+    "train": "dapo/c40108e9-2928-4ab7-b4d1-25fb6f5a0f93"
+   },
+   {
+    "reference": "dapo/a793349b-e9ab-42d3-9e92-8eaa7942baf5",
+    "train": "dapo/cd19c46a-7492-4d8e-9c25-89543888e0e4"
+   },
+   {
+    "reference": "dapo/a98d6ab6-c393-4f26-982e-960f3d3a22bc",
+    "train": "dapo/2533c8a2-2ad4-4f24-9a1f-3110925c3b2e"
+   },
+   {
+    "reference": "dapo/aa97d33b-716e-4d07-8cf0-ffd841167b14",
+    "train": "dapo/0d8710fc-27a1-43ee-99cf-0a8c7597138c"
+   },
+   {
+    "reference": "dapo/aeb1e1bd-376b-4e26-bdf2-df14856d6c74",
+    "train": "dapo/f4d60d44-e30d-4a33-bb36-4aaef861751b"
+   },
+   {
+    "reference": "dapo/b53a00ad-b667-4ea7-828c-366b05b99d84",
+    "train": "dapo/9ad9b84d-eed3-4966-84f5-260c63c192e5"
+   },
+   {
+    "reference": "dapo/b774570d-e90e-48db-a4b3-66c13dcf0a21",
+    "train": "dapo/3271a10c-d7ca-4bec-a7ff-b2e6c45d3222"
+   },
+   {
+    "reference": "dapo/bae9b795-e39f-4d24-8443-f2e48054bf1c",
+    "train": "dapo/9a1e82d3-b08c-43bd-9b73-4781dec691d8"
+   },
+   {
+    "reference": "dapo/c5585f61-bfa7-48e2-aaca-52434b5515d4",
+    "train": "dapo/a862df20-3126-4789-bacd-238d9c9a5027"
+   },
+   {
+    "reference": "dapo/cdc0f809-ea19-464a-a84f-479b3dc36fd6",
+    "train": "dapo/0fdc50f9-9e1e-48de-8d66-577d9d552f7d"
+   },
+   {
+    "reference": "dapo/dea2d05e-8082-417b-b640-26873793b644",
+    "train": "dapo/c5e7624e-6fda-4857-9a93-4183a3c824bc"
+   },
+   {
+    "reference": "dapo/e191ee71-ae9c-4931-9a8c-645443492b1d",
+    "train": "dapo/93a102f7-0322-4002-ad50-9b5fa165fe98"
+   },
+   {
+    "reference": "dapo/e330acaf-9dc2-4a41-8c0a-51ec16b4c17a",
+    "train": "dapo/237e82fb-5fff-4bc9-b4de-7d3dd4f6aad3"
+   },
+   {
+    "reference": "dapo/e5ff7dfb-586e-452f-87c7-e56299cbead5",
+    "train": "dapo/8105d23b-bd1d-43ef-b437-e1b23394d98c"
+   },
+   {
+    "reference": "dapo/f1db291a-9c0d-4869-b94d-2610f8f74e20",
+    "train": "dapo/f795e909-fbc4-45d9-8f18-944fcb5d381d"
+   },
+   {
+    "reference": "math500/test/counting_and_probability/1003.json",
+    "train": "dapo/61c1bbba-9d10-461a-ac8e-bebaac62b671"
+   },
+   {
+    "reference": "olympiadbench_en/1724",
+    "train": "dapo/0cea5fb4-01ed-400b-bbc0-bddc21068ad7"
+   },
+   {
+    "reference": "olympiadbench_en/1847",
+    "train": "dapo/fcabd287-8c09-4350-ac36-e157de849b92"
+   },
+   {
+    "reference": "olympiadbench_en/1873",
+    "train": "dapo/fbfc2f27-8e36-4535-a6fd-20822c50ab81"
+   },
+   {
+    "reference": "olympiadbench_en/2607",
+    "train": "dapo/c8d40ede-9e08-42e7-96ed-7d31101fb813"
+   },
+   {
+    "reference": "olympiadbench_en/2918",
+    "train": "dapo/b2b80b78-75db-4147-98e0-ae7aefd2a58f"
+   }
+  ]
+ }
+}
