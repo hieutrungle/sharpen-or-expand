@@ -163,3 +163,21 @@ def test_removed_from_hard_subset_keeps_the_problem_at_main_tier(tmp_path: Path)
     not_hard = suite.model_copy(update={"removed_from_hard_subset": {"a/1": "typo"}})
     with pytest.raises(ValueError, match="not in it"):
         main_eval.eval_units(not_hard, tmp_path, None)
+
+
+def test_report_rescores_stored_verdicts_with_the_current_verifier() -> None:
+    record = SampleRecord(
+        problem_id="a/0",
+        sample_index=0,
+        checkpoint=CHECKPOINT,
+        completion="",
+        extracted_answer="10\\%",
+        correct=False,  # as an older verifier judged it
+        completion_tokens=5,
+        finish_reason="stop",
+    )
+    assert main_eval.rescored(record, "10").correct
+    truncated = record.model_copy(update={"finish_reason": "length"})
+    assert not main_eval.rescored(truncated, "10").correct  # truncated stays incorrect
+    unboxed = record.model_copy(update={"extracted_answer": None, "correct": True})
+    assert not main_eval.rescored(unboxed, "10").correct

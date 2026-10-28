@@ -205,9 +205,7 @@ def run_sample(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan
         chat_template_kwargs=suite.prompt.chat_template_kwargs(),
         stop_token_ids=sampler.stop_token_ids,
         engine=asdict(engine),
-        git_commit=subprocess.run(
-            ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
-        ).stdout.strip(),
+        git_commit=git_commit(),
         hostname=platform.node(),
         slurm_job_id=os.environ.get("SLURM_JOB_ID"),
         gpus=gpu_names(),
@@ -268,6 +266,23 @@ def same_answer(a: str, b: str) -> bool:
     return answers_equivalent(a, b)
 
 
+def rescored(record: SampleRecord, gold: str) -> SampleRecord:
+    """The record as the current verifier judges it. Sampling stores a verdict, but the report
+    scores every answer again, so a verifier fix reaches old samples without re-sampling."""
+    correct = (
+        record.finish_reason == "stop"
+        and record.extracted_answer is not None
+        and same_answer(record.extracted_answer, gold)
+    )
+    return record if correct == record.correct else record.model_copy(update={"correct": correct})
+
+
+def git_commit() -> str:
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+
 def report_tables(results: list[ProblemResult], suite: EvalSuite) -> dict[str, Any]:
     """Main-tier tables per problem set and per level; hard-tier tables overall and per level."""
     main = {
@@ -317,9 +332,11 @@ def run_report(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan
     for k in range(plan.num_shards):
         for record in read_jsonl(shard_path(cli.output, k, plan.num_shards), SampleRecord):
             by_problem[record.problem_id].append(record)
-    results = []
+    results, changed = [], 0
     for unit in units:
-        records = by_problem.pop(unit.problem.problem_id, [])
+        stored = by_problem.pop(unit.problem.problem_id, [])
+        records = [rescored(r, unit.problem.answer) for r in stored]
+        changed += sum(a.correct != b.correct for a, b in zip(stored, records, strict=True))
         if len(records) != unit.n:
             raise SystemExit(
                 f"{unit.problem.problem_id}: {len(records)} samples, expected {unit.n}"
@@ -340,8 +357,11 @@ def run_report(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan
         raise SystemExit(f"samples for problems outside the plan: {sorted(by_problem)[:5]}")
     write_jsonl(cli.output / "per_problem.jsonl", results)
 
-    report = {"plan": plan.model_dump(), **report_tables(results, suite)}
+    commit = git_commit()
+    scoring = {"git_commit": commit, "verdicts_changed_from_sampling": changed}
+    report = {"plan": plan.model_dump(), "scoring": scoring, **report_tables(results, suite)}
     (cli.output / "report.json").write_text(json.dumps(report, indent=1) + "\n")
+    print(f"scored at {commit[:7]}; {changed} verdicts differ from sampling time")
     print_main_table(report["main"], suite.main.ks)
     return 0
 
