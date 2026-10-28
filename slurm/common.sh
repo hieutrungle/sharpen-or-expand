@@ -50,11 +50,13 @@ run_in_container() {
 # Job chaining: queue a successor that starts when this job ends in any state, so the 96-hour
 # limit or a node failure costs a queue wait instead of an idle night. The successor resumes
 # RUN_DIR from its latest checkpoint and exits at once if the run wrote DONE.
+# The successor is pinned to this job's node: a run never moves to other hardware, and Slurm has no
+# environment variable that would carry a command-line --nodelist over to the successor.
 # Usage: chain_next_job <sbatch script> [script args...]; set CHAIN_LEFT=<n> at first submit.
 chain_next_job() {
     local left="${CHAIN_LEFT:-0}"
     if (( left > 0 )); then
-        sbatch --dependency="afterany:$SLURM_JOB_ID" \
+        sbatch --dependency="afterany:$SLURM_JOB_ID" --nodelist="$SLURM_JOB_NODELIST" \
             --export="ALL,RUN_DIR=$RUN_DIR,CHAIN_LEFT=$((left - 1)),SOE_EXPECTED_COMMIT=$(git rev-parse HEAD)" \
             "$@"
     fi

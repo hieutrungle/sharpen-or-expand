@@ -6,8 +6,30 @@ scratch in `$SOE_DATA=/scratch/user/hieult/research/soe-data`, and code moves on
 ## Lanes
 | Lane | GPUs | Use | Template |
 | --- | --- | --- | --- |
-| A | 2×A100 (PCIe 40 GB) | every 4B / Gemma training run | `slurm/train.sbatch` (default `gpu:a100:2`) |
-| B | 2×A40 (48 GB) | 2B development, evaluation, preferences, sweeps | `slurm/eval.sbatch` (`gpu:a40:1`); dev training with `SBATCH_GRES=gpu:a40:2` |
+| A | 4×A40 (48 GB) on fc098; target, confirmed at G0 | every 4B / Gemma training run | `slurm/train.sbatch` (default `gpu:a40:4`, `--nodelist=fc098`) |
+| A fallback | 2×A100 (PCIe 40 GB), whole seeds only, G0 rule | 4B runs when fc098 is unavailable, or a parallel seed | `SBATCH_GRES=gpu:a100:2 sbatch --nodelist=<A100 node> slurm/train.sbatch …` |
+| B, development | A40 pairs on fc096 and fc097 | 2B training (2-GPU jobs) | `SBATCH_GRES=gpu:a40:2 sbatch --nodelist=fc096 slurm/train.sbatch …` |
+| B, sampling | A30s (fc123, fc124) first, A10s for overflow, spare A40s | evaluation, preference sampling (1-GPU workers) | `SBATCH_GRES=gpu:a30:1 sbatch slurm/eval.sbatch …` |
+
+### Training job sizing (`slurm/train.sbatch`)
+- FASTER compute nodes are identical: 64 cores, 256 GB RAM and 3.84 TB local NVMe (`/tmp`). GPUs are
+  composed onto nodes through the Liqid fabric, up to 10 per node (HPRC hardware page). fc098
+  currently holds 4 A40s; the HPRC batch guide's example node listing shows fc098 with 64 CPUs,
+  256,000 MB and `gpu:a40:4`. *To confirm when FASTER is linked:*
+  `scontrol show node fc098` (CPUTot, RealMemory, Gres, State), `sinfo -N -n fc098 -o '%N %c %m %G %T'`,
+  and `gpuavail` / `pestat -p gpu -G` for current use.
+- CPUs and RAM are requested per GPU (`--cpus-per-gpu=15`, `--mem-per-gpu=60G`). A 4×A40 job takes 60
+  CPUs and 240 G (the whole of fc098, leaving the OS headroom; HPRC examples use 240–248 G). A 2-GPU
+  job takes 30 CPUs and 120 G, so an A100 fallback job leaves the rest of a shared A100 node to other
+  users. Raise the RAM with `SBATCH_MEM_PER_GPU` if CPU offload (G0) needs more. `--cpus-per-gpu`
+  cannot be combined with `--cpus-per-task`, and `--mem-per-gpu` cannot be combined with `--mem`.
+- Pinning: `--nodelist` is a `#SBATCH` directive (fc098) or a command-line option (fallback, dev).
+  sbatch has no nodelist input variable (checked against the sbatch man page; re-check FASTER's
+  25.05 man page), so `chain_next_job` passes `--nodelist=$SLURM_JOB_NODELIST`. Every successor
+  runs on the node where its run started, and `train.sbatch` refuses to continue a run whose GPUs
+  differ from those in `runs/<id>/hardware.txt`.
+- A pinned job waits when its node is busy, drained or recomposed; it never moves. Check the reason
+  with `squeue -u hieult -o '%i %j %T %R'`.
 
 Sampling-only jobs (evaluation, selection, probes) may also use idle A100, A30 (24 GB, sm_80) and
 A10 (24 GB, sm_86) GPUs; `check_container` passes on all four types, while T4s (no BF16) are out.
@@ -45,6 +67,7 @@ worker-hours per shard of 96 (A40/A30/A10 mix; 14 workers finished in about 6.5 
 3. Submit from the repo root:
    - new run, chained up to 2 more times: `CHAIN_LEFT=2 sbatch slurm/train.sbatch examples/dapo_trainer/m3_screen_qwen35-4b.yaml 1`
    - resume: `RUN_DIR=runs/<run_id> sbatch slurm/train.sbatch examples/dapo_trainer/m3_screen_qwen35-4b.yaml`
+     (a run that started off fc098 also needs its `SBATCH_GRES` and `--nodelist`; `hardware.txt` refuses anything else)
    - evaluate a checkpoint: start several workers, any sampling GPU type, e.g.
      `SBATCH_GRES=gpu:a30:1 sbatch slurm/eval.sbatch soe/trainer/config/eval_suite.yaml <checkpoint> $SOE_DATA/eval/<name>`;
      each claims shards until none are left (`--shard k` finishes an interrupted one). Then
