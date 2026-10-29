@@ -32,6 +32,7 @@ def git_repo(path: Path) -> Path:
 def test_make_run_id() -> None:
     now = datetime(2026, 10, 26, 13, 5, 9, tzinfo=UTC)
     assert make_run_id("grpo_dev", 3, now) == "20261026-130509-grpo_dev-s3"
+    assert make_run_id("grpo_dev", 3, now, "3222907") == "20261026-130509-grpo_dev-s3-j3222907"
 
 
 def test_create_run_records_provenance(tmp_path: Path) -> None:

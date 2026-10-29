@@ -1,6 +1,6 @@
 """Run directories: one folder per training run, holding everything needed to audit it.
 
-Layout of runs/<UTC yyyymmdd-HHMMSS>-<config name>-s<seed>/:
+Layout of runs/<UTC yyyymmdd-HHMMSS>-<config name>-s<seed>[-j<slurm job id>]/:
     config.yaml      frozen copy of the experiment config (resumed jobs read this, not examples/)
     run.json         provenance: commit, seed, host, GPUs, library versions (RunInfo)
     efficiency.json  token and time accounting, updated by the trainer (RunEfficiency)
@@ -58,8 +58,11 @@ class RunEfficiency(BaseModel):
         return self.newly_solved_heldout / (self.rollout_tokens / 1e6)
 
 
-def make_run_id(config_name: str, seed: int, now: datetime) -> str:
-    return f"{now:%Y%m%d-%H%M%S}-{config_name}-s{seed}"
+def make_run_id(config_name: str, seed: int, now: datetime, slurm_job_id: str | None = None) -> str:
+    # The job id keeps ids unique when two jobs of one config and seed start in the same second
+    # (the M1.5 control and test runs did, job 3222907).
+    job = f"-j{slurm_job_id}" if slurm_job_id else ""
+    return f"{now:%Y%m%d-%H%M%S}-{config_name}-s{seed}{job}"
 
 
 def _git(args: list[str], cwd: Path) -> str:
@@ -93,7 +96,7 @@ def create_run(config_path: Path, seed: int, runs_root: Path, repo_root: Path) -
     """Validate the config, then create runs/<run_id>/ with a frozen config copy and run.json."""
     config = load_config(config_path)  # fail before creating anything
     now = datetime.now(UTC)
-    run_id = make_run_id(config.name, seed, now)
+    run_id = make_run_id(config.name, seed, now, os.environ.get("SLURM_JOB_ID"))
     run_dir = runs_root / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
     (run_dir / "checkpoints").mkdir()
