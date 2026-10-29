@@ -25,6 +25,7 @@ optim:
 rollout:
   prompts_per_step: 16
   group_size: 8
+  updates_per_step: 4  # decision 022
   temperature: 1.0  # rollout sampler, every algorithm (decision 017); validation samples like eval
   top_p: 1.0
   max_prompt_tokens: 2048  # longest RL prompt is 1,446 tokens (docs/reports/m1_rl_prompts.json)

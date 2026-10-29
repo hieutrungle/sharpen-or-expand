@@ -147,6 +147,17 @@ def test_rollout_sampler_is_required_and_bounded() -> None:
         ExperimentConfig.model_validate(with_block("rollout", top_p=1.5))
 
 
+def test_updates_per_step_is_required_and_splits_whole_groups() -> None:
+    data = example()
+    del data["rollout"]["updates_per_step"]
+    with pytest.raises(ValidationError, match="updates_per_step"):
+        ExperimentConfig.model_validate(data)
+    with pytest.raises(ValidationError, match="divisible"):
+        ExperimentConfig.model_validate(with_block("rollout", updates_per_step=5))  # 64 prompts
+    config = ExperimentConfig.model_validate(with_block("rollout", updates_per_step=16))
+    assert config.rollout is not None and config.rollout.updates_per_step == 16
+
+
 def test_learning_rate_zero_only_for_development_identity_runs() -> None:
     # Decision 018: the export identity test needs a checkpoint the update left unchanged.
     data = with_block("optim", learning_rate=0.0)

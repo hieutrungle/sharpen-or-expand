@@ -100,6 +100,9 @@ class RolloutSpec(FrozenModel):
 
     prompts_per_step: int = Field(gt=0)
     group_size: int = Field(ge=2)
+    # Optimizer updates per step on mini-batches of whole groups, each rollout used once; 4 for
+    # every algorithm (decision 022).
+    updates_per_step: int = Field(ge=1)
     temperature: float = Field(gt=0, le=2)
     top_p: float = Field(gt=0, le=1)
     max_prompt_tokens: int = Field(
@@ -107,6 +110,12 @@ class RolloutSpec(FrozenModel):
     )  # from the measured maximum (docs/reports/m1_rl_prompts.json)
     # Development smoke runs only: a lower cap than the suite's (decision 004 forbids a higher one).
     smoke_max_response_tokens: int | None = Field(default=None, gt=0)
+
+    @model_validator(mode="after")
+    def _whole_mini_batches(self) -> Self:
+        if self.prompts_per_step % self.updates_per_step:
+            raise ValueError("prompts_per_step must be divisible by updates_per_step")
+        return self
 
 
 class PolicyLossSpec(FrozenModel):

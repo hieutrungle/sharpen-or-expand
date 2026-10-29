@@ -27,3 +27,4 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [019](019-freeze-vision-tower.md) | Freeze the vision tower in verl's actor (verl 0.9.1 ignores freeze_vision_tower) | accepted |
 | [020](020-rl-token-budget-stop.md) | RL runs stop at their rollout-token budget (or a dev wall-clock / step cap); the last step is re-estimated at each save | accepted |
 | [021](021-rl-step-metrics.md) | RL step metrics: soe metrics from per-rollout records at each save; importance ratios from verl's off-policy diagnostics | accepted |
+| [022](022-rl-updates-per-step.md) | RL steps make 4 optimizer updates on mini-batches of whole groups, the same for every algorithm | accepted |

@@ -90,9 +90,10 @@ def verl_overrides(
         f"actor_rollout_ref.model.path={paths.model}",
         "actor_rollout_ref.model.use_remove_padding=true",
         "actor_rollout_ref.model.enable_gradient_checkpointing=true",
-        # actor: one optimizer step per rollout batch
+        # actor: updates_per_step optimizer steps per rollout batch (decision 022)
         "actor_rollout_ref.actor.strategy=fsdp2",
-        f"actor_rollout_ref.actor.ppo_mini_batch_size={rollout.prompts_per_step}",
+        "actor_rollout_ref.actor.ppo_mini_batch_size="
+        f"{rollout.prompts_per_step // rollout.updates_per_step}",
         "actor_rollout_ref.actor.ppo_epochs=1",
         "actor_rollout_ref.actor.use_dynamic_bsz=true",
         f"actor_rollout_ref.actor.ppo_max_token_len_per_gpu={hardware.max_token_len_per_gpu}",
