@@ -94,6 +94,14 @@ worker-hours per shard of 96 (A40/A30/A10 mix; 14 workers finished in about 6.5 
 - "Socket timed out on send/recv operation" does not mean the job was rejected: it may already be
   queued. Check `squeue -u hieult` before resubmitting.
 - `--parsable` output is mixed with the wrapper's notice; read job ids from `squeue`/`sacct`.
+- Two verl training jobs on one node shared `/tmp`, and verl 0.9.1's weight-sync sockets
+  (`/tmp/rl-colocate-zmq-<Ray job id>-...`) have the same name in every job, because each job's
+  Ray cluster numbers its first job `01000000`. The second job's vLLM then received the other job's
+  weights and failed with "CUDA error: invalid argument" (M1.5 job 3222908, on GPUs 2-3 of fc098).
+  `run_in_container` therefore binds a per-job `/tmp/soe-job-<job id>` as the container's `/tmp`
+  and removes it when the job ends.
+- Two runs of one config and seed submitted in the same second got the same run id (job 3222907);
+  run ids now carry the Slurm job id.
 
 ## Rules the templates enforce
 - Assets are staged as complete Hub snapshots (no file filters): offline, vLLM and

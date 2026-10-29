@@ -21,6 +21,13 @@ export FLASHINFER_WORKSPACE_BASE="$SOE_CACHE/flashinfer"
 export CUDA_CACHE_PATH="$SOE_CACHE/nv"
 # Ray's unix sockets must stay under 107 characters, so keep its temp dir short and node-local.
 export RAY_TMPDIR="/tmp/ray-${SLURM_JOB_ID:-local}"
+# Each job gets its own /tmp inside the container. verl 0.9.1 names its weight-sync sockets
+# /tmp/rl-colocate-zmq-<Ray job id>-..., and the Ray job id is the same in every job's Ray cluster,
+# so two training jobs on one node shared sockets and one job's vLLM received the other's weights
+# (M1.5 job 3222908, "CUDA error: invalid argument"). Removed when the job ends.
+SOE_JOB_TMP="/tmp/soe-job-${SLURM_JOB_ID:-local-$$}"
+mkdir -p "$SOE_JOB_TMP"
+trap 'rm -rf -- "$SOE_JOB_TMP"' EXIT
 
 # Run cards record the commit, so the commit must describe the code that actually runs.
 if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
@@ -44,7 +51,7 @@ CONTAINER_CMD="$(command -v apptainer || command -v singularity)" || {
 }
 run_in_container() {
     "$CONTAINER_CMD" exec --nv \
-        --bind "$SOE_DATA" --bind "$PWD" --pwd "$PWD" \
+        --bind "$SOE_DATA" --bind "$PWD" --bind "$SOE_JOB_TMP:/tmp" --pwd "$PWD" \
         --env PYTHONPATH="$PWD" --env PYTHONUNBUFFERED=1 \
         "$SOE_SIF" "$@"
 }
