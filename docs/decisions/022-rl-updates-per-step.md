@@ -49,6 +49,8 @@ training step) are added.
   with this setting, so the G0/G1 numbers include it.
 - Runs before this decision (M1.3–M1.6 development runs) made one update per step; none counts
   toward conclusions.
+- The field is required, so run directories frozen before this decision no longer load at newer
+  code (their `config.yaml` lacks it); they are development runs and are not resumed.
 
 ## Alternatives considered
 

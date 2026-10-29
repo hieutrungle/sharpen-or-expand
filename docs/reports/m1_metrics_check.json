@@ -1,0 +1,112 @@
+{
+ "checker": {
+  "job": "3223643",
+  "result": "/scratch/user/hieult/research/sharpen-or-expand/runs/20261029-161248-grpo_m1_smoke_qwen35-2b-s1-j3223248: ok (0 problems)"
+ },
+ "checker_on_copy_without_step2_actor_entropy": {
+  "job": "3223644",
+  "result": [
+   "step 2: verl metric actor/entropy missing",
+   "/scratch/user/hieult/research/m1.6-sample/smoke-copy: FAIL (1 problems)"
+  ]
+ },
+ "commit": "b7c37d171a0e3db2cdde89bae5a99c851e13a161",
+ "cross_checks": {
+  "1": {
+   "actor/pg_clipfrac": 0.0,
+   "actor/ppo_kl": 0.0,
+   "critic/score/mean": 0.359375,
+   "response_length/mean": 10611.375,
+   "soe/length/mean": 10611.375,
+   "soe/reward/mean": 0.359375
+  },
+  "2": {
+   "actor/pg_clipfrac": 0.0,
+   "actor/ppo_kl": 0.0,
+   "critic/score/mean": 0.40625,
+   "response_length/mean": 10960.8359375,
+   "soe/length/mean": 10960.8359375,
+   "soe/reward/mean": 0.40625
+  },
+  "3": {
+   "actor/pg_clipfrac": 0.0,
+   "actor/ppo_kl": 0.0,
+   "critic/score/mean": 0.4140625,
+   "response_length/mean": 10610.1875,
+   "soe/length/mean": 10610.1875,
+   "soe/reward/mean": 0.4140625
+  }
+ },
+ "efficiency": {
+  "gpu_hours": 1.5185354422222224,
+  "newly_solved_heldout": null,
+  "rollout_tokens": 4119347,
+  "through_step": 3,
+  "training_tokens": 4172331,
+  "wall_clock_hours": 0.7592677211111112
+ },
+ "hardware": "2 NVIDIA A40, 49140 MiB (fc097)",
+ "job": "3223248",
+ "note": "run started before decision 022 (one optimizer update per step)",
+ "run": "runs/20261029-161248-grpo_m1_smoke_qwen35-2b-s1-j3223248",
+ "soe_step_metrics": {
+  "1": {
+   "soe/answers/distinct_per_group_mean": 1.4375,
+   "soe/answers/none_frac": 0.014925373134328358,
+   "soe/group/all_correct_frac": 0.125,
+   "soe/group/all_wrong_frac": 0.375,
+   "soe/group/reward_var_mean": 0.087890625,
+   "soe/group/zero_var_frac": 0.5,
+   "soe/length/max": 16384.0,
+   "soe/length/mean": 10611.375,
+   "soe/length/p50": 13277.0,
+   "soe/length/p95": 16384.0,
+   "soe/reward/mean": 0.359375,
+   "soe/rollout/boxed_frac": 0.5703125,
+   "soe/rollout/stop_other_frac": 0.0,
+   "soe/rollout/stop_turn_end_frac": 0.5234375,
+   "soe/rollout/truncated_frac": 0.4765625
+  },
+  "2": {
+   "soe/answers/distinct_per_group_mean": 1.4375,
+   "soe/answers/none_frac": 0.0,
+   "soe/group/all_correct_frac": 0.125,
+   "soe/group/all_wrong_frac": 0.375,
+   "soe/group/reward_var_mean": 0.083984375,
+   "soe/group/zero_var_frac": 0.5,
+   "soe/length/max": 16384.0,
+   "soe/length/mean": 10960.8359375,
+   "soe/length/p50": 14184.5,
+   "soe/length/p95": 16384.0,
+   "soe/reward/mean": 0.40625,
+   "soe/rollout/boxed_frac": 0.5703125,
+   "soe/rollout/stop_other_frac": 0.0,
+   "soe/rollout/stop_turn_end_frac": 0.515625,
+   "soe/rollout/truncated_frac": 0.484375
+  },
+  "3": {
+   "soe/answers/distinct_per_group_mean": 1.9375,
+   "soe/answers/none_frac": 0.0,
+   "soe/group/all_correct_frac": 0.0625,
+   "soe/group/all_wrong_frac": 0.0625,
+   "soe/group/reward_var_mean": 0.1689453125,
+   "soe/group/zero_var_frac": 0.125,
+   "soe/length/max": 16384.0,
+   "soe/length/mean": 10610.1875,
+   "soe/length/p50": 13281.5,
+   "soe/length/p95": 16384.0,
+   "soe/reward/mean": 0.4140625,
+   "soe/rollout/boxed_frac": 0.6953125,
+   "soe/rollout/stop_other_frac": 0.0,
+   "soe/rollout/stop_turn_end_frac": 0.6015625,
+   "soe/rollout/truncated_frac": 0.3984375
+  }
+ },
+ "updates_per_step": 1,
+ "verl_keys_per_step": {
+  "0": 10,
+  "1": 90,
+  "2": 102,
+  "3": 102
+ }
+}
