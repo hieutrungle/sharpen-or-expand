@@ -35,7 +35,8 @@ def test_make_run_id() -> None:
     assert make_run_id("grpo_dev", 3, now, "3222907") == "20261026-130509-grpo_dev-s3-j3222907"
 
 
-def test_create_run_records_provenance(tmp_path: Path) -> None:
+def test_create_run_records_provenance(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("SLURM_JOB_ID", raising=False)  # inside a Slurm job the id gets -j<job>
     repo = git_repo(tmp_path / "repo")
     run_dir = create_run(EXAMPLE, seed=2, runs_root=tmp_path / "runs", repo_root=repo)
     info = read_run_info(run_dir)
