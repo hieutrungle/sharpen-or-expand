@@ -4,6 +4,8 @@
   time, job, hardware), written by the verl checkpoint callback.
 - Each checkpoint is exported to `$SOE_DATA/checkpoints/<run_id>/step_<N>/hf`; the export is
   complete when that directory exists (it is renamed into place at the end).
+- `prune_shards` keeps the newest `keep_last` FSDP shards across segments: verl 0.9.1 prunes only
+  the saves of its own process, so a resumed job never removed the previous job's shards (M1.5).
 - verl's FSDP state dict of a PEFT model names tensors `base_model.model.<hf name>` with
   `.base_layer.` inside LoRA-wrapped modules; `hf_name` and `lora_parts` map them back.
 
@@ -11,6 +13,7 @@ No verl or torch import, so this runs in the CPU tests.
 """
 
 import re
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
@@ -76,6 +79,18 @@ def missing_exports(checkpoints_dir: Path, data_root: Path, run_id: str) -> list
         for step in saved_steps(checkpoints_dir)
         if not export_dir(data_root, run_id, step).exists()
     ]
+
+
+def prune_shards(checkpoints_dir: Path, data_root: Path, run_id: str, keep_last: int) -> list[int]:
+    """Remove the actor shards of every step older than the newest `keep_last`, whichever job saved
+    them; a step without its HF export keeps its shards (the export reads them). Returns the steps
+    removed. Like verl, it leaves `global_step_<N>/data.pt` (dataloader state, a few KB)."""
+    removed = []
+    for step in saved_steps(checkpoints_dir)[:-keep_last]:
+        if export_dir(data_root, run_id, step).exists():
+            shutil.rmtree(checkpoints_dir / f"global_step_{step}" / "actor")
+            removed.append(step)
+    return removed
 
 
 def hf_name(fsdp_key: str) -> str:

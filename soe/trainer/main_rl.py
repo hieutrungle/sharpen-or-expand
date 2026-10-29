@@ -22,7 +22,7 @@ from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 from soe.trainer.config.eval_suite import file_sha256, load_suite
 from soe.trainer.config.experiment import ExperimentConfig, load_config, rollout_protocol
 from soe.trainer.rl.budget import read_stop_step
-from soe.trainer.rl.checkpoints import RUN_DIR_ENV, missing_exports
+from soe.trainer.rl.checkpoints import RUN_DIR_ENV, missing_exports, prune_shards
 from soe.trainer.rl.rollout_tokens import TOKENS_ENV
 from soe.trainer.rl.segments import (
     RESUMED_FROM_ENV,
@@ -195,6 +195,11 @@ class LaunchCli(BaseSettings):
                 [sys.executable, "-m", "verl.trainer.main_ppo", *this_job], env, failures
             )
             export_missing(run_dir, data_root, info.run_id)
+            # Shards kept at a save because their export was still running.
+            assert config.checkpoint is not None
+            prune_shards(
+                run_dir / "checkpoints", data_root, info.run_id, config.checkpoint.keep_last
+            )
         except BaseException:
             append_event(run_dir, record(event="end", at=datetime.now(UTC), exit="failed"))
             raise

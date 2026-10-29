@@ -100,14 +100,15 @@ def compare(control: Path, test: Path) -> dict[str, Any]:
         "same_hardware": len({e.hardware for e in starts}) == 1,
     }
     data_root = Path(os.environ["SOE_DATA"])
-    run_id = read_run_info(control).run_id
     every, keep = config.checkpoint.save_every_steps, config.checkpoint.keep_last
     saves = list(range(every, last + 1, every))
-    checks["pruning_keeps_exports"] = {
-        "shards_left": saved_steps(control / "checkpoints"),
-        "expected_shards": saves[-keep:],
-        "exports": {str(s): export_dir(data_root, run_id, s).exists() for s in saves},
-    }
+    checks["pruning_keeps_exports"] = {"expected_shards": saves[-keep:]}
+    for name, run in (("control", control), ("test", test)):
+        run_id = read_run_info(run).run_id
+        checks["pruning_keeps_exports"][name] = {
+            "shards_left": saved_steps(run / "checkpoints"),
+            "exports": {str(s): export_dir(data_root, run_id, s).exists() for s in saves},
+        }
     return checks
 
 

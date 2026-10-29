@@ -1,5 +1,6 @@
 """verl checkpoint callback, after each save: the manifest entry, the background HF export
-(decision 018), and the stop step of the token budget (decision 020).
+(decision 018), pruning of older FSDP shards across segments, and the stop step of the token
+budget (decision 020).
 
 Named in the overrides as `trainer.checkpoint_callback_class`. verl calls `on_save` on the driver
 right after `global_step_<N>` and `latest_checkpointed_iteration.txt` are written, before that
@@ -18,9 +19,15 @@ from typing import Any
 
 from verl.trainer.ppo.checkpoint_callback import CheckpointCallback
 
-from soe.trainer.config.experiment import load_config
+from soe.trainer.config.experiment import ExperimentConfig, load_config
 from soe.trainer.rl.budget import BudgetState, last_step, write_stop_step
-from soe.trainer.rl.checkpoints import RUN_DIR_ENV, CheckpointRecord, append_record, export_dir
+from soe.trainer.rl.checkpoints import (
+    RUN_DIR_ENV,
+    CheckpointRecord,
+    append_record,
+    export_dir,
+    prune_shards,
+)
 from soe.trainer.rl.rollout_tokens import cumulative_rollout_tokens, tokens_by_step
 from soe.trainer.rl.segments import RESUMED_FROM_ENV, SEGMENT_STARTED_ENV, training_hours
 from soe.utils.run import read_run_info
@@ -62,7 +69,19 @@ class SoeCheckpointCallback(CheckpointCallback):  # type: ignore[misc]
             export_dir=str(export_dir(Path(os.environ["SOE_DATA"]), run_id, global_step)),
         )
         append_record(run_dir, record)
-        self._update_stop_step(trainer, run_dir, record)
+        config = load_config(run_dir / "config.yaml")
+        if config.checkpoint is None:
+            raise ValueError(f"{config.name} is not an RL config")
+        # verl prunes only this job's saves; shards an earlier job left behind are removed here.
+        pruned = prune_shards(
+            run_dir / "checkpoints",
+            Path(os.environ["SOE_DATA"]),
+            run_id,
+            config.checkpoint.keep_last,
+        )
+        if pruned:
+            print(f"soe: removed the FSDP shards of steps {pruned}", flush=True)
+        self._update_stop_step(trainer, run_dir, config, record)
         log = run_dir / "exports" / f"step_{global_step}.log"
         log.parent.mkdir(exist_ok=True)
         with open(log, "a") as out:
@@ -83,8 +102,9 @@ class SoeCheckpointCallback(CheckpointCallback):  # type: ignore[misc]
                 start_new_session=True,
             )
 
-    def _update_stop_step(self, trainer: Any, run_dir: Path, record: CheckpointRecord) -> None:
-        config = load_config(run_dir / "config.yaml")
+    def _update_stop_step(
+        self, trainer: Any, run_dir: Path, config: ExperimentConfig, record: CheckpointRecord
+    ) -> None:
         if config.budget is None or config.checkpoint is None:
             raise ValueError(f"{config.name} is not an RL config")
         step = record.step
