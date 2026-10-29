@@ -20,7 +20,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
-PER_CATEGORY = {"correct": 70, "wrong_boxed": 70, "no_box": 30, "truncated": 30}
+PER_CATEGORY = {"correct": 80, "wrong_boxed": 60, "no_box": 30, "truncated": 30}
 MAX_CHARS = 6000  # stopped rows: whole text up to this length
 TAIL_CHARS = 2000  # truncated rows
 SEED = 20261029

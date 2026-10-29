@@ -127,7 +127,9 @@ def toy_batch() -> tuple[DataProto, list[str]]:
         tensors={"token_level_rewards": rewards, "response_mask": mask},
         non_tensors={"uid": np.array(GROUPS, dtype=object)},
     )
-    keys = [f"{g}_0_{i}" for i, g in enumerate(GROUPS)]  # {uid}_{session}_{output}
+    # verl's batch keys are {uid}_{session}_{output}: each rollout of a group is its own session,
+    # and output numbers the turns of one session (only a session's last output gets an advantage).
+    keys = [f"{g}_{GROUPS[:i].count(g)}_0" for i, g in enumerate(GROUPS)]
     return data, keys
 
 
