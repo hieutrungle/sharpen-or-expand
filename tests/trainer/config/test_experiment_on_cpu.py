@@ -150,6 +150,7 @@ def test_rollout_sampler_is_required_and_bounded() -> None:
 def test_learning_rate_zero_only_for_development_identity_runs() -> None:
     # Decision 018: the export identity test needs a checkpoint the update left unchanged.
     data = with_block("optim", learning_rate=0.0)
+    data["budget"] = {k: v for k, v in data["budget"].items() if k != "max_hours"}  # dev-only too
     assert ExperimentConfig.model_validate(data).optim.learning_rate == 0.0
     with pytest.raises(ValidationError, match="learning_rate 0"):
         ExperimentConfig.model_validate(
