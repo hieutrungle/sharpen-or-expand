@@ -1,7 +1,8 @@
 # 018 — RL checkpoints: exported in the training job, LoRA merged by soe, mtp copied from base; rollout tokens are generated tokens
 
 - Date: 2026-10-28
-- Status: accepted (user, 2026-10-28: the three recommendations)
+- Status: accepted (user, 2026-10-28: the three recommendations); item 5 (shard pruning across
+  segments) accepted with the M1.5 close-out (user, 2026-10-29)
 - Milestone: M1 (task M1.4; amends the roadmap's "export on a CPU node" and defines decision 013's
   rollout tokens)
 - Code: `soe/trainer/rl/checkpoints.py` (manifest, token count, shard pruning), `soe/trainer/rl/checkpoint_callback.py`
