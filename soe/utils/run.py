@@ -46,6 +46,7 @@ class RunInfo(BaseModel):
 class RunEfficiency(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    through_step: int = Field(default=0, ge=0)  # the token counts cover steps 1..through_step
     rollout_tokens: int = Field(default=0, ge=0)
     training_tokens: int = Field(default=0, ge=0)
     gpu_hours: float = Field(default=0.0, ge=0)
@@ -125,6 +126,12 @@ def read_run_info(run_dir: Path) -> RunInfo:
 
 def read_efficiency(run_dir: Path) -> RunEfficiency:
     return RunEfficiency.model_validate_json((run_dir / "efficiency.json").read_text())
+
+
+def write_efficiency(run_dir: Path, efficiency: RunEfficiency) -> None:
+    tmp = run_dir / "efficiency.json.tmp"
+    tmp.write_text(efficiency.model_dump_json(indent=2) + "\n")
+    tmp.replace(run_dir / "efficiency.json")
 
 
 class NewRunCli(BaseSettings):

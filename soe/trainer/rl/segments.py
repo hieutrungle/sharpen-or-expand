@@ -32,6 +32,7 @@ class SegmentEvent(BaseModel):
     node: str
     hardware: str  # the run's hardware.txt line
     git_commit: str
+    library_versions: dict[str, str | None] | None = None  # start only (soe.utils.run)
     resumed_from_step: int | None = None  # start: the checkpoint resumed from (0 = fresh run)
     exit: Literal["done", "failed"] | None = None  # end only; a killed job writes no end event
 
@@ -52,6 +53,20 @@ def segment_order(path: Path) -> int:
     """Sort key of a `segment-<job>.jsonl` file: Slurm job ids increase with submission order."""
     job = path.stem.removeprefix("segment-")
     return int(job) if job.isdigit() else -1
+
+
+def records_by_step(record_dir: Path) -> dict[int, list[dict[str, Any]]]:
+    """Per step, the `{"step": N, ...}` lines of the latest segment that ran it, from the
+    `segment-<job>.jsonl` files of one record directory (a replayed step is replaced entirely)."""
+    steps: dict[int, list[dict[str, Any]]] = {}
+    for path in sorted(record_dir.glob("segment-*.jsonl"), key=segment_order):
+        in_segment: dict[int, list[dict[str, Any]]] = defaultdict(list)
+        for line in path.read_text().splitlines():
+            if line.strip():
+                entry = json.loads(line)
+                in_segment[int(entry["step"])].append(entry)
+        steps.update(in_segment)
+    return dict(sorted(steps.items()))
 
 
 def training_hours(run_dir: Path, now: datetime) -> float:

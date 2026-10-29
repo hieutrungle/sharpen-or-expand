@@ -3,7 +3,8 @@
 Wire it with `reward.custom_reward_function.path=soe/workers/reward_manager/math_reward.py` and
 `reward.custom_reward_function.name=compute_score` (verl 0.9.1). The signature matches verl's naive
 reward manager; `extra_info` carries the agent loop's extra fields, among them `truncated`
-(soe/workers/rollout/agent_loop.py).
+(soe/workers/rollout/agent_loop.py). Each training rollout's outcome is also appended to the run's
+rollout records (soe/trainer/rl/metrics.py).
 
 verl calls the hook from executor threads, but math-verify's 5 s time limits use signal.alarm,
 which only works on a process's main thread. Each call therefore runs in a small process pool
@@ -16,6 +17,7 @@ import threading
 from concurrent.futures import ProcessPoolExecutor
 from typing import Any
 
+from soe.trainer.rl.metrics import RolloutOutcome, record_outcome
 from soe.utils.reward_score.math_verify import score_response
 from soe.workers.rollout.failures import failures_recorded
 
@@ -49,7 +51,19 @@ def compute_score(
             raise KeyError("extra_info['truncated'] is missing: is the soe agent loop configured?")
         truncated = bool(extra_info["truncated"])
         verdict = _scoring_pool().submit(score_response, solution_str, ground_truth).result()
-    correct = verdict.correct and not truncated
+        correct = verdict.correct and not truncated
+        if extra_info.get("split") == "train":
+            record_outcome(
+                RolloutOutcome(
+                    step=int(extra_info["global_step"]),
+                    problem_id=str(extra_info["problem_id"]),
+                    score=1.0 if correct else 0.0,
+                    truncated=truncated,
+                    has_box=verdict.extracted is not None,
+                    turn_end=bool(extra_info.get("turn_end")),
+                    answer=verdict.extracted,
+                )
+            )
     return {
         "score": 1.0 if correct else 0.0,
         "acc": 1.0 if correct else 0.0,

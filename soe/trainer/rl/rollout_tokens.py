@@ -10,10 +10,9 @@ No verl or torch import, so this runs in the CPU tests.
 
 import json
 import os
-from collections import defaultdict
 from pathlib import Path
 
-from soe.trainer.rl.segments import segment_order
+from soe.trainer.rl.segments import records_by_step
 
 TOKENS_ENV = "SOE_ROLLOUT_TOKENS"
 
@@ -29,15 +28,10 @@ def record_rollout(step: int, tokens: int) -> None:
 
 def tokens_by_step(token_dir: Path) -> dict[int, list[int]]:
     """Per step, the rollout lengths recorded by the latest segment that ran it."""
-    steps: dict[int, list[int]] = {}
-    for path in sorted(token_dir.glob("segment-*.jsonl"), key=segment_order):
-        in_segment: dict[int, list[int]] = defaultdict(list)
-        for line in path.read_text().splitlines():
-            if line.strip():
-                entry = json.loads(line)
-                in_segment[int(entry["step"])].append(int(entry["tokens"]))
-        steps.update(in_segment)  # a later segment replaces a replayed step entirely
-    return steps
+    return {
+        step: [int(entry["tokens"]) for entry in entries]
+        for step, entries in records_by_step(token_dir).items()
+    }
 
 
 def cumulative_rollout_tokens(token_dir: Path, through_step: int, responses_per_step: int) -> int:

@@ -40,6 +40,8 @@ class StopAtTurnEndAgentLoop(SingleTurnAgentLoop):  # type: ignore[misc]
             if kwargs["extra_info"]["split"] == "train":
                 record_rollout(step=int(kwargs["global_steps"]), tokens=len(output.response_ids))
         ids = output.response_ids
+        # For the reward hook's rollout records (soe/trainer/rl/metrics.py).
+        output.extra_fields["global_step"] = int(kwargs["global_steps"])
         output.extra_fields["truncated"] = is_truncated(ids, self._stop_ids)
         # Diagnostic: a finished turn should close on <|im_end|>, not on the base model's EOS.
         output.extra_fields["turn_end"] = bool(ids) and ids[-1] == self._turn_end_id

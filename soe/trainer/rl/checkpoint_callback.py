@@ -1,6 +1,6 @@
 """verl checkpoint callback, after each save: the manifest entry, the background HF export
-(decision 018), pruning of older FSDP shards across segments, and the stop step of the token
-budget (decision 020).
+(decision 018) and soe metrics (main_metrics), pruning of older FSDP shards across segments, and
+the stop step of the token budget (decision 020).
 
 Named in the overrides as `trainer.checkpoint_callback_class`. verl calls `on_save` on the driver
 right after `global_step_<N>` and `latest_checkpointed_iteration.txt` are written, before that
@@ -33,6 +33,18 @@ from soe.trainer.rl.segments import RESUMED_FROM_ENV, SEGMENT_STARTED_ENV, train
 from soe.utils.run import read_run_info
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _start_background(module_args: list[str], log: Path) -> None:
+    log.parent.mkdir(exist_ok=True)
+    with open(log, "a") as out:
+        subprocess.Popen(
+            [sys.executable, "-m", *module_args],
+            stdout=out,
+            stderr=subprocess.STDOUT,
+            cwd=REPO_ROOT,
+            start_new_session=True,
+        )
 
 
 class SoeCheckpointCallback(CheckpointCallback):  # type: ignore[misc]
@@ -82,25 +94,16 @@ class SoeCheckpointCallback(CheckpointCallback):  # type: ignore[misc]
         if pruned:
             print(f"soe: removed the FSDP shards of steps {pruned}", flush=True)
         self._update_stop_step(trainer, run_dir, config, record)
-        log = run_dir / "exports" / f"step_{global_step}.log"
-        log.parent.mkdir(exist_ok=True)
-        with open(log, "a") as out:
-            # A CPU process next to training; main_rl's sweep redoes it if the job ends first.
-            subprocess.Popen(
-                [
-                    sys.executable,
-                    "-m",
-                    "soe.trainer.main_export",
-                    "--run-dir",
-                    str(run_dir),
-                    "--step",
-                    str(global_step),
-                ],
-                stdout=out,
-                stderr=subprocess.STDOUT,
-                cwd=REPO_ROOT,
-                start_new_session=True,
-            )
+        # CPU processes next to training; main_rl redoes both if the job ends first.
+        _start_background(
+            ["soe.trainer.main_export", "--run-dir", str(run_dir), "--step", str(global_step)],
+            run_dir / "exports" / f"step_{global_step}.log",
+        )
+        _start_background(
+            ["soe.trainer.main_metrics", "--run-dir", str(run_dir)]
+            + ["--through-step", str(global_step)],
+            run_dir / "metrics" / f"soe_step_{global_step}.log",
+        )
 
     def _update_stop_step(
         self, trainer: Any, run_dir: Path, config: ExperimentConfig, record: CheckpointRecord

@@ -23,15 +23,17 @@ from soe.trainer.config.eval_suite import file_sha256, load_suite
 from soe.trainer.config.experiment import ExperimentConfig, load_config, rollout_protocol
 from soe.trainer.rl.budget import read_stop_step
 from soe.trainer.rl.checkpoints import RUN_DIR_ENV, missing_exports, prune_shards
+from soe.trainer.rl.metrics import OUTCOMES_DIR, OUTCOMES_ENV
 from soe.trainer.rl.rollout_tokens import TOKENS_ENV
 from soe.trainer.rl.segments import (
     RESUMED_FROM_ENV,
     SEGMENT_STARTED_ENV,
     SegmentEvent,
     append_event,
+    merged_metrics,
 )
 from soe.trainer.rl.verl_overrides import LaunchPaths, verl_overrides
-from soe.utils.run import read_run_info
+from soe.utils.run import library_versions, read_run_info
 from soe.workers.rollout.failures import FAILURES_ENV, read_failures
 
 REWARD_FUNCTION = Path("soe/workers/reward_manager/math_reward.py")
@@ -170,10 +172,13 @@ class LaunchCli(BaseSettings):
         failures = run_dir / f"rollout_failures-{segment}.jsonl"
         tokens = run_dir / "rollout_tokens" / f"segment-{segment}.jsonl"
         tokens.parent.mkdir(exist_ok=True)
+        outcomes = run_dir / OUTCOMES_DIR / f"segment-{segment}.jsonl"
+        outcomes.parent.mkdir(exist_ok=True)
         env = os.environ | {
             "VERL_FILE_LOGGER_PATH": str(metrics),
             FAILURES_ENV: str(failures),
             TOKENS_ENV: str(tokens),
+            OUTCOMES_ENV: str(outcomes),
             RUN_DIR_ENV: str(run_dir),
         }
         resumed_from = latest_checkpoint_step(run_dir / "checkpoints")
@@ -186,7 +191,15 @@ class LaunchCli(BaseSettings):
             hardware=(run_dir / "hardware.txt").read_text().strip(),
             git_commit=os.environ.get("SOE_GIT_COMMIT", "unknown"),
         )
-        append_event(run_dir, record(event="start", at=started, resumed_from_step=resumed_from))
+        append_event(
+            run_dir,
+            record(
+                event="start",
+                at=started,
+                resumed_from_step=resumed_from,
+                library_versions=library_versions(),
+            ),
+        )
         # A checkpoint whose export the previous job did not finish (decision 018).
         export_missing(run_dir, data_root, info.run_id)
         this_job = segment_overrides(overrides, resumed_from, read_stop_step(run_dir))
@@ -199,6 +212,14 @@ class LaunchCli(BaseSettings):
             assert config.checkpoint is not None
             prune_shards(
                 run_dir / "checkpoints", data_root, info.run_id, config.checkpoint.keep_last
+            )
+            # soe metrics and efficiency of every step verl logged (the callback's last run may
+            # predate the last step's verl record).
+            last_step = max(merged_metrics(run_dir / "metrics"), default=0)
+            subprocess.run(
+                [sys.executable, "-m", "soe.trainer.main_metrics", "--run-dir", str(run_dir)]
+                + ["--through-step", str(last_step)],
+                check=True,
             )
         except BaseException:
             append_event(run_dir, record(event="end", at=datetime.now(UTC), exit="failed"))
