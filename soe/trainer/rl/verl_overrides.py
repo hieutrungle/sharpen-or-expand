@@ -15,6 +15,7 @@ from soe.trainer.config.experiment import (
     Sampler,
     TrainingMode,
 )
+from soe.trainer.rl.verl_patches import HOOK as VISION_FREEZE_HOOK
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -161,6 +162,8 @@ def verl_overrides(
         f"trainer.experiment_name={run_id}",
         "trainer.logger=[console,file]",
         f"trainer.default_local_dir={paths.checkpoints}",
+        # Freeze the vision tower in verl's actor; verl 0.9.1 ignores freeze_vision_tower (019)
+        f"+ray_kwargs.ray_init.runtime_env.worker_process_setup_hook={VISION_FREEZE_HOOK}",
         # Manifest entry and HF export after each save (decision 018)
         "trainer.checkpoint_callback_class=soe.trainer.rl.checkpoint_callback.SoeCheckpointCallback",
         # Every rollout's text and reward, for re-scoring and behaviour metrics (~4 bytes/token).

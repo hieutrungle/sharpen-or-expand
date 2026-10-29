@@ -23,3 +23,5 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [015](015-vllm-fp8-wakeup-backport.md) | Backport vLLM PR #41602 (FP8 KV wake-up on hybrid models) to the pinned vLLM 0.24.0 | accepted |
 | [016](016-rl-rollout-failures-stop-the-run.md) | A rollout failure stops the RL run; RL rewards scored in a process pool (math-verify time limits) | accepted |
 | [017](017-rl-rollout-sampling-1.0.md) | RL rollouts and DPO preference data sample at 1.0 / 1.0 for every algorithm; in-loop validation stays at evaluation sampling | accepted |
+| [018](018-rl-checkpoint-export-and-token-count.md) | RL checkpoints exported in the training job; soe merges LoRA in FP32; mtp copied from base; rollout tokens = generated tokens of training rollouts | accepted |
+| [019](019-freeze-vision-tower.md) | Freeze the vision tower in verl's actor (verl 0.9.1 ignores freeze_vision_tower) | accepted |

@@ -44,8 +44,11 @@ window would lose the step's count if it came from the metrics.
 ## Consequences (including what could confound the algorithm comparison)
 
 - Every algorithm uses the same export and the same count.
-- Exporting on the training node uses its host memory and CPUs while training continues (about
-  25–30 GB for 4B, no GPU). M1.10/M1.11 measure step time with exports running.
+- Exporting on the training node uses its host memory and CPUs while training continues, but no GPU.
+  The export reads the shards memory-mapped and drops each key once joined; measured on the 2B
+  smoke checkpoint, peak RSS fell from 12.0 GB to 8.2 GB (about 3.6 bytes per parameter), so about
+  17 GB is expected for 4B. One export per step runs at a time (a file lock), so the callback's
+  export and main_rl's sweep never double it. M1.10/M1.11 measure step time with exports running.
 - The token record also checks the batch: each training step must hold exactly
   prompts per step × G rollouts, else the checkpoint callback fails the run (decision 016).
 - A step-0 identity test (a 1-step run at learning rate 0, LoRA and full) checks that the export of
