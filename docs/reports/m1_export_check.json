@@ -1,0 +1,142 @@
+{
+ "identity_full_step1_lr0": {
+  "base": "/scratch/user/hieult/research/soe-data/hf/hub/models--Qwen--Qwen3.5-2B-Base/snapshots/b1485b2fa6dfa1287294f269f5fb618e03d52d7c",
+  "differing_by_group": {},
+  "dtype_mismatches": [],
+  "export": "/scratch/user/hieult/research/soe-data/checkpoints/20261029-002844-grpo_m1_identity_full_qwen35-2b-s1/step_1/hf",
+  "export_info": {
+   "copied_from_base": [
+    "mtp.fc.weight",
+    "mtp.layers.0.input_layernorm.weight",
+    "mtp.layers.0.mlp.down_proj.weight",
+    "mtp.layers.0.mlp.gate_proj.weight",
+    "mtp.layers.0.mlp.up_proj.weight",
+    "mtp.layers.0.post_attention_layernorm.weight",
+    "mtp.layers.0.self_attn.k_norm.weight",
+    "mtp.layers.0.self_attn.k_proj.weight",
+    "mtp.layers.0.self_attn.o_proj.weight",
+    "mtp.layers.0.self_attn.q_norm.weight",
+    "mtp.layers.0.self_attn.q_proj.weight",
+    "mtp.layers.0.self_attn.v_proj.weight",
+    "mtp.norm.weight",
+    "mtp.pre_fc_norm_embedding.weight",
+    "mtp.pre_fc_norm_hidden.weight"
+   ],
+   "merged_lora_modules": 0,
+   "tensors_changed_vs_base": 0,
+   "trained_by_prefix": {
+    "model.language_model": 1881825088
+   },
+   "trained_parameters": 1881825088,
+   "trained_tensors": 320,
+   "training": "full"
+  },
+  "extra_in_export": [],
+  "identical_by_group": {
+   "model.language_model": 320,
+   "model.visual": 297,
+   "mtp.fc": 1,
+   "mtp.layers": 11,
+   "mtp.norm": 1,
+   "mtp.pre_fc_norm_embedding": 1,
+   "mtp.pre_fc_norm_hidden": 1
+  },
+  "max_abs_difference": 0.0,
+  "missing_in_export": [],
+  "tensors_base": 632
+ },
+ "identity_lora_step1_lr0": {
+  "base": "/scratch/user/hieult/research/soe-data/hf/hub/models--Qwen--Qwen3.5-2B-Base/snapshots/b1485b2fa6dfa1287294f269f5fb618e03d52d7c",
+  "differing_by_group": {},
+  "dtype_mismatches": [],
+  "export": "/scratch/user/hieult/research/soe-data/checkpoints/20261028-233514-grpo_m1_identity_lora_qwen35-2b-s1/step_1/hf",
+  "export_info": {
+   "copied_from_base": [
+    "mtp.fc.weight",
+    "mtp.layers.0.input_layernorm.weight",
+    "mtp.layers.0.mlp.down_proj.weight",
+    "mtp.layers.0.mlp.gate_proj.weight",
+    "mtp.layers.0.mlp.up_proj.weight",
+    "mtp.layers.0.post_attention_layernorm.weight",
+    "mtp.layers.0.self_attn.k_norm.weight",
+    "mtp.layers.0.self_attn.k_proj.weight",
+    "mtp.layers.0.self_attn.o_proj.weight",
+    "mtp.layers.0.self_attn.q_norm.weight",
+    "mtp.layers.0.self_attn.q_proj.weight",
+    "mtp.layers.0.self_attn.v_proj.weight",
+    "mtp.norm.weight",
+    "mtp.pre_fc_norm_embedding.weight",
+    "mtp.pre_fc_norm_hidden.weight"
+   ],
+   "merged_lora_modules": 186,
+   "tensors_changed_vs_base": 0,
+   "trained_by_prefix": {
+    "model.language_model": 67276800
+   },
+   "trained_parameters": 67276800,
+   "trained_tensors": 372,
+   "training": "lora"
+  },
+  "extra_in_export": [],
+  "identical_by_group": {
+   "model.language_model": 320,
+   "model.visual": 297,
+   "mtp.fc": 1,
+   "mtp.layers": 11,
+   "mtp.norm": 1,
+   "mtp.pre_fc_norm_embedding": 1,
+   "mtp.pre_fc_norm_hidden": 1
+  },
+  "max_abs_difference": 0.0,
+  "missing_in_export": [],
+  "tensors_base": 632
+ },
+ "smoke4_lora_step3_trained": {
+  "base": "/scratch/user/hieult/research/soe-data/hf/hub/models--Qwen--Qwen3.5-2B-Base/snapshots/b1485b2fa6dfa1287294f269f5fb618e03d52d7c",
+  "differing_by_group": {
+   "model.language_model": 186
+  },
+  "dtype_mismatches": [],
+  "export": "/scratch/user/hieult/research/soe-data/checkpoints/20261028-220226-grpo_m1_smoke_qwen35-2b-s1/step_3/hf",
+  "export_info": {
+   "copied_from_base": [
+    "mtp.fc.weight",
+    "mtp.layers.0.input_layernorm.weight",
+    "mtp.layers.0.mlp.down_proj.weight",
+    "mtp.layers.0.mlp.gate_proj.weight",
+    "mtp.layers.0.mlp.up_proj.weight",
+    "mtp.layers.0.post_attention_layernorm.weight",
+    "mtp.layers.0.self_attn.k_norm.weight",
+    "mtp.layers.0.self_attn.k_proj.weight",
+    "mtp.layers.0.self_attn.o_proj.weight",
+    "mtp.layers.0.self_attn.q_norm.weight",
+    "mtp.layers.0.self_attn.q_proj.weight",
+    "mtp.layers.0.self_attn.v_proj.weight",
+    "mtp.norm.weight",
+    "mtp.pre_fc_norm_embedding.weight",
+    "mtp.pre_fc_norm_hidden.weight"
+   ],
+   "merged_lora_modules": 186,
+   "tensors_changed_vs_base": 186,
+   "trained_by_prefix": {
+    "model.language_model": 67276800
+   },
+   "trained_parameters": 67276800,
+   "trained_tensors": 372,
+   "training": "lora"
+  },
+  "extra_in_export": [],
+  "identical_by_group": {
+   "model.language_model": 134,
+   "model.visual": 297,
+   "mtp.fc": 1,
+   "mtp.layers": 11,
+   "mtp.norm": 1,
+   "mtp.pre_fc_norm_embedding": 1,
+   "mtp.pre_fc_norm_hidden": 1
+  },
+  "max_abs_difference": 7.62939453125e-06,
+  "missing_in_export": [],
+  "tensors_base": 632
+ }
+}
