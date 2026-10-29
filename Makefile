@@ -1,5 +1,5 @@
 # Thin wrappers around uv; every target works on a fresh clone after `make install`.
-.PHONY: hooks install test lint format typecheck check figures container stage clean
+.PHONY: hooks install test test-container lint format typecheck check figures container stage clean
 
 install:
 	uv sync --locked
@@ -11,6 +11,11 @@ hooks:
 # CPU tests only (tests/**/test_*_on_cpu.py, as in CI); GPU tests run on FASTER in the container.
 test:
 	uv run pytest -q $$(find tests -name 'test_*_on_cpu.py' | sort)
+
+# Every test, CPU and container (tests/**/test_*_in_container.py: torch, verl, vLLM), in the image
+# on a FASTER CPU node. Run on the FASTER login node from the clone; the log is in logs/slurm/.
+test-container:
+	sbatch --time=01:00:00 --mem=32G --job-name=soe-tests slurm/cpu.sbatch python -m pytest -q tests
 
 lint:
 	uv run ruff check .
