@@ -6,9 +6,9 @@
 The validation split is carved from the RL-train pool (decision 012), so no evaluation text enters
 git. The dumps (`generations/val/<step>.jsonl` in each run) hold the decoded response, the gold
 answer, the training-time reward and the reward hook's `truncated`/`has_box` flags. Rows are drawn
-per category (correct, wrong with a box, no box, truncated) with a fixed seed. Rows that stopped
-keep their whole text, so only short ones are drawn; a truncated row keeps the tail only, since it
-gets reward 0 whatever it says (decision 014).
+per category (correct, wrong with a box, truncated with and without a box) with a fixed seed. Rows
+that stopped keep their whole text, so only short ones are drawn; a truncated row keeps the tail
+only, since it gets reward 0 whatever it says (decision 014).
 """
 
 import gzip
@@ -20,9 +20,11 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
-PER_CATEGORY = {"correct": 80, "wrong_boxed": 60, "no_box": 30, "truncated": 30}
+# No stopped rollout in the M1.5 dumps lacks a box (0 of 1,232), so "no box" comes from truncated
+# ones; the stopped no-box case is a hand-written unit test (test_math_reward_on_cpu.py).
+PER_CATEGORY = {"correct": 80, "wrong_boxed": 60, "truncated_boxed": 30, "truncated_no_box": 30}
 MAX_CHARS = 6000  # stopped rows: whole text up to this length
-TAIL_CHARS = 2000  # truncated rows
+TAIL_CHARS = 4000  # truncated rows
 SEED = 20261029
 
 
@@ -39,7 +41,7 @@ class RewardFixture(BaseModel):
 
 def category(row: dict[str, object]) -> str:
     if row["truncated"]:
-        return "truncated"
+        return "truncated_boxed" if row["has_box"] else "truncated_no_box"
     if float(str(row["score"])) == 1.0:
         return "correct"
     return "wrong_boxed" if row["has_box"] else "no_box"
@@ -59,7 +61,7 @@ def read_dumps(archive: Path) -> list[RewardFixture]:
                 row = json.loads(line)
                 kind = category(row)
                 text = str(row["output"])
-                if kind == "truncated":
+                if kind.startswith("truncated"):
                     text = text[-TAIL_CHARS:]
                 elif len(text) > MAX_CHARS:
                     continue
