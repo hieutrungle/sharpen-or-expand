@@ -76,9 +76,6 @@ def verl_overrides(
     validation, hardware, budget = config.validation, config.hardware, config.budget
     if not (rollout and loss and checkpoint and validation and hardware and budget):
         raise ValueError(f"{config.name} is not an RL config")
-    if budget.max_steps is None:
-        # The rollout-token stop (decision 013) arrives with the trainer hook in M1.5/M1.6.
-        raise NotImplementedError("token-budget stopping is not wired yet; set budget.max_steps")
 
     prompt_tokens, response_tokens = rollout.max_prompt_tokens, protocol.max_response_tokens
     rollout_sampling = _sampling(protocol.rollout)
@@ -101,6 +98,10 @@ def verl_overrides(
         f"actor_rollout_ref.actor.ppo_max_token_len_per_gpu={hardware.max_token_len_per_gpu}",
         f"actor_rollout_ref.actor.optim.lr={config.optim.learning_rate}",
         f"actor_rollout_ref.actor.optim.lr_warmup_steps={config.optim.warmup_steps}",
+        # Constant LR after warm-up, independent of the total step count, which the token-budget
+        # stop changes mid-run (decision 020). A warm-up ratio would scale with that count.
+        "actor_rollout_ref.actor.optim.lr_scheduler_type=constant",
+        "actor_rollout_ref.actor.optim.lr_warmup_steps_ratio=0.0",
         f"actor_rollout_ref.actor.optim.weight_decay={config.optim.weight_decay}",
         f"actor_rollout_ref.actor.clip_ratio_low={loss.clip_ratio_low}",
         f"actor_rollout_ref.actor.clip_ratio_high={loss.clip_ratio_high}",
@@ -174,8 +175,9 @@ def verl_overrides(
         f"trainer.max_actor_ckpt_to_keep={checkpoint.keep_last}",
         f"trainer.test_freq={checkpoint.save_every_steps}",  # validate at every checkpoint
         "trainer.val_before_train=true",
-        f"trainer.total_training_steps={budget.max_steps}",
-        "trainer.total_epochs=1000",  # the step (later token) budget stops a run, never epochs
+        # Upper bound only: the checkpoint callback lowers it to the budget's last step (020)
+        f"trainer.total_training_steps={'null' if budget.max_steps is None else budget.max_steps}",
+        "trainer.total_epochs=1000",  # the token budget stops a run, never epochs
         # Hydra's resolved config goes with the run, not into the repo's working directory
         f"hydra.run.dir={paths.run_dir}/hydra",
     ]

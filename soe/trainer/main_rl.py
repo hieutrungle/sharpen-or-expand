@@ -9,17 +9,27 @@ stops the trainer within a minute, instead of verl training on the rest of the b
 
 import json
 import os
+import platform
 import subprocess
 import sys
 import time
+from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
 from soe.trainer.config.eval_suite import file_sha256, load_suite
 from soe.trainer.config.experiment import ExperimentConfig, load_config, rollout_protocol
+from soe.trainer.rl.budget import read_stop_step
 from soe.trainer.rl.checkpoints import RUN_DIR_ENV, missing_exports
 from soe.trainer.rl.rollout_tokens import TOKENS_ENV
+from soe.trainer.rl.segments import (
+    RESUMED_FROM_ENV,
+    SEGMENT_STARTED_ENV,
+    SegmentEvent,
+    append_event,
+)
 from soe.trainer.rl.verl_overrides import LaunchPaths, verl_overrides
 from soe.utils.run import read_run_info
 from soe.workers.rollout.failures import FAILURES_ENV, read_failures
@@ -84,6 +94,31 @@ def run_until_failure(
         raise subprocess.CalledProcessError(proc.returncode, cmd)
 
 
+def latest_checkpoint_step(checkpoints: Path) -> int:
+    """The step verl resumes from (its latest_checkpointed_iteration.txt), 0 for a fresh run."""
+    tracker = checkpoints / "latest_checkpointed_iteration.txt"
+    return int(tracker.read_text().strip()) if tracker.exists() else 0
+
+
+def segment_overrides(frozen: list[str], resumed_from: int, stop_step: int | None) -> list[str]:
+    """The frozen override list with this job's two differences (decision 020): a resumed job skips
+    the validation before training (its checkpoint step was validated when saved, and a second
+    record at that step would replace the step's training metrics), and starts with the stop step
+    the last save estimated."""
+    changes = {}
+    if resumed_from > 0:
+        changes["trainer.val_before_train"] = "false"
+    if stop_step is not None:
+        changes["trainer.total_training_steps"] = str(stop_step)
+    out = []
+    for item in frozen:
+        key = item.split("=", 1)[0]
+        out.append(f"{key}={changes.pop(key)}" if key in changes else item)
+    if changes:
+        raise ValueError(f"override keys not in the frozen list: {sorted(changes)}")
+    return out
+
+
 def export_missing(run_dir: Path, data_root: Path, run_id: str) -> None:
     """Export every saved checkpoint that has no HF export yet, one after another."""
     for step in missing_exports(run_dir / "checkpoints", data_root, run_id):
@@ -141,13 +176,30 @@ class LaunchCli(BaseSettings):
             TOKENS_ENV: str(tokens),
             RUN_DIR_ENV: str(run_dir),
         }
+        resumed_from = latest_checkpoint_step(run_dir / "checkpoints")
+        started = datetime.now(UTC)
+        env |= {SEGMENT_STARTED_ENV: started.isoformat(), RESUMED_FROM_ENV: str(resumed_from)}
+        record = partial(
+            SegmentEvent,
+            segment=segment,
+            node=platform.node(),
+            hardware=(run_dir / "hardware.txt").read_text().strip(),
+            git_commit=os.environ.get("SOE_GIT_COMMIT", "unknown"),
+        )
+        append_event(run_dir, record(event="start", at=started, resumed_from_step=resumed_from))
         # A checkpoint whose export the previous job did not finish (decision 018).
         export_missing(run_dir, data_root, info.run_id)
-        run_until_failure(
-            [sys.executable, "-m", "verl.trainer.main_ppo", *overrides], env, failures
-        )
-        export_missing(run_dir, data_root, info.run_id)
-        # verl exits 0 only when the step budget is done; a killed job leaves no DONE marker.
+        this_job = segment_overrides(overrides, resumed_from, read_stop_step(run_dir))
+        try:
+            run_until_failure(
+                [sys.executable, "-m", "verl.trainer.main_ppo", *this_job], env, failures
+            )
+            export_missing(run_dir, data_root, info.run_id)
+        except BaseException:
+            append_event(run_dir, record(event="end", at=datetime.now(UTC), exit="failed"))
+            raise
+        append_event(run_dir, record(event="end", at=datetime.now(UTC), exit="done"))
+        # verl exits 0 only when the run reached its last step; a killed job leaves no DONE marker.
         (run_dir / "DONE").write_text(f"finished in job {segment}\n")
 
 

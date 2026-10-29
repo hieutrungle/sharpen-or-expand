@@ -25,3 +25,4 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [017](017-rl-rollout-sampling-1.0.md) | RL rollouts and DPO preference data sample at 1.0 / 1.0 for every algorithm; in-loop validation stays at evaluation sampling | accepted |
 | [018](018-rl-checkpoint-export-and-token-count.md) | RL checkpoints exported in the training job; soe merges LoRA in FP32; mtp copied from base; rollout tokens = generated tokens of training rollouts | accepted |
 | [019](019-freeze-vision-tower.md) | Freeze the vision tower in verl's actor (verl 0.9.1 ignores freeze_vision_tower) | accepted |
+| [020](020-rl-token-budget-stop.md) | RL runs stop at their rollout-token budget (or a dev wall-clock / step cap); the last step is re-estimated at each save | accepted |

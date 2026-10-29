@@ -132,6 +132,8 @@ class BudgetSpec(FrozenModel):
     rollout_tokens: int = Field(gt=0)
     # Development only (smoke tests, memory-study cells): stop after this many steps.
     max_steps: int | None = Field(default=None, gt=0)
+    # Development only (the M1.9 dev run): stop before this many training hours (decision 020).
+    max_hours: float | None = Field(default=None, gt=0)
     # G1 stopping rule: stop when in-loop validation pass@1 has not improved by stop_min_delta
     # over stop_patience_evals evaluations. Unset until gate G1 fixes it.
     stop_patience_evals: int | None = Field(default=None, gt=0)
@@ -237,6 +239,8 @@ class ExperimentConfig(FrozenModel):
             raise ValueError("smoke_max_response_tokens is for development runs only")
         if self.budget is not None and self.budget.max_steps is not None and not self.development:
             raise ValueError("budget.max_steps is for development runs only")
+        if self.budget is not None and self.budget.max_hours is not None and not self.development:
+            raise ValueError("budget.max_hours is for development runs only")
         if self.optim.learning_rate == 0 and not self.development:
             raise ValueError("learning_rate 0 is for development identity runs only")
         return self

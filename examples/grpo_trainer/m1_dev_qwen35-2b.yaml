@@ -33,6 +33,7 @@ policy_loss:
   entropy_coef: 0.0
 budget:
   rollout_tokens: 30000000
+  max_hours: 20.0  # M1.9: 30M rollout tokens or 20 h, whichever comes first (decision 020)
 checkpoint:
   save_every_steps: 10  # reset from the measured step time (2-4 h per save) in M1.3
   keep_last: 2

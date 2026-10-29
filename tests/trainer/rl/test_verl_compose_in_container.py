@@ -30,8 +30,6 @@ def test_overrides_compose_into_verls_config(config_path: str) -> None:
     from hydra import compose, initialize_config_dir
 
     config = load_config(Path(config_path))
-    if config.budget is not None and config.budget.max_steps is None:
-        pytest.skip("token-budget stopping is wired in M1.5")
     protocol = rollout_protocol(config, load_suite(Path(config.eval_suite)))
     p = Path("/x")
     paths = LaunchPaths(

@@ -13,6 +13,8 @@ import os
 from collections import defaultdict
 from pathlib import Path
 
+from soe.trainer.rl.segments import segment_order
+
 TOKENS_ENV = "SOE_ROLLOUT_TOKENS"
 
 
@@ -25,16 +27,10 @@ def record_rollout(step: int, tokens: int) -> None:
         f.write(json.dumps({"step": step, "tokens": tokens}) + "\n")
 
 
-def _segment_order(path: Path) -> int:
-    # segment-<slurm job id>.jsonl; job ids increase with submission order. "local" runs have one.
-    job = path.stem.removeprefix("segment-")
-    return int(job) if job.isdigit() else -1
-
-
 def tokens_by_step(token_dir: Path) -> dict[int, list[int]]:
     """Per step, the rollout lengths recorded by the latest segment that ran it."""
     steps: dict[int, list[int]] = {}
-    for path in sorted(token_dir.glob("segment-*.jsonl"), key=_segment_order):
+    for path in sorted(token_dir.glob("segment-*.jsonl"), key=segment_order):
         in_segment: dict[int, list[int]] = defaultdict(list)
         for line in path.read_text().splitlines():
             if line.strip():

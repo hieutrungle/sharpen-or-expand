@@ -32,7 +32,9 @@ if [[ -n "${SOE_EXPECTED_COMMIT:-}" && "$(git rev-parse HEAD)" != "$SOE_EXPECTED
     echo "refusing to run: HEAD moved from $SOE_EXPECTED_COMMIT since this run started" >&2
     exit 1
 fi
-echo "soe git $(git rev-parse HEAD) on $(hostname), job ${SLURM_JOB_ID:-none}"
+SOE_GIT_COMMIT="$(git rev-parse HEAD)"
+export SOE_GIT_COMMIT  # recorded per job segment (soe/trainer/rl/segments.py)
+echo "soe git $SOE_GIT_COMMIT on $(hostname), job ${SLURM_JOB_ID:-none}"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader || true
 
 # FASTER compute nodes have SingularityCE (not on login nodes); the local machine has Apptainer.

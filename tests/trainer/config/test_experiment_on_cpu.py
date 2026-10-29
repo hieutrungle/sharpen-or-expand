@@ -159,6 +159,15 @@ def test_learning_rate_zero_only_for_development_identity_runs() -> None:
         ExperimentConfig.model_validate(with_block("optim", learning_rate=-1e-5))
 
 
+def test_max_hours_only_for_development() -> None:
+    data = with_block("budget", max_hours=20.0)
+    assert ExperimentConfig.model_validate(data).budget is not None
+    with pytest.raises(ValidationError, match="max_hours"):
+        ExperimentConfig.model_validate(
+            data | {"development": False, "init_checkpoint": "checkpoints/sft/hf"}
+        )
+
+
 def test_smoke_cap_only_lowers_and_only_for_development() -> None:
     suite = load_suite(SUITE)
     smoke = ExperimentConfig.model_validate(with_block("rollout", smoke_max_response_tokens=4096))

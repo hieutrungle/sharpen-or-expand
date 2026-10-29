@@ -91,11 +91,14 @@ def test_only_grpo_is_wired_in_m1() -> None:
         overrides_for(dr_grpo)
 
 
-def test_token_budget_stop_is_not_faked() -> None:
+def test_without_max_steps_the_step_total_is_only_an_upper_bound() -> None:
+    # Decision 020: the checkpoint callback lowers verl's total to the token budget's last step.
     data = yaml.safe_load(SMOKE.read_text())
     del data["budget"]["max_steps"]
-    with pytest.raises(NotImplementedError, match="token-budget"):
-        overrides_for(ExperimentConfig.model_validate(data))
+    overrides = overrides_for(ExperimentConfig.model_validate(data))
+    assert "trainer.total_training_steps=null" in overrides
+    assert "actor_rollout_ref.actor.optim.lr_scheduler_type=constant" in overrides
+    assert "actor_rollout_ref.actor.optim.lr_warmup_steps_ratio=0.0" in overrides
 
 
 def test_hydra_string_keeps_backslashes_and_refuses_quotes() -> None:
