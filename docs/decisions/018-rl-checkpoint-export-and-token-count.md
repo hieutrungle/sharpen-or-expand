@@ -4,7 +4,7 @@
 - Status: accepted (user, 2026-10-28: the three recommendations)
 - Milestone: M1 (task M1.4; amends the roadmap's "export on a CPU node" and defines decision 013's
   rollout tokens)
-- Code: `soe/trainer/rl/checkpoints.py` (manifest and token count), `soe/trainer/rl/checkpoint_callback.py`
+- Code: `soe/trainer/rl/checkpoints.py` (manifest, token count, shard pruning), `soe/trainer/rl/checkpoint_callback.py`
   (verl hook), `soe/trainer/rl/export.py` and `scripts/export_checkpoint.py` (HF export),
   `soe/workers/rollout/agent_loop.py` (token records)
 
@@ -40,6 +40,13 @@ window would lose the step's count if it came from the metrics.
    length; a step replayed after a resume is counted from its latest job segment only, once.
    Prompt tokens are left out because each prompt repeats G times per group, so they would make the
    count depend on the group size the G = 4 / 8 / 16 comparison varies.
+
+5. **Shard pruning across job segments (amendment, 2026-10-29, M1.5).** verl 0.9.1 prunes FSDP
+   shards from a list it keeps in memory, so a job prunes only its own saves. In the M1.5 kill test
+   the resumed job never removed the killed job's steps 3 and 6 (all four 9.1 GB shards stayed,
+   against two in the uninterrupted run). After each save, and after `main_rl`'s final export
+   sweep, `prune_shards` removes the actor shards of every step older than the newest `keep_last`,
+   as found on disk; a step whose HF export does not exist yet keeps its shards until it does.
 
 ## Consequences (including what could confound the algorithm comparison)
 

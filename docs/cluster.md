@@ -90,7 +90,8 @@ worker-hours per shard of 96 (A40/A30/A10 mix; 14 workers finished in about 6.5 
 - FASTER's `sbatch` wrapper (it prints the SU charge notice) re-splits the script's arguments, so an
   argument containing spaces arrives in pieces. `sbatch slurm/cpu.sbatch bash -c 'a && b'` ran only
   `bash -c python`, which exited 0 at once with no output (job 3222582). Pass plain commands only,
-  and submit separate jobs instead of chaining commands in one string.
+  and submit separate jobs instead of chaining commands in one string. Confirmed on 2026-10-29: an
+  argv test (job 3223234) received `"a b"` as `a` and `b`; quoting inside the container is intact.
 - "Socket timed out on send/recv operation" does not mean the job was rejected: it may already be
   queued. Check `squeue -u hieult` before resubmitting.
 - `--parsable` output is mixed with the wrapper's notice; read job ids from `squeue`/`sacct`.

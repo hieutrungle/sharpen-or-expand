@@ -1,0 +1,217 @@
+{
+ "control": "/scratch/user/hieult/research/soe-m1.5b/runs/20261029-014438-grpo_m1_resume_qwen35-2b-s1-j3222950",
+ "dataloader_restored": {
+  "1": true,
+  "10": true,
+  "11": true,
+  "12": true,
+  "2": true,
+  "3": true,
+  "4": true,
+  "5": true,
+  "6": true,
+  "7": true,
+  "8": true,
+  "9": true
+ },
+ "first_step_after_resume": {
+  "actor/entropy": {
+   "control": 0.7873175740242004,
+   "control_max_step_change": 0.12873238325119019,
+   "difference": 0.013818323612213135,
+   "test": 0.7734992504119873,
+   "within": true
+  },
+  "actor/grad_norm": {
+   "control": 0.020348036661744118,
+   "control_max_step_change": 0.007629569619894028,
+   "difference": 0.0017694216221570969,
+   "test": 0.01857861503958702,
+   "within": true
+  },
+  "critic/score/mean": {
+   "control": 0.279296875,
+   "control_max_step_change": 0.162109375,
+   "difference": 0.001953125,
+   "test": 0.28125,
+   "within": true
+  },
+  "step": 7
+ },
+ "lr_schedule_continues": {
+  "equal_every_step": true,
+  "per_step": {
+   "1": [
+    1.0000000000000002e-06,
+    1.0000000000000002e-06
+   ],
+   "2": [
+    2.0000000000000003e-06,
+    2.0000000000000003e-06
+   ],
+   "3": [
+    3e-06,
+    3e-06
+   ],
+   "4": [
+    4.000000000000001e-06,
+    4.000000000000001e-06
+   ],
+   "5": [
+    5e-06,
+    5e-06
+   ],
+   "6": [
+    6e-06,
+    6e-06
+   ],
+   "7": [
+    7e-06,
+    7e-06
+   ],
+   "8": [
+    8.000000000000001e-06,
+    8.000000000000001e-06
+   ],
+   "9": [
+    9e-06,
+    9e-06
+   ],
+   "10": [
+    1e-05,
+    1e-05
+   ],
+   "11": [
+    1e-05,
+    1e-05
+   ],
+   "12": [
+    1e-05,
+    1e-05
+   ]
+  }
+ },
+ "optimizer_step_continues": {
+  "control": 12.0,
+  "test": 12.0
+ },
+ "pruning_keeps_exports": {
+  "control": {
+   "exports": {
+    "12": true,
+    "3": true,
+    "6": true,
+    "9": true
+   },
+   "shards_left": [
+    9,
+    12
+   ]
+  },
+  "expected_shards": [
+   9,
+   12
+  ],
+  "test": {
+   "exports": {
+    "12": true,
+    "3": true,
+    "6": true,
+    "9": true
+   },
+   "shards_left": [
+    3,
+    6,
+    9,
+    12
+   ]
+  }
+ },
+ "rollout_tokens_continuous": {
+  "checkpoints": [
+   [
+    3,
+    17819679
+   ],
+   [
+    6,
+    36225678
+   ],
+   [
+    9,
+    54784937
+   ],
+   [
+    12,
+    73333805
+   ]
+  ],
+  "increasing": true,
+  "manifest_equals_recount": true,
+  "token_segments": [
+   "segment-3222949.jsonl",
+   "segment-3222962.jsonl"
+  ]
+ },
+ "segments": {
+  "events": [
+   {
+    "at": "2026-10-29T01:44:45.571367Z",
+    "event": "start",
+    "exit": null,
+    "git_commit": "029c522acbde8e8e786a9bae43fb9a76d0ef38ca",
+    "hardware": "2 NVIDIA A40, 49140 MiB",
+    "node": "fc098",
+    "resumed_from_step": 0,
+    "segment": "3222949"
+   },
+   {
+    "at": "2026-10-29T08:38:12.245200Z",
+    "event": "start",
+    "exit": null,
+    "git_commit": "029c522acbde8e8e786a9bae43fb9a76d0ef38ca",
+    "hardware": "2 NVIDIA A40, 49140 MiB",
+    "node": "fc098",
+    "resumed_from_step": 6,
+    "segment": "3222962"
+   },
+   {
+    "at": "2026-10-29T12:05:42.527515Z",
+    "event": "end",
+    "exit": "done",
+    "git_commit": "029c522acbde8e8e786a9bae43fb9a76d0ef38ca",
+    "hardware": "2 NVIDIA A40, 49140 MiB",
+    "node": "fc098",
+    "resumed_from_step": null,
+    "segment": "3222962"
+   }
+  ],
+  "same_hardware": true,
+  "same_node": true,
+  "two_segments": true
+ },
+ "slurm_notes": {
+  "concurrent_jobs_one_node": "test 3222949 and control 3222950 run side by side on fc098 (started 20:44:29) and both passed the first weight sync; the first attempt's test (3222908) had hung there because both jobs used the same weight-sync sockets in the node's /tmp (fixed at 029c522, per-job /tmp)",
+  "hardware_guard": {
+   "exit_code": 1,
+   "job": "3222937",
+   "message": "refusing to run: runs/m1.5-hardware-guard-check started on '2 NVIDIA A40, 49140 MiB', this job has '2 NVIDIA A30, 24576 MiB'",
+   "node": "fc123"
+  },
+  "notes": "first attempt at 5101ef7 failed: control 3222907 had the test's run id (fixed at 35c5e13, run ids carry the job id); test 3222908 hung at the first weight sync (fixed at 029c522). Second attempt at 029c522 from worktree soe-m1.5b: test 3222949, control 3222950, kill helper 3222951 (step 8).",
+  "successor_job": {
+   "ReqNodeList": "fc098",
+   "TresPerNode": "gres/gpu:a40:2",
+   "captured": "scontrol show job 3222962 while pending (2026-10-28 22:03 CDT)",
+   "dependency": "afterany:3222949",
+   "first_job_gres": "gres/gpu:a40:2",
+   "first_job_node": "fc098",
+   "job": "3222962"
+  }
+ },
+ "steps_continuous": {
+  "control": true,
+  "test": true
+ },
+ "test": "/scratch/user/hieult/research/soe-m1.5b/runs/20261029-014438-grpo_m1_resume_qwen35-2b-s1-j3222949"
+}
