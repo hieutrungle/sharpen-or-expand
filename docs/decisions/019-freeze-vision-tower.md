@@ -3,7 +3,7 @@
 - Date: 2026-10-28
 - Status: accepted (user, 2026-10-28: "Freeze it in soe")
 - Milestone: M1 (task M1.4)
-- Code: `soe/trainer/rl/verl_patches.py`, named in the overrides as Ray's
+- Code: `soe/workers/rollout/verl_patches.py`, named in the overrides as Ray's
   `ray_kwargs.ray_init.runtime_env.worker_process_setup_hook`
 
 ## Context

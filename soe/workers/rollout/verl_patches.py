@@ -14,6 +14,7 @@ registers an import hook; when verl itself imports its FSDP engine module, `patc
 `requires_grad=False` on every vision-tower parameter. Torch's optimizer then never creates state
 for them, and the export (decision 018) checks that they stayed equal to the base.
 
+It sits with the other verl worker patch (`vllm_patches.py`), though it patches the actor's engine.
 CPU-importable; the patch itself runs only in the GPU image.
 """
 
@@ -24,7 +25,7 @@ from types import ModuleType
 from typing import Any
 
 PATCHED_VERL = "0.9.1"  # re-check that freeze_vision_tower is still unimplemented on upgrade
-HOOK = "soe.trainer.rl.verl_patches.install"
+HOOK = "soe.workers.rollout.verl_patches.install"
 ENGINE_MODULE = "verl.workers.engine.fsdp.transformer_impl"
 _VISION_PREFIXES = ("model.visual.", "base_model.model.model.visual.")
 

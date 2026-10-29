@@ -1,13 +1,13 @@
 import subprocess
 import sys
 
-from soe.trainer.rl.verl_patches import is_vision_parameter
+from soe.workers.rollout.verl_patches import is_vision_parameter
 
 # install() runs in every Ray worker before its GPU is assigned: importing torch or verl there put
 # both FSDP ranks on one GPU (job 3222890). It may only register the import hook.
 INSTALL_WITHOUT_TORCH = """
 import sys
-from soe.trainer.rl import verl_patches
+from soe.workers.rollout import verl_patches
 verl_patches.install()
 verl_patches.install()
 hooks = [f for f in sys.meta_path if type(f).__name__ == "_PatchAfterImport"]

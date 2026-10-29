@@ -15,7 +15,7 @@ from soe.trainer.config.experiment import (
     Sampler,
     TrainingMode,
 )
-from soe.trainer.rl.verl_patches import HOOK as VISION_FREEZE_HOOK
+from soe.workers.rollout.verl_patches import HOOK as VISION_FREEZE_HOOK
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

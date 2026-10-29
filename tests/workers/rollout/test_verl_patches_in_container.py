@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from verl.workers.engine.fsdp import transformer_impl
 
-from soe.trainer.rl import verl_patches
+from soe.workers.rollout import verl_patches
 
 
 class Tiny(nn.Module):
