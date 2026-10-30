@@ -1,0 +1,40 @@
+{
+ "correct_and_stopped": 468,
+ "files": {
+  "train": {
+   "examples": 424,
+   "path": "datasets/soe/dev/sft-m1/train.jsonl",
+   "problems": 132,
+   "sha256": "3c504098b83f61a8070fc0b38a9b1eca3a4deceec89a092ea69cc150ce8b1dce"
+  },
+  "val": {
+   "examples": 44,
+   "path": "datasets/soe/dev/sft-m1/val.jsonl",
+   "problems": 15,
+   "sha256": "9990e52b1c46f3310d4112a9c942dafde56f9db0085d69f15ea1f38d22dae438"
+  }
+ },
+ "one_think_end": 468,
+ "probe_samples": 800,
+ "problems_in_rl_val_split": [
+  "dapo/0359299e-2264-4d38-b41e-3c852d9eb50a"
+ ],
+ "val_problem_ids": [
+  "dapo/2678298a-3425-4ef6-8777-6d5e7c50b082",
+  "dapo/46b3704d-95a8-4e39-af3c-f0dbbe9e9fac",
+  "dapo/4ab63d8f-8643-4782-ba6c-ec4f9f1a50a7",
+  "dapo/5ea1274f-9e94-4647-9b5f-068a16384b1a",
+  "dapo/6eab15b6-eebc-482e-bec9-a1e2f684cb04",
+  "dapo/74689d07-29e8-4990-9c34-a021aaa2b151",
+  "dapo/7a52b228-9b53-4f8a-b189-c812ba303efd",
+  "dapo/7d4d6e9e-82b4-4649-8323-25b7456eed39",
+  "dapo/804db0d2-d24a-495f-a965-8edd0793dba6",
+  "dapo/95b5da55-845a-47d7-b23d-af0ed1e1ef74",
+  "dapo/b1bf534d-b8d4-4297-af9d-4fbeccfc736b",
+  "dapo/baa01db1-e091-49d3-99dd-3bec2c2f84c7",
+  "dapo/c1f8f495-94a6-472a-b078-3a85a7855b70",
+  "dapo/d74eda48-8c52-476c-a544-05531d81bdb3",
+  "dapo/e972ac2e-8023-4b28-afbd-f9e9f4fbb762"
+ ],
+ "version": "dev-m1"
+}

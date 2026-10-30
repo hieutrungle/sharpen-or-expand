@@ -201,3 +201,20 @@ def test_top_k_and_validation_sampling_cannot_be_set_in_the_config() -> None:
         ExperimentConfig.model_validate(with_block("rollout", top_k=20))
     with pytest.raises(ValidationError, match="temperature"):
         ExperimentConfig.model_validate(with_block("validation", temperature=1.0))
+
+
+SFT_EXAMPLE = Path("examples/sft/m1_dev_qwen35-2b.yaml")
+
+
+def test_sft_block_rules() -> None:
+    data: dict[str, Any] = yaml.safe_load(SFT_EXAMPLE.read_text())
+    assert ExperimentConfig.model_validate(data).sft is not None
+    with pytest.raises(ValidationError, match="sft block is required"):
+        ExperimentConfig.model_validate({k: v for k, v in data.items() if k != "sft"})
+    with pytest.raises(ValidationError, match="sft block is required for SFT and forbidden"):
+        ExperimentConfig.model_validate(example() | {"sft": data["sft"]})
+    with pytest.raises(ValidationError, match="starts from the base model"):
+        ExperimentConfig.model_validate(data | {"init_checkpoint": "checkpoints/x"})
+    full = {k: v for k, v in data.items() if k != "lora"} | {"training_mode": "full_bf16"}
+    with pytest.raises(ValidationError, match="lora_bf16 only"):
+        ExperimentConfig.model_validate(full)

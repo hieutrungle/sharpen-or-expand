@@ -1,0 +1,35 @@
+# M1.8 development SFT on Lane B (2B, wiring only; never in conclusions): TRL SFTTrainer, BF16 LoRA
+# on the language model, data per roadmap D9 (a) (docs/reports/m1_sft_dev_data.json). The prompt and
+# thinking mode come from eval_suite (decision 006); examples over max_length are dropped.
+name: sft_m1_dev_qwen35-2b
+milestone: m1
+development: true
+lane: B
+model:
+  hf_id: Qwen/Qwen3.5-2B-Base
+  revision: b1485b2fa6dfa1287294f269f5fb618e03d52d7c
+init_checkpoint: null  # SFT starts from the base model
+training_mode: lora_bf16  # full BF16 SFT arrives with the G0 mode (M2)
+lora:
+  rank: 64
+  alpha: 128
+  target_modules: all-linear
+  exclude_modules: "(model\\.visual|mtp)\\..*"  # language model only, as in the RL configs
+algorithm: sft
+optim:
+  learning_rate: 1.0e-4
+  warmup_steps: 3
+  weight_decay: 0.0
+sft:
+  n_gpus: 2
+  max_length: 18432  # 2,048 prompt + 16,384 response tokens (the evaluation cap)
+  epochs: 2
+  batch_size_per_gpu: 1
+  gradient_accumulation_steps: 8  # 16 sequences per optimizer step on 2 GPUs
+  lr_scheduler: cosine
+data:
+  train_file: datasets/soe/dev/sft-m1/train.jsonl
+  train_sha256: 3c504098b83f61a8070fc0b38a9b1eca3a4deceec89a092ea69cc150ce8b1dce
+  val_file: datasets/soe/dev/sft-m1/val.jsonl
+  val_sha256: 9990e52b1c46f3310d4112a9c942dafde56f9db0085d69f15ea1f38d22dae438
+eval_suite: soe/trainer/config/eval_suite.yaml
