@@ -33,10 +33,12 @@ policy_loss:
   clip_ratio_high: 0.2
   entropy_coef: 0.0
 budget:
-  rollout_tokens: 30000000
-  max_hours: 20.0  # M1.9: 30M rollout tokens or 20 h, whichever comes first (decision 020)
+  # M1.9 (user, 2026-10-30): the 20 h cap ends the run (~36 steps of ~6.2M rollout tokens and
+  # ~0.55 h on 2xA40, measured in M1.5); 30M tokens would have stopped it after ~5 steps.
+  rollout_tokens: 220000000
+  max_hours: 20.0  # decision 020
 checkpoint:
-  save_every_steps: 10  # reset from the measured step time (2-4 h per save) in M1.3
+  save_every_steps: 4  # ~2.2 h per save; intermediate checkpoints for the M1.9 evaluations
   keep_last: 2
 validation:
   max_problems: 128

@@ -47,3 +47,9 @@ sees the token count at each save, every 2–4 hours. The M1.9 dev run also need
   (2–4 h of tokens, 10–20% of a 30M-token run), and runs end at different token counts.
 - **A verl trainer subclass with a per-step check:** exact, but verl picks its trainer class from
   `trainer_mode`, so it would need a deeper patch.
+
+## Revisions
+
+- 2026-10-30 (user, M1.9): the development run's budget becomes 220M rollout tokens with the 20 h
+  cap, so the cap binds (~36 steps); at ~6.2M rollout tokens per 512-rollout step (M1.5), the
+  30M-token budget would have ended it after ~5 steps.
