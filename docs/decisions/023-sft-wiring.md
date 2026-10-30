@@ -45,6 +45,10 @@ tokenizer files.
    `prediction_loss_only` (the first dev run ran out of memory in validation, job 3223714).
 7. **GPU count.** main_sft (and main_rl) refuse a job whose allocated GPUs (`nvidia-smi -L`)
    differ from the config's count.
+8. **Checkpoint dtypes.** The model is loaded in BF16 and every tensor the checkpoint stores in
+   F32 (36 on Qwen3.5-2B) is restored to its exact F32 value, so the frozen base is the checkpoint
+   itself; a LoRA export refuses more changed tensors than merged adapters (job 3223729 had 204
+   for 186).
 
 ## Consequences (including what could confound the algorithm comparison)
 

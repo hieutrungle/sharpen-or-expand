@@ -7,8 +7,8 @@ lane: B
 model:
   hf_id: Qwen/Qwen3.5-2B-Base
   revision: b1485b2fa6dfa1287294f269f5fb618e03d52d7c
-# The M1.8 dev SFT checkpoint (job 3223714), relative to $SOE_DATA.
-init_checkpoint: checkpoints/20261030-002816-sft_m1_dev_qwen35-2b-s1-j3223714/step_54/hf
+# The M1.8 dev SFT checkpoint (job 3223739), relative to $SOE_DATA.
+init_checkpoint: checkpoints/20261030-011649-sft_m1_dev_qwen35-2b-s1-j3223739/step_54/hf
 training_mode: lora_bf16
 lora:
   rank: 64
