@@ -172,10 +172,13 @@ class BaseLayout:
     copied: list[str]  # untrained tensors taken from the base (mtp.*)
 
 
-def like_base(tensors: dict[str, torch.Tensor], base_dir: Path) -> BaseLayout:
+def like_base(
+    tensors: dict[str, torch.Tensor], base_dir: Path, *, lora_modules: int | None
+) -> BaseLayout:
     """The checkpoint's HF-named tensors in the base snapshot's layout and dtypes. The tied lm_head
     copy is dropped, the base's mtp.* head is copied, and every tensor outside the language model
-    must equal the base bit for bit."""
+    must equal the base bit for bit. For LoRA (`lora_modules` merged adapters), at most that many
+    tensors may differ from the base: anything else changed was not trained."""
     base, file_of = _read_base(base_dir)
     config = json.loads((base_dir / "config.json").read_text())
     tied = bool(
@@ -212,6 +215,11 @@ def like_base(tensors: dict[str, torch.Tensor], base_dir: Path) -> BaseLayout:
                 raise ExportError(f"{name} differs from the base but is outside the language model")
             changed += 1
         out[name] = value
+    if lora_modules is not None and changed > lora_modules:
+        raise ExportError(
+            f"{changed} tensors differ from the base but only {lora_modules} LoRA adapters were"
+            " merged: untrained weights changed (a dtype round trip?)"
+        )
     return BaseLayout(tensors=out, file_of=file_of, changed=changed, copied=copied)
 
 
@@ -275,7 +283,7 @@ def export_checkpoint(
     )
     del full
 
-    layout = like_base(tensors, base_dir)
+    layout = like_base(tensors, base_dir, lora_modules=merged if is_lora else None)
     info = ExportInfo(
         run_id=run_id,
         step=step,

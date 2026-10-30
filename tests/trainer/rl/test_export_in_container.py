@@ -14,7 +14,7 @@ import torch
 from safetensors import safe_open
 from safetensors.torch import save_file
 
-from soe.trainer.rl.export import ExportError, export_checkpoint
+from soe.trainer.rl.export import ExportError, export_checkpoint, like_base
 
 P = "base_model.model."
 UP = "model.language_model.layers.0.mlp.up_proj"
@@ -124,3 +124,18 @@ def test_a_trained_or_changed_vision_tower_is_refused(tmp_path: Path) -> None:
     with pytest.raises(ExportError, match="outside the language model"):
         run(tmp_path / "a2", tmp_path / "base", tmp_path / "hf2")
     assert not (tmp_path / "hf1").exists() and not (tmp_path / "hf2").exists()
+
+
+def test_lora_export_refuses_changed_untrained_tensors(tmp_path: Path) -> None:
+    """An F32 tensor that went through BF16 differs from the base although nothing trained it
+    (M1.8, job 3223729): with one merged adapter, a second changed tensor is refused."""
+    base = make_base(tmp_path / "base")
+    tensors = {name: t.float() for name, t in base.items() if not name.startswith("mtp.")}
+    tensors[f"{UP}.weight"] = tensors[f"{UP}.weight"] + 1  # the merged adapter
+    a_log = "model.language_model.layers.0.linear_attn.A_log"
+    tensors[a_log] = base[a_log].bfloat16().float()  # rounded, untrained
+    if torch.equal(tensors[a_log], base[a_log]):
+        pytest.skip("the random A_log happens to be exact in BF16")
+    with pytest.raises(ExportError, match="untrained weights changed"):
+        like_base(dict(tensors), tmp_path / "base", lora_modules=1)
+    assert like_base(dict(tensors), tmp_path / "base", lora_modules=None).changed == 2

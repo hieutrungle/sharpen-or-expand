@@ -23,6 +23,7 @@ import torch
 from datasets import Dataset
 from peft import LoraConfig
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
+from safetensors import safe_open
 from transformers import (
     AutoModelForImageTextToText,
     AutoTokenizer,
@@ -140,6 +141,23 @@ def datasets(
     return out, counts
 
 
+def restore_checkpoint_dtypes(model: Any, base: Path) -> list[str]:
+    """Loading in BF16 rounds the tensors the checkpoint stores in F32 (Qwen3.5's 18
+    linear-attention gate norms; job 3223729). Put their exact F32 values back, so the frozen base
+    is the checkpoint itself. Returns the restored names."""
+    params = dict(model.named_parameters())
+    restored = []
+    for path in sorted(base.glob("*.safetensors")):
+        with safe_open(path, "pt") as f:
+            for name in f.keys():  # noqa: SIM118 (safe_open is not a dict)
+                if name in params and f.get_slice(name).get_dtype() == "F32":
+                    param = params[name]
+                    if param.dtype != torch.float32:
+                        param.data = f.get_tensor(name).to(param.device)
+                        restored.append(name)
+    return restored
+
+
 def export_merged(
     model: Any, base: Path, out_dir: Path, *, run_id: str, step: int, config: ExperimentConfig
 ) -> ExportInfo:
@@ -151,7 +169,7 @@ def export_merged(
     numels = {k: v.numel() for k, v in full.items()}
     tensors, merged = merge_lora(full, config.lora.alpha / config.lora.rank)
     del full
-    layout = like_base(tensors, base)
+    layout = like_base(tensors, base, lora_modules=merged)
     info = ExportInfo(
         run_id=run_id,
         step=step,
@@ -190,6 +208,9 @@ def train(run_dir: Path) -> None:
         print(f"soe sft data: {counts}", flush=True)
 
     model = AutoModelForImageTextToText.from_pretrained(base, dtype=torch.bfloat16)
+    restored = restore_checkpoint_dtypes(model, base)
+    if rank0:
+        print(f"soe sft: {len(restored)} F32 checkpoint tensors kept in F32", flush=True)
     args = SFTConfig(
         output_dir=str(run_dir / "trainer"),
         num_train_epochs=sft.epochs,
