@@ -91,11 +91,13 @@ plugins = ["pydantic.mypy"]
 module = ["math_verify", "math_verify.*"]
 ignore_missing_imports = true
 
-# vLLM, verl, torch and safetensors exist only in the GPU image; CI type-checks the CPU code paths.
+# vLLM, verl, torch, safetensors and the TRL stack exist only in the GPU image; CI type-checks the
+# CPU code paths.
 [[tool.mypy.overrides]]
 module = [
     "vllm", "vllm.*", "verl", "verl.*", "huggingface_hub", "huggingface_hub.*",
     "torch", "torch.*", "safetensors", "safetensors.*",
+    "transformers", "transformers.*", "trl", "trl.*", "peft", "peft.*", "datasets", "datasets.*",
 ]
 ignore_missing_imports = true
 

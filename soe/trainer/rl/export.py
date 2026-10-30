@@ -18,6 +18,7 @@ Image only (torch, safetensors).
 import json
 import os
 import shutil
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -46,7 +47,7 @@ class ExportInfo(BaseModel):
     lora_rank: int | None
     lora_alpha: int | None
     merged_lora_modules: int
-    trained_tensors: int  # from the optimizer state
+    trained_tensors: int  # RL: from the optimizer state; SFT: the trainable parameters
     trained_parameters: int
     trained_by_prefix: dict[str, int]
     tensors_changed_vs_base: int
@@ -149,22 +150,8 @@ def _prefix(name: str) -> str:
     return ".".join(name.split(".")[:2])
 
 
-def export_checkpoint(
-    actor_dir: Path,
-    base_dir: Path,
-    out_dir: Path,
-    *,
-    run_id: str,
-    step: int,
-    rollout_tokens: int | None,
-    base_model: str,
-) -> ExportInfo:
-    if out_dir.exists():
-        raise ExportError(f"{out_dir} exists already")
-    full = load_full_state_dict(actor_dir)
-    numels = {key: value.numel() for key, value in full.items()}
-    trained = trained_keys(actor_dir, list(full))
-    is_lora = any(lora_parts(k) is not None for k in full)
+def check_trained(trained: list[str], is_lora: bool) -> None:
+    """Only language-model weights (LoRA: their adapters) may have been trained."""
     for key in trained:
         parts = lora_parts(key)
         if is_lora:
@@ -176,15 +163,19 @@ def export_checkpoint(
                 f"{key} was trained; only language-model weights (LoRA: adapters) may be"
             )
 
-    lora_meta: dict[str, int] = {}
-    if is_lora:
-        lora_meta = json.loads((actor_dir / "lora_train_meta.json").read_text())
-    scale = lora_meta["lora_alpha"] / lora_meta["r"] if is_lora else 0.0
-    tensors, merged = (
-        merge_lora(full, scale) if is_lora else ({hf_name(k): v for k, v in full.items()}, 0)
-    )
-    del full
 
+@dataclass(frozen=True, slots=True, kw_only=True)
+class BaseLayout:
+    tensors: dict[str, torch.Tensor]  # every base tensor name, in the base dtype
+    file_of: dict[str, str]  # tensor name -> safetensors file name
+    changed: int  # tensors that differ from the base
+    copied: list[str]  # untrained tensors taken from the base (mtp.*)
+
+
+def like_base(tensors: dict[str, torch.Tensor], base_dir: Path) -> BaseLayout:
+    """The checkpoint's HF-named tensors in the base snapshot's layout and dtypes. The tied lm_head
+    copy is dropped, the base's mtp.* head is copied, and every tensor outside the language model
+    must equal the base bit for bit."""
     base, file_of = _read_base(base_dir)
     config = json.loads((base_dir / "config.json").read_text())
     tied = bool(
@@ -221,34 +212,25 @@ def export_checkpoint(
                 raise ExportError(f"{name} differs from the base but is outside the language model")
             changed += 1
         out[name] = value
+    return BaseLayout(tensors=out, file_of=file_of, changed=changed, copied=copied)
 
-    trained_by_prefix: dict[str, int] = {}
+
+def trained_by_prefix(trained: list[str], numels: dict[str, int]) -> dict[str, int]:
+    counts: dict[str, int] = {}
     for key in trained:
         prefix = _prefix(hf_name(key))
-        trained_by_prefix[prefix] = trained_by_prefix.get(prefix, 0) + numels[key]
+        counts[prefix] = counts.get(prefix, 0) + numels[key]
+    return counts
 
-    info = ExportInfo(
-        run_id=run_id,
-        step=step,
-        rollout_tokens=rollout_tokens,
-        source_checkpoint=str(actor_dir),
-        base_model=base_model,
-        training="lora" if is_lora else "full",
-        lora_rank=lora_meta.get("r"),
-        lora_alpha=lora_meta.get("lora_alpha"),
-        merged_lora_modules=merged,
-        trained_tensors=len(trained),
-        trained_parameters=sum(numels[key] for key in trained),
-        trained_by_prefix=trained_by_prefix,
-        tensors_changed_vs_base=changed,
-        copied_from_base=copied,
-        created_at=datetime.now(UTC),
-    )
 
+def write_export(layout: BaseLayout, base_dir: Path, out_dir: Path, info: ExportInfo) -> None:
+    """Write the weights in the base's file layout, copy the base's other files (config, tokenizer,
+    chat template), add soe_export.json, and rename into place: a half-written export never
+    exists."""
     tmp = out_dir.parent / f".{out_dir.name}.tmp-{os.getpid()}"  # main_export removes stale ones
     tmp.mkdir(parents=True)
-    for file_name in sorted(set(file_of.values())):
-        part = {n: out[n] for n in out if file_of[n] == file_name}
+    for file_name in sorted(set(layout.file_of.values())):
+        part = {n: layout.tensors[n] for n in layout.tensors if layout.file_of[n] == file_name}
         save_file(part, str(tmp / file_name), metadata={"format": "pt"})
         # safetensors writes 0600; give the weights the same mode as the copied files.
         umask = os.umask(0)
@@ -264,4 +246,52 @@ def export_checkpoint(
         if not out_dir.exists():
             raise
         shutil.rmtree(tmp)  # another process (callback or sweep) finished the same step first
+
+
+def export_checkpoint(
+    actor_dir: Path,
+    base_dir: Path,
+    out_dir: Path,
+    *,
+    run_id: str,
+    step: int,
+    rollout_tokens: int | None,
+    base_model: str,
+) -> ExportInfo:
+    if out_dir.exists():
+        raise ExportError(f"{out_dir} exists already")
+    full = load_full_state_dict(actor_dir)
+    numels = {key: value.numel() for key, value in full.items()}
+    trained = trained_keys(actor_dir, list(full))
+    is_lora = any(lora_parts(k) is not None for k in full)
+    check_trained(trained, is_lora)
+
+    lora_meta: dict[str, int] = {}
+    if is_lora:
+        lora_meta = json.loads((actor_dir / "lora_train_meta.json").read_text())
+    scale = lora_meta["lora_alpha"] / lora_meta["r"] if is_lora else 0.0
+    tensors, merged = (
+        merge_lora(full, scale) if is_lora else ({hf_name(k): v for k, v in full.items()}, 0)
+    )
+    del full
+
+    layout = like_base(tensors, base_dir)
+    info = ExportInfo(
+        run_id=run_id,
+        step=step,
+        rollout_tokens=rollout_tokens,
+        source_checkpoint=str(actor_dir),
+        base_model=base_model,
+        training="lora" if is_lora else "full",
+        lora_rank=lora_meta.get("r"),
+        lora_alpha=lora_meta.get("lora_alpha"),
+        merged_lora_modules=merged,
+        trained_tensors=len(trained),
+        trained_parameters=sum(numels[key] for key in trained),
+        trained_by_prefix=trained_by_prefix(trained, numels),
+        tensors_changed_vs_base=layout.changed,
+        copied_from_base=layout.copied,
+        created_at=datetime.now(UTC),
+    )
+    write_export(layout, base_dir, out_dir, info)
     return info

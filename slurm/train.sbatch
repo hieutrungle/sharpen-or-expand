@@ -6,6 +6,7 @@
 # Fallback:    SBATCH_GRES=gpu:a100:2 CHAIN_LEFT=2 sbatch --nodelist=<A100 node> slurm/train.sbatch <config.yaml> <seed>
 #              (only on the user's request, for a whole comparison block; plan revision 2026-10-28)
 # Lane B dev:  SBATCH_GRES=gpu:a40:2 CHAIN_LEFT=1 sbatch --nodelist=fc096 slurm/train.sbatch <config.yaml> <seed>
+# SFT (dev):   SBATCH_GRES=gpu:a40:2 sbatch slurm/train.sbatch examples/sft/<config.yaml> <seed>
 # GPU type and count: set SBATCH_GRES, not --gres. sbatch reads it, and chained jobs inherit it.
 # Node: Slurm has no nodelist input variable, so a --nodelist given on the command line is not
 # inherited. chain_next_job therefore pins every successor to the node its predecessor ran on.
@@ -48,4 +49,6 @@ elif [[ "$(cat "$RUN_DIR/hardware.txt")" != "$GPUS_NOW" ]]; then
     exit 1
 fi
 chain_next_job slurm/train.sbatch "$CONFIG"
-run_in_container python -m soe.trainer.main_rl --run-dir "$RUN_DIR"
+# SFT configs train with TRL (main_sft); every other algorithm with verl (main_rl).
+if grep -q '^algorithm: sft' "$RUN_DIR/config.yaml"; then ENTRY=soe.trainer.main_sft; else ENTRY=soe.trainer.main_rl; fi
+run_in_container python -m "$ENTRY" --run-dir "$RUN_DIR"

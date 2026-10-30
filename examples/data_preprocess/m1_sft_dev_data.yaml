@@ -1,0 +1,15 @@
+# M1.8 development SFT data (roadmap D9 (a)): the correct thinking-mode Qwen3.5-4B-Base completions
+# of the M0 format probe, on RL-train problems only (no evaluation problem). Wiring only; never in
+# conclusions. Paths are relative to $SOE_DATA unless marked as repo paths.
+version: dev-m1
+probe: probes/format_Qwen_Qwen3.5-4B-Base/enable_thinking=True.jsonl
+probe_sha256: 6236fcb7419ee25b4c7faebe92846ac96689c7a4c9890cd0ac00aee21b4ea4bd
+# The problem texts the probe was sampled with (RL train v2; 197 of its 200 problems are in v3).
+problems: datasets/soe/v2/rl/train.jsonl
+problems_sha256: 4c4b4a20acc18762f684a24c0f1402f682a7e9edb48be0fc48f48cc0030ffbe8
+suite: soe/trainer/config/eval_suite.yaml  # repo path; its prompt template renders the user turn
+rl_val: datasets/soe/v3.1/rl/val.jsonl  # only to report the overlap with RL's validation split
+output_dir: datasets/soe/dev/sft-m1
+report: docs/reports/m1_sft_dev_data.json  # repo path
+val_problems: 15
+seed: 20261029

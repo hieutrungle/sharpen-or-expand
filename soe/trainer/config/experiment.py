@@ -12,7 +12,7 @@ import re
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Self
+from typing import Literal, Self
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -197,6 +197,17 @@ class DataSpec(FrozenModel):
     val_sha256: str = Field(pattern=SHA256_PATTERN)
 
 
+class SftSpec(FrozenModel):
+    """TRL SFT (M1.8). Examples longer than max_length are dropped, never truncated."""
+
+    n_gpus: int = Field(gt=0)
+    max_length: int = Field(gt=0)  # prompt + completion tokens, turn end included
+    epochs: int = Field(gt=0)
+    batch_size_per_gpu: int = Field(gt=0)
+    gradient_accumulation_steps: int = Field(gt=0)
+    lr_scheduler: Literal["constant_with_warmup", "cosine"]
+
+
 class ExperimentConfig(FrozenModel):
     name: str = Field(pattern=r"^[a-z0-9][a-z0-9._-]*$")  # used in run directory names
     milestone: str = Field(pattern=r"^m\d$")
@@ -216,6 +227,7 @@ class ExperimentConfig(FrozenModel):
     hardware: HardwareSpec | None = None
     dapo: DapoComponents | None = None
     rs_grpo_beta: float | None = Field(default=None, gt=0)
+    sft: SftSpec | None = None
     data: DataSpec
     eval_suite: (
         str  # the frozen suite YAML (soe/trainer/config/eval_suite.yaml), relative to repo root
@@ -241,6 +253,14 @@ class ExperimentConfig(FrozenModel):
             raise ValueError("the dapo block is required for DAPO and forbidden otherwise")
         if (self.algorithm is Algorithm.RS_GRPO) != (self.rs_grpo_beta is not None):
             raise ValueError("rs_grpo_beta is required for RS-GRPO and forbidden otherwise")
+        if (self.algorithm is Algorithm.SFT) != (self.sft is not None):
+            raise ValueError("the sft block is required for SFT and forbidden otherwise")
+        if self.algorithm is Algorithm.SFT:
+            if self.init_checkpoint is not None:
+                raise ValueError("SFT starts from the base model (init_checkpoint must be null)")
+            if self.training_mode is not TrainingMode.LORA_BF16:
+                # Full-BF16 SFT is added with the G0 training mode, before M2 (M1.8 decision).
+                raise ValueError("SFT supports lora_bf16 only so far")
         if self.policy_loss is not None:
             self._check_clip_consistency(self.policy_loss)
         smoke = self.rollout is not None and self.rollout.smoke_max_response_tokens is not None
