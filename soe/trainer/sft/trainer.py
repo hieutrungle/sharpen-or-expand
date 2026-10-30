@@ -102,6 +102,16 @@ class MetricsFile(TrainerCallback):  # type: ignore[misc]
                 f.write(json.dumps({"step": state.global_step, "data": logs}) + "\n")
 
 
+class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
+    """Liger skips the logits only in training mode; in evaluation it would build the full
+    sequence x vocabulary logits (12 GB for one 18K-token example on 2B, job 3223714 OOM). The
+    loss and token accuracy come from Liger's fused kernel in both modes, so logits are never
+    needed."""
+
+    def compute_loss(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+        return super().compute_loss(model, {**inputs, "skip_logits": True}, *args, **kwargs)
+
+
 def datasets(
     config: ExperimentConfig, tokenizer: Tokenizer, data_root: Path
 ) -> tuple[dict[str, Dataset], dict[str, dict[str, int]]]:
@@ -199,6 +209,7 @@ def train(run_dir: Path) -> None:
         completion_only_loss=True,
         logging_steps=1,
         eval_strategy="epoch",
+        prediction_loss_only=True,  # validation loss only; no logits are gathered
         save_strategy="no",  # the merged checkpoint is written below; SFT resume arrives at M2
         report_to=[],
         seed=info.seed,
@@ -208,7 +219,7 @@ def train(run_dir: Path) -> None:
     segment = os.environ.get("SLURM_JOB_ID", "local")
     metrics = run_dir / "metrics" / f"segment-{segment}.jsonl"
     metrics.parent.mkdir(exist_ok=True)
-    trainer = SFTTrainer(
+    trainer = SoeSftTrainer(
         model=model,
         args=args,
         train_dataset=data["train"],

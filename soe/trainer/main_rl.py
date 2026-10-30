@@ -33,7 +33,7 @@ from soe.trainer.rl.segments import (
     merged_metrics,
 )
 from soe.trainer.rl.verl_overrides import LaunchPaths, verl_overrides
-from soe.utils.run import library_versions, read_run_info
+from soe.utils.run import check_gpu_count, library_versions, read_run_info
 from soe.workers.rollout.failures import FAILURES_ENV, read_failures
 
 REWARD_FUNCTION = Path("soe/workers/reward_manager/math_reward.py")
@@ -149,6 +149,9 @@ class LaunchCli(BaseSettings):
         run_dir = self.run_dir.resolve()
         info = read_run_info(run_dir)
         config = load_config(run_dir / "config.yaml")
+        if config.hardware is None:
+            raise ValueError(f"{config.name} is not an RL config")
+        check_gpu_count(config.hardware.n_gpus)
         protocol = rollout_protocol(config, load_suite(Path(config.eval_suite)))
         data_root = Path(os.environ["SOE_DATA"])
         paths = LaunchPaths(

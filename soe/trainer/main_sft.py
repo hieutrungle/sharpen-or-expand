@@ -18,7 +18,7 @@ from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
 from soe.trainer.config.experiment import load_config
 from soe.trainer.rl.segments import SegmentEvent, append_event, read_events
-from soe.utils.run import library_versions
+from soe.utils.run import check_gpu_count, library_versions
 
 
 def worker_command(run_dir: Path, n_gpus: int) -> list[str]:
@@ -49,6 +49,7 @@ class SftLaunchCli(BaseSettings):
             raise ValueError(f"{config.name} is not an SFT config")
         if read_events(run_dir):
             raise RuntimeError(f"{run_dir} was started before; SFT resume is not supported yet")
+        check_gpu_count(config.sft.n_gpus)
         segment = os.environ.get("SLURM_JOB_ID", "local")
         record = partial(
             SegmentEvent,

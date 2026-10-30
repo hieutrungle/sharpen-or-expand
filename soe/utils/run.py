@@ -120,6 +120,20 @@ def create_run(config_path: Path, seed: int, runs_root: Path, repo_root: Path) -
     return run_dir
 
 
+def visible_gpus(nvidia_smi_list: str) -> int:
+    """GPUs in `nvidia-smi -L` output, which Slurm limits to the job's allocation."""
+    return sum(line.startswith("GPU ") for line in nvidia_smi_list.splitlines())
+
+
+def check_gpu_count(configured: int) -> None:
+    """Refuse a job whose allocation differs from the config's GPU count: with more GPUs some sit
+    idle, with fewer verl waits for Ray resources forever or torchrun shares a GPU."""
+    listed = subprocess.run(["nvidia-smi", "-L"], capture_output=True, text=True, check=True)
+    visible = visible_gpus(listed.stdout)
+    if visible != configured:
+        raise RuntimeError(f"the config asks for {configured} GPUs but this job has {visible}")
+
+
 def read_run_info(run_dir: Path) -> RunInfo:
     return RunInfo.model_validate_json((run_dir / "run.json").read_text())
 

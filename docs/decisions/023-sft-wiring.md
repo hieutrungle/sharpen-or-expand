@@ -40,6 +40,12 @@ tokenizer files.
    records the job segment like main_rl and writes DONE. SFT has no resume yet (M2 adds it): a run
    directory that was started before is refused.
 
+6. **Memory.** Liger computes the loss without logits in training mode only; soe passes
+   `skip_logits=True` in every forward, evaluation included, and evaluates with
+   `prediction_loss_only` (the first dev run ran out of memory in validation, job 3223714).
+7. **GPU count.** main_sft (and main_rl) refuse a job whose allocated GPUs (`nvidia-smi -L`)
+   differ from the config's count.
+
 ## Consequences (including what could confound the algorithm comparison)
 
 - Every RL run and DPO starts from a checkpoint in the same layout as the base, so main_eval, verl
