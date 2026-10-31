@@ -1,0 +1,131 @@
+{
+ "plan": {
+  "schema_version": 1,
+  "suite_name": "soe-eval-v3",
+  "suite_file_sha256": "533c205301440c2e5b56119eea79c1d2ffc6d215afd1cc34d561a305aeda7c12",
+  "checkpoint": "/scratch/user/hieult/research/soe-data/checkpoints/20261030-070227-grpo_m1_dev_qwen35-2b-s1-j3223941/step_12/hf",
+  "revision": null,
+  "num_shards": 8,
+  "limit_per_set": null,
+  "only_problems_sha256": "ce6ba8b6a424caff70444dc5006424976a5ef5812d632d3e9e67eea993c3d4f2",
+  "units": 121,
+  "samples": 1936
+ },
+ "scoring": {
+  "git_commit": "2e9884ca8476e28107f5ecc894a27446db30d5f1",
+  "verdicts_changed_from_sampling": 0,
+  "verifier_timeouts": []
+ },
+ "main": {
+  "per_set": {
+   "aime24": {
+    "problems": 23,
+    "pass@1": 0.1902,
+    "maj@1": 0.1304,
+    "pass@4": 0.3689,
+    "maj@4": 0.2609,
+    "pass@8": 0.4693,
+    "maj@8": 0.3478,
+    "pass@16": 0.5652,
+    "maj@16": 0.4783,
+    "truncation_rate": 0.7391,
+    "boxed_rate": 0.3234,
+    "boxed_rate_when_stopped": 1.0,
+    "mean_completion_tokens": 13912.587
+   },
+   "aime25": {
+    "problems": 23,
+    "pass@1": 0.1739,
+    "maj@1": 0.2609,
+    "pass@4": 0.3059,
+    "maj@4": 0.3478,
+    "pass@8": 0.3746,
+    "maj@8": 0.3913,
+    "pass@16": 0.4348,
+    "maj@16": 0.4348,
+    "truncation_rate": 0.7364,
+    "boxed_rate": 0.3152,
+    "boxed_rate_when_stopped": 1.0,
+    "mean_completion_tokens": 13227.4321
+   },
+   "level_b": {
+    "problems": 25,
+    "pass@1": 0.4375,
+    "maj@1": 0.52,
+    "pass@4": 0.7124,
+    "maj@4": 0.64,
+    "pass@8": 0.8313,
+    "maj@8": 0.8,
+    "pass@16": 0.88,
+    "maj@16": 0.76,
+    "truncation_rate": 0.43,
+    "boxed_rate": 0.6175,
+    "boxed_rate_when_stopped": 1.0,
+    "mean_completion_tokens": 9953.25
+   },
+   "math500": {
+    "problems": 25,
+    "pass@1": 0.7775,
+    "maj@1": 0.8,
+    "pass@4": 0.9302,
+    "maj@4": 0.8,
+    "pass@8": 0.9667,
+    "maj@8": 0.8,
+    "pass@16": 1.0,
+    "maj@16": 0.8,
+    "truncation_rate": 0.1425,
+    "boxed_rate": 0.8925,
+    "boxed_rate_when_stopped": 1.0,
+    "mean_completion_tokens": 4371.51
+   },
+   "olympiadbench_en": {
+    "problems": 25,
+    "pass@1": 0.545,
+    "maj@1": 0.56,
+    "pass@4": 0.6788,
+    "maj@4": 0.64,
+    "pass@8": 0.7213,
+    "maj@8": 0.64,
+    "pass@16": 0.76,
+    "maj@16": 0.64,
+    "truncation_rate": 0.3475,
+    "boxed_rate": 0.695,
+    "boxed_rate_when_stopped": 1.0,
+    "mean_completion_tokens": 7576.105
+   }
+  },
+  "per_level": {
+   "A": {
+    "problems": 96,
+    "pass@1": 0.4316,
+    "maj@1": 0.4479,
+    "pass@4": 0.5807,
+    "maj@4": 0.5208,
+    "pass@8": 0.6417,
+    "maj@8": 0.5521,
+    "pass@16": 0.6979,
+    "maj@16": 0.5938,
+    "truncation_rate": 0.4811,
+    "boxed_rate": 0.5664,
+    "boxed_rate_when_stopped": 1.0,
+    "mean_completion_tokens": 9613.6543
+   },
+   "B": {
+    "problems": 25,
+    "pass@1": 0.4375,
+    "maj@1": 0.52,
+    "pass@4": 0.7124,
+    "maj@4": 0.64,
+    "pass@8": 0.8313,
+    "maj@8": 0.8,
+    "pass@16": 0.88,
+    "maj@16": 0.76,
+    "truncation_rate": 0.43,
+    "boxed_rate": 0.6175,
+    "boxed_rate_when_stopped": 1.0,
+    "mean_completion_tokens": 9953.25
+   }
+  }
+ },
+ "hard": null
+}

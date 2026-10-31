@@ -1,0 +1,115 @@
+{
+  "run_dir": "runs/20261030-070227-grpo_m1_dev_qwen35-2b-s1-j3223941",
+  "base": {
+    "eval_dir": "/scratch/user/hieult/research/soe-data/eval/m1.9-dev_qwen35-2b-base",
+    "checkpoint": "Qwen/Qwen3.5-2B-Base"
+  },
+  "only_problems_sha256": "ce6ba8b6a424caff70444dc5006424976a5ef5812d632d3e9e67eea993c3d4f2",
+  "thresholds": {
+    "window_fraction": 0.2,
+    "min_se_multiple": 2.0,
+    "max_pass@1_drop": 0.05,
+    "min_boxed_when_stopped": 0.95,
+    "max_truncation_rise": 0.1
+  },
+  "reward_trend": {
+    "steps": 37,
+    "window_steps": 7,
+    "first_mean": 0.33119419642857145,
+    "last_mean": 0.47739955357142855,
+    "difference": 0.1462053571428571,
+    "se": 0.024952996110838583,
+    "se_multiple": 5.85923055064924,
+    "pass": true
+  },
+  "evaluations": {
+    "/scratch/user/hieult/research/soe-data/eval/m1.9-dev_grpo-s1-step12": {
+      "checkpoint": "/scratch/user/hieult/research/soe-data/checkpoints/20261030-070227-grpo_m1_dev_qwen35-2b-s1-j3223941/step_12/hf",
+      "levels": {
+        "A": {
+          "pass@1_base": 0.4076,
+          "pass@1": 0.4316,
+          "pass@1_change": 0.023999999999999966,
+          "boxed_rate_when_stopped": 1.0,
+          "truncation_rate_base": 0.5111,
+          "truncation_rate": 0.4811,
+          "truncation_change": -0.02999999999999997,
+          "pass@1_ok": true,
+          "boxed_ok": true,
+          "truncation_ok": true
+        },
+        "B": {
+          "pass@1_base": 0.395,
+          "pass@1": 0.4375,
+          "pass@1_change": 0.04249999999999998,
+          "boxed_rate_when_stopped": 1.0,
+          "truncation_rate_base": 0.5075,
+          "truncation_rate": 0.43,
+          "truncation_change": -0.07749999999999996,
+          "pass@1_ok": true,
+          "boxed_ok": true,
+          "truncation_ok": true
+        }
+      }
+    },
+    "/scratch/user/hieult/research/soe-data/eval/m1.9-dev_grpo-s1-step24": {
+      "checkpoint": "/scratch/user/hieult/research/soe-data/checkpoints/20261030-070227-grpo_m1_dev_qwen35-2b-s1-j3223941/step_24/hf",
+      "levels": {
+        "A": {
+          "pass@1_base": 0.4076,
+          "pass@1": 0.4792,
+          "pass@1_change": 0.0716,
+          "boxed_rate_when_stopped": 1.0,
+          "truncation_rate_base": 0.5111,
+          "truncation_rate": 0.4342,
+          "truncation_change": -0.07690000000000002,
+          "pass@1_ok": true,
+          "boxed_ok": true,
+          "truncation_ok": true
+        },
+        "B": {
+          "pass@1_base": 0.395,
+          "pass@1": 0.515,
+          "pass@1_change": 0.12,
+          "boxed_rate_when_stopped": 1.0,
+          "truncation_rate_base": 0.5075,
+          "truncation_rate": 0.37,
+          "truncation_change": -0.13749999999999996,
+          "pass@1_ok": true,
+          "boxed_ok": true,
+          "truncation_ok": true
+        }
+      }
+    },
+    "/scratch/user/hieult/research/soe-data/eval/m1.9-dev_grpo-s1-step37": {
+      "checkpoint": "/scratch/user/hieult/research/soe-data/checkpoints/20261030-070227-grpo_m1_dev_qwen35-2b-s1-j3223941/step_37/hf",
+      "levels": {
+        "A": {
+          "pass@1_base": 0.4076,
+          "pass@1": 0.5273,
+          "pass@1_change": 0.11969999999999997,
+          "boxed_rate_when_stopped": 1.0,
+          "truncation_rate_base": 0.5111,
+          "truncation_rate": 0.3737,
+          "truncation_change": -0.13740000000000002,
+          "pass@1_ok": true,
+          "boxed_ok": true,
+          "truncation_ok": true
+        },
+        "B": {
+          "pass@1_base": 0.395,
+          "pass@1": 0.585,
+          "pass@1_change": 0.18999999999999995,
+          "boxed_rate_when_stopped": 1.0,
+          "truncation_rate_base": 0.5075,
+          "truncation_rate": 0.2575,
+          "truncation_change": -0.24999999999999994,
+          "pass@1_ok": true,
+          "boxed_ok": true,
+          "truncation_ok": true
+        }
+      }
+    }
+  },
+  "pass": true
+}

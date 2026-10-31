@@ -1,0 +1,64 @@
+{
+ "after": "/scratch/user/hieult/research/soe-data/eval/m1.9-dev_grpo-s1-step37",
+ "before": "/scratch/user/hieult/research/soe-data/eval/m1.9-dev_qwen35-2b-base",
+ "efficiency": {
+  "newly_solved_heldout": {
+   "1": 8,
+   "16": 2
+  },
+  "newly_solved_heldout_per_million_rollout_tokens": {
+   "1": 0.03774983465808356,
+   "16": 0.00943745866452089
+  },
+  "rollout_tokens": 211921458,
+  "step": 37
+ },
+ "hard": {
+  "1": {
+   "solved_to_lost": 0,
+   "solved_to_solved": 0,
+   "unsolved_to_solved": 0,
+   "unsolved_to_unsolved": 0
+  },
+  "64": {
+   "solved_to_lost": 0,
+   "solved_to_solved": 0,
+   "unsolved_to_solved": 0,
+   "unsolved_to_unsolved": 0
+  },
+  "problems": 0
+ },
+ "main": {
+  "A": {
+   "1": {
+    "solved_to_lost": 1,
+    "solved_to_solved": 39,
+    "unsolved_to_solved": 12,
+    "unsolved_to_unsolved": 44
+   },
+   "16": {
+    "solved_to_lost": 0,
+    "solved_to_solved": 63,
+    "unsolved_to_solved": 9,
+    "unsolved_to_unsolved": 24
+   },
+   "problems": 96
+  },
+  "B": {
+   "1": {
+    "solved_to_lost": 0,
+    "solved_to_solved": 10,
+    "unsolved_to_solved": 8,
+    "unsolved_to_unsolved": 7
+   },
+   "16": {
+    "solved_to_lost": 0,
+    "solved_to_solved": 21,
+    "unsolved_to_solved": 2,
+    "unsolved_to_unsolved": 2
+   },
+   "problems": 25
+  }
+ },
+ "threshold": 0.5
+}

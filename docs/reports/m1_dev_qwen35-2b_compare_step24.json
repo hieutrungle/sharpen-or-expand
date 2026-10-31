@@ -1,0 +1,68 @@
+{
+ "a": "/scratch/user/hieult/research/soe-data/eval/m1.9-dev_qwen35-2b-base",
+ "b": "/scratch/user/hieult/research/soe-data/eval/m1.9-dev_grpo-s1-step24",
+ "problems_in_one_run_only": {
+  "a": 0,
+  "b": 0
+ },
+ "level A": {
+  "pass@1": {
+   "a": 0.4075520833333333,
+   "b": 0.4791666666666667,
+   "diff": 0.07161458333333333,
+   "se": 0.013602023680317826,
+   "problems": 96
+  },
+  "pass@16": {
+   "a": 0.65625,
+   "b": 0.7395833333333334,
+   "diff": 0.08333333333333333,
+   "se": 0.03199049566457977,
+   "problems": 96
+  },
+  "truncation_rate": {
+   "a": 0.5110677083333334,
+   "b": 0.4342447916666667,
+   "diff": -0.07682291666666667,
+   "se": 0.01585572973799971,
+   "problems": 96
+  },
+  "mean_completion_tokens": {
+   "a": 10074.402994791666,
+   "b": 9450.072916666666,
+   "diff": -624.330078125,
+   "se": 158.69198413529227,
+   "problems": 96
+  }
+ },
+ "level B": {
+  "pass@1": {
+   "a": 0.395,
+   "b": 0.515,
+   "diff": 0.12,
+   "se": 0.035340604597733374,
+   "problems": 25
+  },
+  "pass@16": {
+   "a": 0.84,
+   "b": 0.88,
+   "diff": 0.04,
+   "se": 0.04,
+   "problems": 25
+  },
+  "truncation_rate": {
+   "a": 0.5075,
+   "b": 0.37,
+   "diff": -0.1375,
+   "se": 0.029536347664078803,
+   "problems": 25
+  },
+  "mean_completion_tokens": {
+   "a": 11100.45,
+   "b": 9730.185,
+   "diff": -1370.265,
+   "se": 262.15532786522766,
+   "problems": 25
+  }
+ }
+}
