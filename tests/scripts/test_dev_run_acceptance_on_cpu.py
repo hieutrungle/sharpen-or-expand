@@ -70,3 +70,19 @@ def test_acceptance_rejects_a_different_problem_list(tmp_path: Path) -> None:
         (tmp_path / name / "report.json").write_text(json.dumps(report(levels, sha)))
     with pytest.raises(ValueError, match="different problem list"):
         acceptance(run, tmp_path / "base", [tmp_path / "ck"])
+
+
+def test_cli_takes_one_checkpoints_flag_per_evaluation(tmp_path: Path) -> None:
+    run = tmp_path / "run"
+    run.mkdir()
+    lines = [{"step": s, "data": {"soe/reward/mean": 0.1 * s}} for s in range(1, 11)]
+    (run / "rollout_metrics.jsonl").write_text("".join(json.dumps(x) + "\n" for x in lines))
+    for name in ("base", "a", "b"):
+        (tmp_path / name).mkdir()
+        levels = {"A": level(0.4, 0.5)}
+        (tmp_path / name / "report.json").write_text(json.dumps(report(levels)))
+    out = tmp_path / "out.json"
+    args = ["--run-dir", str(run), "--base", str(tmp_path / "base"), "--out", str(out)]
+    args += ["--checkpoints", str(tmp_path / "a"), "--checkpoints", str(tmp_path / "b")]
+    _module.CliApp.run(_module.DevRunAcceptanceCli, cli_args=args)
+    assert len(json.loads(out.read_text())["evaluations"]) == 2

@@ -1,7 +1,7 @@
 """M1.9 acceptance: the four tests declared in docs/roadmap/M1.md before the dev run started.
 
     python scripts/dev_run_acceptance.py --run-dir runs/<id> --base $SOE_DATA/eval/<base> \\
-        --checkpoints $SOE_DATA/eval/<step a> $SOE_DATA/eval/<step b> ... \\
+        --checkpoints $SOE_DATA/eval/<step a> --checkpoints $SOE_DATA/eval/<step b> ... \\
         --out docs/reports/m1_dev_qwen35-2b_acceptance.json
 
 1. Training reward: the mean of the per-step reward means over the last 20% of steps exceeds the
