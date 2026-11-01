@@ -187,6 +187,9 @@ class LaunchCli(BaseSettings):
             OUTCOMES_ENV: str(outcomes),
             RUN_DIR_ENV: str(run_dir),
             PHASE_MEMORY_ENV: str(phase_memory),
+            # Ray merges log lines that differ only in numbers across processes; vLLM's per-replica
+            # KV-cache usage and preemption lines must all reach the log (M1.10).
+            "RAY_DEDUP_LOGS": "0",
         }
         resumed_from = latest_checkpoint_step(run_dir / "checkpoints")
         started = datetime.now(UTC)

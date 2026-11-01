@@ -41,7 +41,9 @@ torch's allocator. Its log-prob pass also builds each micro-batch's full logits 
    MemTotal − MemAvailable every 2 s (`runs/<id>/{gpu_memory,host_memory}/`); the report takes each
    phase's nvidia-smi peak inside rank 0's mark windows. Every run gets both, and its own copy of
    the job log (`runs/<id>/logs/`), from which vLLM's KV-cache size, maximum concurrency, usage and
-   preemptions are parsed; vLLM's stats logging is therefore on in every run.
+   preemptions are parsed. vLLM's stats logging is therefore on in every run, at INFO level (verl's
+   Ray runtime env sets WARN), and Ray's log deduplication is off (`RAY_DEDUP_LOGS=0`): it merges
+   lines that differ only in their numbers, so replicas' stats lines would be lost.
 4. **Fused log-prob.** `hardware.fused_log_prob` sets verl's `use_fused_kernels` (torch backend). It
    is on in every M1.10 cell, as the roadmap's fixed "fused/chunked log-prob" intends, and off by
    default so earlier configs load unchanged. G0 decides whether it becomes the default.
