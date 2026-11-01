@@ -17,7 +17,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-gpu=15
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=16:00:00
+#SBATCH --time=24:00:00
 #SBATCH --output=logs/slurm/%x-%j.out
 
 set -euo pipefail
@@ -25,7 +25,9 @@ CELL="${1:?usage: sbatch slurm/memory_probe.sbatch <cell.yaml> <tp,tp> <gmu,gmu,
 TPS="${2:?tp list, e.g. 1,2}"
 GMUS="${3:?gpu_memory_utilization list, highest first, e.g. 0.7,0.6,0.5,0.4}"
 SEED=20261029  # every M1.10 cell trains on the same seeded prompts (docs/roadmap/M1.md)
-PROBE_TIMEOUT=150m  # two 4B steps take ~1.5 h with start-up and the save; a hang must not eat the job
+# Two 4B steps are not timed yet (2-2.7 h estimated with start-up, validation and the save); a
+# vLLM engine death now stops a probe at once (main_rl), so this only catches other hangs.
+PROBE_TIMEOUT=240m
 source slurm/common.sh
 
 summary="logs/slurm/memory-probe-$SLURM_JOB_ID.tsv"

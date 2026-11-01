@@ -34,7 +34,7 @@ from soe.trainer.rl.segments import (
 )
 from soe.trainer.rl.verl_overrides import LaunchPaths, verl_overrides
 from soe.utils.run import check_gpu_count, library_versions, read_run_info
-from soe.workers.rollout.failures import FAILURES_ENV, read_failures
+from soe.workers.rollout.failures import FAILURES_ENV, fatal_engine_lines, read_failures
 from soe.workers.rollout.phase_memory import PHASE_MEMORY_DIR, PHASE_MEMORY_ENV
 
 REWARD_FUNCTION = Path("soe/workers/reward_manager/math_reward.py")
@@ -77,20 +77,35 @@ class RolloutFailure(RuntimeError):
     pass
 
 
+def _stop(proc: subprocess.Popen[bytes]) -> None:
+    proc.terminate()
+    try:
+        proc.wait(timeout=120)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+
+
 def run_until_failure(
-    cmd: list[str], env: dict[str, str], failures: Path, poll_seconds: float = 30.0
+    cmd: list[str],
+    env: dict[str, str],
+    failures: Path,
+    poll_seconds: float = 30.0,
+    job_log: Path | None = None,
 ) -> None:
-    """Run the trainer; stop it and raise at the first recorded rollout failure."""
+    """Run the trainer; stop it and raise at the first recorded rollout failure, or at the first
+    vLLM fatal-error line in `job_log` (the job's output, which train.sbatch copies there)."""
+    offset = job_log.stat().st_size if job_log is not None and job_log.exists() else 0
     with subprocess.Popen(cmd, env=env) as proc:
         while proc.poll() is None:
             time.sleep(poll_seconds)
             if found := read_failures(failures):
-                proc.terminate()
-                try:
-                    proc.wait(timeout=120)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
+                _stop(proc)
                 raise RolloutFailure(f"{len(found)} rollout failure(s) in {failures}: {found[0]}")
+            if job_log is not None:
+                fatal, offset = fatal_engine_lines(job_log, offset)
+                if fatal:
+                    _stop(proc)
+                    raise RolloutFailure(f"vLLM engine died ({job_log}): {fatal[0][-500:]}")
     if found := read_failures(failures):  # recorded during the last poll interval
         raise RolloutFailure(f"{len(found)} rollout failure(s) in {failures}: {found[0]}")
     if proc.returncode != 0:
@@ -215,7 +230,10 @@ class LaunchCli(BaseSettings):
         this_job = segment_overrides(overrides, resumed_from, read_stop_step(run_dir))
         try:
             run_until_failure(
-                [sys.executable, "-m", "verl.trainer.main_ppo", *this_job], env, failures
+                [sys.executable, "-m", "verl.trainer.main_ppo", *this_job],
+                env,
+                failures,
+                job_log=run_dir / "logs" / f"segment-{segment}.log",  # train.sbatch's copy
             )
             export_missing(run_dir, data_root, info.run_id)
             # Shards kept at a save because their export was still running.

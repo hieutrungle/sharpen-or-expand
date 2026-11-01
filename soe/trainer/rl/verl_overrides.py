@@ -130,6 +130,10 @@ def verl_overrides(
         # vLLM's periodic stats (KV-cache usage, preemptions) in the job log, for M1.10's headroom
         "actor_rollout_ref.rollout.disable_log_stats=false",
         "actor_rollout_ref.rollout.calculate_log_probs=true",  # rollout/trainer log-prob gap
+        # Weight-sync buffer above the largest tensor: 4B's FP32 embedding is 2,425 MiB. verl 0.9.1
+        # sends a tensor larger than the buffer through a CUDA-IPC path that crashes on the CPU
+        # tensors of LoRA's base sync (M1.10 probes, IndexError in rebuild_ipc; decision 024).
+        "actor_rollout_ref.rollout.checkpoint_engine.update_weights_bucket_megabytes=4096",
         "actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=true",
         f"actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu={hardware.max_token_len_per_gpu}",
         f"{vllm}.kv_cache_dtype={protocol.kv_cache_dtype}",

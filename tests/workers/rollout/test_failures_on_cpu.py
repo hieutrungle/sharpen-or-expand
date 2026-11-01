@@ -35,3 +35,18 @@ def test_cancellation_and_unset_env_record_nothing(
     with pytest.raises(ValueError), failures_recorded("reward"):
         raise ValueError("outside a launch")
     assert not path.exists()
+
+
+def test_fatal_engine_lines_reads_only_new_whole_lines(tmp_path: Path) -> None:
+    from soe.workers.rollout.failures import fatal_engine_lines
+
+    log = tmp_path / "job.log"
+    log.write_text("INFO ok\nERROR Worker failed with error 'x'\nERROR EngineDead")
+    lines, offset = fatal_engine_lines(log, 0)
+    assert lines == ["ERROR Worker failed with error 'x'"]  # the unfinished line waits
+    with log.open("a") as f:
+        f.write("Error: boom\n")
+    lines, offset = fatal_engine_lines(log, offset)
+    assert lines == ["ERROR EngineDeadError: boom"]
+    assert fatal_engine_lines(log, offset) == ([], offset)
+    assert fatal_engine_lines(tmp_path / "missing.log", 5) == ([], 5)

@@ -51,6 +51,15 @@ torch's allocator. Its log-prob pass also builds each micro-batch's full logits 
    "one optimizer step per rollout batch": memory per micro-batch is the same, and the timings are
    then the ones M1.11 and the real runs need.
 
+6. **Weight-sync buffer and engine death** (after the first B-L probe job, 3228015). verl 0.9.1
+   copies weights to vLLM through a 2,048 MiB buffer and sends a larger tensor by CUDA IPC, a path
+   that crashes (`IndexError` in `rebuild_ipc`) on the CPU tensors of LoRA's first, base-weight
+   sync. 4B's FP32 embedding is 248,320 × 2,560 × 4 bytes = 2,425 MiB (2B's, 1,940 MiB, fits, so no
+   2B run hit it). Every RL run now uses a 4,096 MiB buffer, a temporary GPU buffer during weight
+   sync while vLLM's KV cache is freed. verl then waited forever for the dead engine; main_rl now
+   stops the run at vLLM's first fatal-error line in the job log, and a probe's timeout is 4 h.
+   Cost: four B-L probes × 150 min on fc098 with nothing measured.
+
 ## Consequences
 
 - About 3–4 probes per cell instead of 8; a two-step 4B probe takes about 1.5 h when it fits and
