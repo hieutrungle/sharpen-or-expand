@@ -1,10 +1,15 @@
-"""The vision-tower freeze (decision 019) on verl 0.9.1's real FSDPEngine class. Container only."""
+"""verl 0.9.1 worker patches on the real classes: the vision-tower freeze (decision 019) on
+FSDPEngine, and the phase-memory marks on ActorRolloutRefWorker (M1.10). Container only."""
+
+import inspect
 
 import torch
 from torch import nn
+from verl.single_controller.base.decorator import MAGIC_ATTR
+from verl.workers import engine_workers
 from verl.workers.engine.fsdp import transformer_impl
 
-from soe.workers.rollout import verl_patches
+from soe.workers.rollout import phase_memory, verl_patches
 
 
 class Tiny(nn.Module):
@@ -40,3 +45,21 @@ def test_install_freezes_only_the_vision_tower_before_fsdp() -> None:
         assert stateful == {"model.language_model.weight", "model.language_model.bias"}
     finally:
         engine._build_fsdp_module = real
+
+
+def test_install_wraps_the_worker_phases_and_keeps_their_dispatch() -> None:
+    worker = engine_workers.ActorRolloutRefWorker
+    real = {name: worker.__dict__[name] for name in phase_memory.WRAPPED_METHODS}
+    try:
+        verl_patches.install()
+        verl_patches.install()  # idempotent: wrapped once
+        for name, original in real.items():
+            method = worker.__dict__[name]
+            assert method.soe_phase_memory
+            assert method.__wrapped__ is original
+            assert getattr(method, MAGIC_ATTR) == getattr(original, MAGIC_ATTR)
+            assert inspect.iscoroutinefunction(method) == inspect.iscoroutinefunction(original)
+        assert inspect.iscoroutinefunction(worker.update_weights)
+    finally:
+        for name, original in real.items():
+            setattr(worker, name, original)

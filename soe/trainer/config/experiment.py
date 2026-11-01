@@ -180,6 +180,9 @@ class HardwareSpec(FrozenModel):
     param_offload: bool
     optimizer_offload: bool
     max_token_len_per_gpu: int = Field(gt=0)
+    # verl's fused log-prob/entropy forward (use_fused_kernels): never materialises a micro-batch's
+    # logits (max_token_len_per_gpu x 248K vocabulary). Default off keeps earlier runs' configs.
+    fused_log_prob: bool = False
 
     @model_validator(mode="after")
     def _check(self) -> Self:

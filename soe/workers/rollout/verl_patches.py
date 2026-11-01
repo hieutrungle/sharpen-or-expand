@@ -14,6 +14,9 @@ registers an import hook; when verl itself imports its FSDP engine module, `patc
 `requires_grad=False` on every vision-tower parameter. Torch's optimizer then never creates state
 for them, and the export (decision 018) checks that they stayed equal to the base.
 
+The same hook also wraps three methods of verl's actor worker (`patch_workers`) to record the peak
+GPU memory of each training phase (`phase_memory.py`, M1.10).
+
 It sits with the other verl worker patch (`vllm_patches.py`), though it patches the actor's engine.
 CPU-importable; the patch itself runs only in the GPU image.
 """
@@ -21,12 +24,16 @@ CPU-importable; the patch itself runs only in the GPU image.
 import importlib.abc
 import importlib.machinery
 import sys
+from collections.abc import Callable
 from types import ModuleType
 from typing import Any
+
+from soe.workers.rollout.phase_memory import WRAPPED_METHODS, wrap
 
 PATCHED_VERL = "0.9.1"  # re-check that freeze_vision_tower is still unimplemented on upgrade
 HOOK = "soe.workers.rollout.verl_patches.install"
 ENGINE_MODULE = "verl.workers.engine.fsdp.transformer_impl"
+WORKERS_MODULE = "verl.workers.engine_workers"
 _VISION_PREFIXES = ("model.visual.", "base_model.model.model.visual.")
 
 
@@ -35,10 +42,11 @@ def is_vision_parameter(name: str) -> bool:
 
 
 class _PatchAfterImport(importlib.abc.MetaPathFinder):
-    """Finds ENGINE_MODULE with the normal finders, then patches it right after it executes."""
+    """Finds a patched module with the normal finders, then patches it right after it executes."""
 
     def find_spec(self, fullname: str, path: Any, target: Any = None) -> Any:
-        if fullname != ENGINE_MODULE:
+        patch = _patches().get(fullname)
+        if patch is None:
             return None
         spec = importlib.machinery.PathFinder.find_spec(fullname, path)
         if spec is None or spec.loader is None:
@@ -48,25 +56,43 @@ class _PatchAfterImport(importlib.abc.MetaPathFinder):
 
         def exec_module(module: ModuleType) -> None:
             execute(module)
-            patch_engine(module)
+            patch(module)
 
         loader.exec_module = exec_module  # type: ignore[method-assign]
         return spec
 
 
+def _patches() -> dict[str, Callable[[ModuleType], None]]:
+    return {ENGINE_MODULE: patch_engine, WORKERS_MODULE: patch_workers}
+
+
 def install() -> None:
-    """Ray worker setup hook: patch the engine now if verl loaded it already, else on import."""
-    if ENGINE_MODULE in sys.modules:
-        patch_engine(sys.modules[ENGINE_MODULE])
-    elif not any(isinstance(f, _PatchAfterImport) for f in sys.meta_path):
+    """Ray worker setup hook: patch modules verl loaded already, the others on import."""
+    for name, patch in _patches().items():
+        if name in sys.modules:
+            patch(sys.modules[name])
+    if not any(isinstance(f, _PatchAfterImport) for f in sys.meta_path):
         sys.meta_path.insert(0, _PatchAfterImport())
 
 
-def patch_engine(transformer_impl: ModuleType) -> None:
+def _check_verl_version() -> None:
     import verl
 
     if verl.__version__ != PATCHED_VERL:
         raise RuntimeError(f"verl_patches targets verl {PATCHED_VERL}, found {verl.__version__}")
+
+
+def patch_workers(engine_workers: ModuleType) -> None:
+    _check_verl_version()
+    worker = engine_workers.ActorRolloutRefWorker
+    for name in WRAPPED_METHODS:
+        method = getattr(worker, name)
+        if not getattr(method, "soe_phase_memory", False):
+            setattr(worker, name, wrap(method, name))
+
+
+def patch_engine(transformer_impl: ModuleType) -> None:
+    _check_verl_version()
     engine = transformer_impl.FSDPEngine
     original = engine._build_fsdp_module
     if getattr(original, "soe_freezes_vision", False):

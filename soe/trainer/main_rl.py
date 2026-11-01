@@ -35,6 +35,7 @@ from soe.trainer.rl.segments import (
 from soe.trainer.rl.verl_overrides import LaunchPaths, verl_overrides
 from soe.utils.run import check_gpu_count, library_versions, read_run_info
 from soe.workers.rollout.failures import FAILURES_ENV, read_failures
+from soe.workers.rollout.phase_memory import PHASE_MEMORY_DIR, PHASE_MEMORY_ENV
 
 REWARD_FUNCTION = Path("soe/workers/reward_manager/math_reward.py")
 AGENT_LOOPS = Path("soe/workers/rollout/agent_loops.yaml")
@@ -177,12 +178,15 @@ class LaunchCli(BaseSettings):
         tokens.parent.mkdir(exist_ok=True)
         outcomes = run_dir / OUTCOMES_DIR / f"segment-{segment}.jsonl"
         outcomes.parent.mkdir(exist_ok=True)
+        phase_memory = run_dir / PHASE_MEMORY_DIR
+        phase_memory.mkdir(exist_ok=True)
         env = os.environ | {
             "VERL_FILE_LOGGER_PATH": str(metrics),
             FAILURES_ENV: str(failures),
             TOKENS_ENV: str(tokens),
             OUTCOMES_ENV: str(outcomes),
             RUN_DIR_ENV: str(run_dir),
+            PHASE_MEMORY_ENV: str(phase_memory),
         }
         resumed_from = latest_checkpoint_step(run_dir / "checkpoints")
         started = datetime.now(UTC)

@@ -51,4 +51,7 @@ fi
 chain_next_job slurm/train.sbatch "$CONFIG"
 # SFT configs train with TRL (main_sft); every other algorithm with verl (main_rl).
 if grep -q '^algorithm: sft' "$RUN_DIR/config.yaml"; then ENTRY=soe.trainer.main_sft; else ENTRY=soe.trainer.main_rl; fi
-run_in_container python -m "$ENTRY" --run-dir "$RUN_DIR"
+start_monitors "$RUN_DIR"
+# The run's own copy of the job output: vLLM's KV-cache lines are parsed from it (M1.10).
+mkdir -p "$RUN_DIR/logs"
+run_in_container python -m "$ENTRY" --run-dir "$RUN_DIR" 2>&1 | tee -a "$RUN_DIR/logs/segment-${SLURM_JOB_ID:-local}.log"

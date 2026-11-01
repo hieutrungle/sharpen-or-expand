@@ -90,6 +90,7 @@ def verl_overrides(
         f"actor_rollout_ref.model.path={paths.model}",
         "actor_rollout_ref.model.use_remove_padding=true",
         "actor_rollout_ref.model.enable_gradient_checkpointing=true",
+        f"actor_rollout_ref.model.use_fused_kernels={_flag(hardware.fused_log_prob)}",
         # actor: updates_per_step optimizer steps per rollout batch (decision 022)
         "actor_rollout_ref.actor.strategy=fsdp2",
         "actor_rollout_ref.actor.ppo_mini_batch_size="
@@ -126,6 +127,8 @@ def verl_overrides(
         f"actor_rollout_ref.rollout.max_model_len={prompt_tokens + response_tokens}",
         f"actor_rollout_ref.rollout.tensor_model_parallel_size={hardware.rollout_tensor_parallel}",
         f"actor_rollout_ref.rollout.gpu_memory_utilization={hardware.gpu_memory_utilization}",
+        # vLLM's periodic stats (KV-cache usage, preemptions) in the job log, for M1.10's headroom
+        "actor_rollout_ref.rollout.disable_log_stats=false",
         "actor_rollout_ref.rollout.calculate_log_probs=true",  # rollout/trainer log-prob gap
         "actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=true",
         f"actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu={hardware.max_token_len_per_gpu}",

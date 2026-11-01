@@ -105,3 +105,25 @@ def test_hydra_string_keeps_backslashes_and_refuses_quotes() -> None:
     assert hydra_string(r"(model\.visual|mtp)\..*") == r"'(model\.visual|mtp)\..*'"
     with pytest.raises(ValueError):
         hydra_string("it's")
+
+
+def test_fused_log_prob_reaches_verl_and_stats_logging_is_on() -> None:
+    fused = overrides_for(smoke_with(hardware={"fused_log_prob": True}))
+    assert "actor_rollout_ref.model.use_fused_kernels=true" in fused
+    plain = overrides_for(load_config(SMOKE))
+    assert "actor_rollout_ref.model.use_fused_kernels=false" in plain
+    assert "actor_rollout_ref.rollout.disable_log_stats=false" in plain  # M1.10 KV-cache lines
+
+
+def test_memory_study_cells_differ_only_in_mode_lora_and_learning_rate() -> None:
+    cells = [
+        yaml.safe_load(Path(f"examples/grpo_trainer/m1_memory_{c}_qwen35-4b.yaml").read_text())
+        for c in ("bf0", "bl")
+    ]
+    for cell in cells:
+        ExperimentConfig.model_validate(cell)
+    differ = {k for k in cells[0].keys() | cells[1].keys() if cells[0].get(k) != cells[1].get(k)}
+    assert differ == {"name", "training_mode", "lora", "optim"}
+    assert {k for k in cells[0]["optim"] if cells[0]["optim"][k] != cells[1]["optim"][k]} == {
+        "learning_rate"
+    }

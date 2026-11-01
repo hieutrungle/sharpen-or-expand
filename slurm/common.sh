@@ -27,7 +27,33 @@ export RAY_TMPDIR="/tmp/ray-${SLURM_JOB_ID:-local}"
 # (M1.5 job 3222908, "CUDA error: invalid argument"). Removed when the job ends.
 SOE_JOB_TMP="/tmp/soe-job-${SLURM_JOB_ID:-local-$$}"
 mkdir -p "$SOE_JOB_TMP"
-trap 'rm -rf -- "$SOE_JOB_TMP"' EXIT
+MONITOR_PIDS=""
+stop_monitors() {
+    if [[ -n "$MONITOR_PIDS" ]]; then
+        # shellcheck disable=SC2086
+        kill $MONITOR_PIDS 2>/dev/null || true
+    fi
+}
+trap 'stop_monitors; rm -rf -- "$SOE_JOB_TMP"' EXIT
+
+# GPU and host memory every 2 s, outside the container, until the job script exits (M1.10).
+# nvidia-smi sees vLLM, NCCL and CUDA-graph memory that torch's counters miss; /proc/meminfo is the
+# whole node's RAM. Every line starts with a UTC time, the clock of the phase-memory marks.
+# Usage: start_monitors <run dir>
+start_monitors() {
+    local dir="$1" segment="${SLURM_JOB_ID:-local}"
+    mkdir -p "$dir/gpu_memory" "$dir/host_memory"
+    nvidia-smi --query-gpu=index,memory.used,memory.total,utilization.gpu \
+        --format=csv,noheader,nounits -l 2 |
+        while read -r line; do echo "$(date -u +%FT%T.%3NZ),$line"; done \
+            >> "$dir/gpu_memory/segment-$segment.csv" &
+    MONITOR_PIDS="$!"
+    while true; do
+        echo "$(date -u +%FT%T.%3NZ),$(awk '/^MemTotal|^MemAvailable/ {print $2}' /proc/meminfo | paste -sd,)"
+        sleep 2
+    done >> "$dir/host_memory/segment-$segment.csv" &
+    MONITOR_PIDS="$MONITOR_PIDS $!"
+}
 
 # Run cards record the commit, so the commit must describe the code that actually runs.
 if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
