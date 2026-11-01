@@ -169,6 +169,8 @@ def verl_overrides(
         f"trainer.default_local_dir={paths.checkpoints}",
         # Freeze the vision tower in verl's actor; verl 0.9.1 ignores freeze_vision_tower (019)
         f"+ray_kwargs.ray_init.runtime_env.worker_process_setup_hook={VISION_FREEZE_HOOK}",
+        # verl's runtime env sets WARN, which hides vLLM's KV-cache size and stats lines (M1.10)
+        "+ray_kwargs.ray_init.runtime_env.env_vars.VLLM_LOGGING_LEVEL=INFO",
         # Manifest entry and HF export after each save (decision 018)
         "trainer.checkpoint_callback_class=soe.trainer.rl.checkpoint_callback.SoeCheckpointCallback",
         # Every rollout's text and reward, for re-scoring and behaviour metrics (~4 bytes/token).

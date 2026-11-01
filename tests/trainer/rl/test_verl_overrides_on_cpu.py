@@ -113,6 +113,7 @@ def test_fused_log_prob_reaches_verl_and_stats_logging_is_on() -> None:
     plain = overrides_for(load_config(SMOKE))
     assert "actor_rollout_ref.model.use_fused_kernels=false" in plain
     assert "actor_rollout_ref.rollout.disable_log_stats=false" in plain  # M1.10 KV-cache lines
+    assert "+ray_kwargs.ray_init.runtime_env.env_vars.VLLM_LOGGING_LEVEL=INFO" in plain
 
 
 def test_memory_study_cells_differ_only_in_mode_lora_and_learning_rate() -> None:

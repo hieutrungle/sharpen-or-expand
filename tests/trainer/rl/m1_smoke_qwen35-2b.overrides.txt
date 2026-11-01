@@ -72,6 +72,7 @@ trainer.experiment_name=r
 trainer.logger=[console,file]
 trainer.default_local_dir=/runs/r/checkpoints
 +ray_kwargs.ray_init.runtime_env.worker_process_setup_hook=soe.workers.rollout.verl_patches.install
++ray_kwargs.ray_init.runtime_env.env_vars.VLLM_LOGGING_LEVEL=INFO
 trainer.checkpoint_callback_class=soe.trainer.rl.checkpoint_callback.SoeCheckpointCallback
 trainer.rollout_data_dir=/runs/r/generations/train
 trainer.validation_data_dir=/runs/r/generations/val
