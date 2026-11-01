@@ -11,9 +11,10 @@ rollout tokens/s (response tokens / timing_s/gen), training tokens/s ((prompt + 
 phase and GPU: torch peaks (phase_memory marks, soe/workers/rollout/phase_memory.py) and the
 nvidia-smi peak inside the phase's window (sidecar, slurm/common.sh); the host RAM peak; vLLM's KV
 cache size, maximum concurrency, peak KV-cache usage and preemptions from the run's log.
-Measured cells report steps 2-5 as mean and standard deviation (step 1 warms up); a probe has one
-step. For each cell, the fastest probe that finished is the chosen setting, and grid points below a
-finished probe's gpu_memory_utilization at the same TP are "not run, dominated" (user, 2026-10-31).
+Measured cells report steps 2-5 as mean and standard deviation (step 1 warms up); a probe reports
+its last step, the first with AdamW's state resident (scripts/memory_probe_config.py). For each
+cell, the fastest probe that finished is the chosen setting, and grid points below a finished
+probe's gpu_memory_utilization at the same TP are "not run, dominated" (user, 2026-10-31).
 """
 
 import csv
@@ -229,7 +230,8 @@ def run_report(run_dir: Path) -> dict[str, Any]:
     marks = read_marks(run_dir)
     windows = phase_windows(marks)
     done = (run_dir / "DONE").exists()
-    steps = {1} if probe else set(MEASURED_STEPS)
+    logged = sorted(s for s in metrics if s >= 1)
+    steps = ({logged[-1]} if logged else set()) if probe else set(MEASURED_STEPS)
     rates = {s: r for s, r in step_rates(config, metrics, tokens).items() if s in steps}
     starts = [e for e in read_events(run_dir) if e.event == "start"]
     replicas = hardware.n_gpus // hardware.rollout_tensor_parallel
@@ -284,10 +286,15 @@ def run_report(run_dir: Path) -> dict[str, Any]:
     return report
 
 
+def probe_speed(run: dict[str, Any]) -> float:
+    (step,) = run["steps"].values()  # a probe reports only its last step
+    return float(step["rollout_tokens_per_s"])
+
+
 def cell_report(name: str, runs: list[dict[str, Any]]) -> dict[str, Any]:
     probes = [r for r in runs if r["kind"] == "probe"]
     fits = [p for p in probes if p["finished"] and p["steps"]]
-    chosen = max(fits, key=lambda p: p["steps"][1]["rollout_tokens_per_s"], default=None)
+    chosen = max(fits, key=probe_speed, default=None)
     grid = []
     for tp in GRID_TP:
         best_fit = max(
@@ -319,7 +326,7 @@ def cell_report(name: str, runs: list[dict[str, Any]]) -> dict[str, Any]:
         else {
             "rollout_tensor_parallel": chosen["rollout_tensor_parallel"],
             "gpu_memory_utilization": chosen["gpu_memory_utilization"],
-            "probe_rollout_tokens_per_s": chosen["steps"][1]["rollout_tokens_per_s"],
+            "probe_rollout_tokens_per_s": probe_speed(chosen),
         },
         "probes": probes,
         "measured": [r for r in runs if r["kind"] == "measured"],

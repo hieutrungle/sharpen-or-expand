@@ -114,7 +114,8 @@ def test_probe_is_one_step_with_a_token_validation_and_the_cells_other_fields() 
     cell = yaml.safe_load(CELL.read_text())
     data = probe.probe_config(cell, 2, 0.7)
     assert data["name"] == "m1_memory_bl_qwen35-4b-probe-tp2-gmu70"
-    assert data["budget"]["max_steps"] == 1 and data["checkpoint"]["save_every_steps"] == 1
+    # two steps: AdamW's state exists only after step 1's first update
+    assert data["budget"]["max_steps"] == 2 and data["checkpoint"]["save_every_steps"] == 2
     assert data["validation"] == {"max_problems": 8, "samples_per_problem": 1}
     assert data["hardware"] == cell["hardware"] | {
         "rollout_tensor_parallel": 2,
@@ -192,3 +193,16 @@ def test_grid_marks_lower_values_dominated_and_picks_the_fastest_fit(tmp_path: P
     assert status[(1, 0.5)] == status[(1, 0.4)] == "not run, dominated"
     assert status[(2, 0.7)] == "fits" and status[(2, 0.4)] == "not run, dominated"
     assert cell["chosen"]["gpu_memory_utilization"] in (0.6, 0.7)  # equal speed in the fixture
+
+
+def test_a_probe_reports_only_its_last_step(tmp_path: Path) -> None:
+    run = make_probe_run(tmp_path, 1, 0.6, finished=True)
+    first = json.loads((run / "metrics" / "segment-9.jsonl").read_text())
+    second = {"step": 2, "data": first["data"] | {"timing_s/gen": 500.0}}
+    with (run / "metrics" / "segment-9.jsonl").open("a") as out:
+        out.write(json.dumps(second) + "\n")
+    with (run / "rollout_tokens" / "segment-9.jsonl").open("a") as out:
+        out.write("".join(json.dumps({"step": 2, "tokens": 10000}) + "\n" for _ in range(512)))
+    result = report.run_report(run)
+    assert set(result["steps"]) == {2}
+    assert report.probe_speed(result) == 10240.0

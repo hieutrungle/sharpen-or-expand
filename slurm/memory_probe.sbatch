@@ -1,7 +1,7 @@
 #!/bin/bash
 # M1.10 knob probes for one memory-study cell on 4xA40 fc098 (user, 2026-10-31: descending search).
 # For each rollout TP, try the gpu_memory_utilization values in the order given, highest first, and
-# stop at the first one-step probe that finishes every phase: a lower value cannot generate faster,
+# stop at the first two-step probe that finishes every phase: a lower value cannot generate faster,
 # because more KV cache never slows vLLM. Values after the first fit are "not run, dominated".
 # Each probe is a normal run directory made by slurm/train.sbatch; its FSDP checkpoint and HF export
 # are deleted afterwards, its records stay. One line per probe goes to logs/slurm/memory-probe-<job>.tsv.
@@ -17,7 +17,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-gpu=15
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=12:00:00
+#SBATCH --time=16:00:00
 #SBATCH --output=logs/slurm/%x-%j.out
 
 set -euo pipefail
@@ -25,7 +25,7 @@ CELL="${1:?usage: sbatch slurm/memory_probe.sbatch <cell.yaml> <tp,tp> <gmu,gmu,
 TPS="${2:?tp list, e.g. 1,2}"
 GMUS="${3:?gpu_memory_utilization list, highest first, e.g. 0.7,0.6,0.5,0.4}"
 SEED=20261029  # every M1.10 cell trains on the same seeded prompts (docs/roadmap/M1.md)
-PROBE_TIMEOUT=100m  # a probe step takes ~45 min; a hang must not eat the whole job
+PROBE_TIMEOUT=150m  # two 4B steps take ~1.5 h with start-up and the save; a hang must not eat the job
 source slurm/common.sh
 
 summary="logs/slurm/memory-probe-$SLURM_JOB_ID.tsv"

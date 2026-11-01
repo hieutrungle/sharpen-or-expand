@@ -28,8 +28,12 @@ torch's allocator. Its log-prob pass also builds each micro-batch's full logits 
    vLLM, and each probe's peak KV-cache usage and preemption count show whether the cache was the
    limit. One job per cell runs the search (`slurm/memory_probe.sbatch`); each probe is a normal run
    directory, its checkpoint and export deleted afterwards.
-2. **Probe.** One training step with an 8-problem validation pass; every other field is the cell's.
-   One step still covers weight sync, generation, old log-prob, update, the save and its export.
+2. **Probe.** Two training steps with an 8-problem validation pass; every other field is the
+   cell's, and the report judges the probe on its last step. One step is not enough: AdamW creates
+   its state at the first optimizer step, so only from step 2 on do weight sync, generation and the
+   old log-prob pass run with the full training state resident (2B full-BF16 smoke, job 3227978:
+   4.1 GiB per rank in step 1's generation, 11.2 GiB after its update). A one-step probe could pass
+   at a `gpu_memory_utilization` that fails at step 2 of the real run.
 3. **Phase memory.** The verl worker hook wraps `update_weights`, `compute_log_prob` and
    `update_actor`; at each entry and return it writes torch's peak allocated and reserved memory
    since the previous mark, per rank, then resets the peak (`runs/<id>/phase_memory/`). A sidecar
@@ -47,7 +51,8 @@ torch's allocator. Its log-prob pass also builds each micro-batch's full logits 
 
 ## Consequences
 
-- About 3–4 probes per cell instead of 8: roughly 2 h of fc098 per cell, plus the measured run.
+- About 3–4 probes per cell instead of 8; a two-step 4B probe takes about 1.5 h when it fits and
+  less when it fails, so roughly 3–5 h of fc098 per cell, plus the measured run.
 - verl's own `perf/max_memory_*` now means the peak of the update phase, not of the whole run.
 - The sidecar adds about 70 KB per hour to a run directory; the job log copy is the job's output.
 - A probe that fails names the phase after rank 0's last mark and the failing allocation from the
