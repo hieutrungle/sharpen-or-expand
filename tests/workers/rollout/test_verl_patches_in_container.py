@@ -49,7 +49,12 @@ def test_install_freezes_only_the_vision_tower_before_fsdp() -> None:
 
 def test_install_wraps_the_worker_phases_and_keeps_their_dispatch() -> None:
     worker = engine_workers.ActorRolloutRefWorker
-    real = {name: worker.__dict__[name] for name in phase_memory.WRAPPED_METHODS}
+    # An earlier install() in this session (the vision test) may have wrapped them already.
+    real = {}
+    for name in phase_memory.WRAPPED_METHODS:
+        method = worker.__dict__[name]
+        real[name] = method.__wrapped__ if getattr(method, "soe_phase_memory", False) else method
+        setattr(worker, name, real[name])
     try:
         verl_patches.install()
         verl_patches.install()  # idempotent: wrapped once
