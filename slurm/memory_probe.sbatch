@@ -7,11 +7,12 @@
 # are deleted afterwards, its records stay. One line per probe goes to logs/slurm/memory-probe-<job>.tsv.
 # Usage: sbatch slurm/memory_probe.sbatch <cell.yaml> <tp,tp> <gmu,gmu,...>
 #        (comma lists: FASTER's sbatch splits script arguments that contain spaces)
+# Only fc098 has 4 A40s, so the 4-GPU request needs no --nodelist. A 2-GPU smoke may use any A40
+# pair (user, 2026-11-01): SBATCH_GRES=gpu:a40:2 sbatch slurm/memory_probe.sbatch ...
 #SBATCH --job-name=soe-m1.10-probe
 #SBATCH --account=142788516569
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:a40:4
-#SBATCH --nodelist=fc098
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-gpu=15
