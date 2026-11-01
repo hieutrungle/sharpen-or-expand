@@ -32,6 +32,7 @@ source slurm/common.sh
 
 summary="logs/slurm/memory-probe-$SLURM_JOB_ID.tsv"
 echo -e "tp\tgmu\texit\tseconds\trun_dir" > "$summary"
+fits=0
 for tp in ${TPS//,/ }; do
     for gmu in ${GMUS//,/ }; do
         mkdir -p "$SOE_JOB_TMP"  # each train.sbatch removes it when it exits
@@ -53,7 +54,11 @@ for tp in ${TPS//,/ }; do
             rm -rf -- "$run_dir/checkpoints" "$SOE_DATA/checkpoints/$(basename "$run_dir")"
         fi
         if (( status == 0 )); then
+            fits=$((fits + 1))
             break
         fi
     done
 done
+# Non-zero when no probe fitted, so a job chained with afterok does not start (the 4B check).
+echo "probes that fit: $fits"
+(( fits > 0 ))
