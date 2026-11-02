@@ -7,7 +7,8 @@ Run directories are grouped into cells by config name (a probe is `<cell name>-p
 For each run: its config knobs, the exact verl override list, commit, node and GPUs; whether it
 finished, and for a failed run the phase that was running and the out-of-memory message; per step:
 rollout tokens/s (response tokens / timing_s/gen), training tokens/s ((prompt + response) tokens /
-(old_log_prob + update_actor)), the step time split, and rollout tokens per wall-clock hour; per
+(old_log_prob + update_actor)), the step time split (without the save), rollout tokens per hour
+of step time, and each validation pass's seconds; per
 phase and GPU: torch peaks (phase_memory marks, soe/workers/rollout/phase_memory.py) and the
 nvidia-smi peak inside the phase's window (sidecar, slurm/common.sh); the host RAM peak; vLLM's KV
 cache size, maximum concurrency, peak KV-cache usage and preemptions from the run's log.
@@ -184,8 +185,9 @@ def step_rates(
         response_tokens = sum(tokens[step])
         trained = response_tokens + data["prompt_length/mean"] * responses
         training_s = data["timing_s/old_log_prob"] + data["timing_s/update_actor"]
-        extra = data.get("timing_s/testing", 0.0) + data.get("timing_s/save_checkpoint", 0.0)
-        step_s = data["timing_s/step"] - extra  # validation and the save are reported apart
+        # verl 0.9.1 times the save inside `step` and validation (`testing`) after it, so only the
+        # save is taken out; both are reported apart.
+        step_s = data["timing_s/step"] - data.get("timing_s/save_checkpoint", 0.0)
         rates[step] = {
             "rollout_tokens": response_tokens,
             "training_tokens": trained,
@@ -193,7 +195,7 @@ def step_rates(
             "rollout_tokens_per_s_per_gpu": response_tokens / data["timing_s/gen"] / gpus,
             "training_tokens_per_s": trained / training_s,
             "training_tokens_per_s_per_gpu": trained / training_s / gpus,
-            "step_s_without_validation_and_save": step_s,
+            "step_s_without_save": step_s,
             "rollout_tokens_per_hour": response_tokens / step_s * 3600,
             **{f"{t}_s": data.get(f"timing_s/{t}", 0.0) for t in TIMERS},
             "validation_s": data.get("timing_s/testing", 0.0),
@@ -275,8 +277,16 @@ def run_report(run_dir: Path) -> dict[str, Any]:
             ],
         },
     }
+    # Seconds of each in-loop validation pass (D2 sizes in measured cells), by the step it follows.
+    # The pass before training (step 0) has no verl timer.
+    report["validation_passes_s"] = {
+        s: d["timing_s/testing"] for s, d in sorted(metrics.items()) if "timing_s/testing" in d
+    }
     if not probe and rates:
-        keys = [k for k, v in rates[min(rates)].items() if isinstance(v, float)]
+        per_pass = ("validation_s", "save_checkpoint_s")  # once per run, not per step
+        keys = [
+            k for k, v in rates[min(rates)].items() if isinstance(v, float) and k not in per_pass
+        ]
         report["measured_steps"] = {k: mean_sd([rates[s][k] for s in sorted(rates)]) for k in keys}
     if not done:
         report["failure"] = {

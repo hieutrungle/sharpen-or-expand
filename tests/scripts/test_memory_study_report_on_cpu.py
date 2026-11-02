@@ -159,7 +159,8 @@ def test_finished_probe_rates_memory_and_headroom(tmp_path: Path) -> None:
     assert step["rollout_tokens"] == 5_120_000
     assert step["rollout_tokens_per_s"] == 5120.0
     assert step["training_tokens_per_s"] == (5_120_000 + 100 * 512) / 800
-    assert step["step_s_without_validation_and_save"] == 1800.0
+    assert step["step_s_without_save"] == 1850.0  # verl's step includes the save, not validation
+    assert run["validation_passes_s"] == {1: 50.0}
     assert run["torch_peak_by_phase"]["update"][0]["max_allocated_gib"] == 30.0
     assert run["torch_peak_by_phase"]["generate"][1]["max_allocated_gib"] == 8.0
     assert run["nvidia_smi_peak"]["by_phase_mib"]["generate"] == {0: 40000.0}
