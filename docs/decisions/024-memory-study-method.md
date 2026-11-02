@@ -1,7 +1,8 @@
 # 024 — M1.10 memory study: descending knob search, per-phase memory marks, fused log-prob
 
 - Date: 2026-10-31
-- Status: proposed (search order: user, 2026-10-31, "Descending search")
+- Status: accepted (user, 2026-11-02: "complete this step and commit"; search order: user,
+  2026-10-31, "Descending search")
 - Milestone: M1 (task M1.10)
 - Code: `examples/grpo_trainer/m1_memory_{bf0,bl}_qwen35-4b.yaml`, `scripts/memory_probe_config.py`,
   `slurm/memory_probe.sbatch`, `soe/workers/rollout/phase_memory.py`,

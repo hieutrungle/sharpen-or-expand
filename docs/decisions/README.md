@@ -29,4 +29,4 @@ never edited after it is accepted; a later note supersedes it and says so.
 | [021](021-rl-step-metrics.md) | RL step metrics: soe metrics from per-rollout records at each save; importance ratios from verl's off-policy diagnostics | accepted |
 | [022](022-rl-updates-per-step.md) | RL steps make 4 optimizer updates on mini-batches of whole groups, the same for every algorithm | accepted |
 | [023](023-sft-wiring.md) | SFT wiring: TRL on pre-tokenized prompt/completion examples (`<|im_end|>` appended, over-long dropped), BF16 LoRA merged into the base layout | accepted |
-| [024](024-memory-study-method.md) | M1.10 memory study: descending knob search, per-phase memory marks and GPU/RAM sidecar, fused log-prob as a hardware knob | proposed |
+| [024](024-memory-study-method.md) | M1.10 memory study: descending knob search, per-phase memory marks and GPU/RAM sidecar, fused log-prob as a hardware knob; 4,096 MiB weight-sync buffer | accepted |
