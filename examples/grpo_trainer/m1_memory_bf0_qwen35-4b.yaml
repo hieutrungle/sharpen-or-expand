@@ -37,9 +37,10 @@ validation:  # D2 sizes; validated at step 0 and at the last step
   samples_per_problem: 2
 hardware:
   n_gpus: 4
-  # Set from this cell's probes (slurm/memory_probe.sbatch, user 2026-10-31: descending search).
+  # From this cell's probes (descending search, user 2026-10-31; docs/reports/m1_memory_study.json):
+  # TP 1 and 2 both fit at 0.7 (job 3228734 B-L, 3228735 B-F0); TP 1 was faster.
   rollout_tensor_parallel: 1
-  gpu_memory_utilization: 0.6
+  gpu_memory_utilization: 0.7
   param_offload: false
   optimizer_offload: false
   max_token_len_per_gpu: 36864  # two full-length sequences (2 x (2,048 + 16,384))
