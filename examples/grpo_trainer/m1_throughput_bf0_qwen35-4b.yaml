@@ -1,0 +1,56 @@
+# M1.11 throughput run, cell B-F0 (full BF16): the M1.10 cell
+# (examples/grpo_trainer/m1_memory_bf0_qwen35-4b.yaml)
+# with its probed TP 1 / gpu_memory_utilization 0.7, run for 7 h of training with saves,
+# exports and validation passes at the cadence of a real run, so the effective rate counts them.
+# Everything but the training mode, LoRA block and learning rate is shared with
+# m1_throughput_bl_qwen35-4b.yaml; run with seed 20261029 (the M1.10 prompts).
+name: m1_throughput_bf0_qwen35-4b
+milestone: m1
+development: true  # M1 measurements never enter conclusions
+lane: A
+model:
+  hf_id: Qwen/Qwen3.5-4B-Base
+  revision: 1001bb4d826a52d1f399e183466143f4da7b741b
+init_checkpoint: null  # SFT changes lengths, not memory per token (docs/roadmap/M1.md, M1.10)
+training_mode: full_bf16
+algorithm: grpo
+optim:
+  learning_rate: 1.0e-6  # not studied here; a plausible value for the mode
+  warmup_steps: 10
+  weight_decay: 0.0
+rollout:
+  prompts_per_step: 64
+  group_size: 8
+  updates_per_step: 4  # decision 022
+  temperature: 1.0  # decision 017
+  top_p: 1.0
+  max_prompt_tokens: 2048  # longest RL prompt is 1,446 tokens (docs/reports/m1_rl_prompts.json)
+policy_loss:
+  clip_ratio_low: 0.2
+  clip_ratio_high: 0.2
+  entropy_coef: 0.0
+budget:
+  rollout_tokens: 220000000  # upper bound only; the 7 h cap ends the run (decision 020)
+  max_hours: 7.0  # M1.11: 6-8 h of training, about 13 steps at M1.10's ~0.5 h per step
+checkpoint:
+  save_every_steps: 6  # ~3 h, inside the 2-4 h cadence of real runs: 2-3 saves and exports
+  keep_last: 2  # as real runs, so pruning costs what it will cost them
+validation:  # D2 sizes, at step 0 and at every save, as real runs
+  max_problems: 128
+  samples_per_problem: 2
+hardware:
+  n_gpus: 4
+  # From this cell's probes (descending search, user 2026-10-31; docs/reports/m1_memory_study.json):
+  # TP 1 and 2 both fit at 0.7 (job 3228734 B-L, 3228735 B-F0); TP 1 was faster.
+  rollout_tensor_parallel: 1
+  gpu_memory_utilization: 0.7
+  param_offload: false
+  optimizer_offload: false
+  max_token_len_per_gpu: 36864  # two full-length sequences (2 x (2,048 + 16,384))
+  fused_log_prob: true  # no materialised logits in the log-prob pass (M1.8 note)
+data:  # RL data v3.1 (decision 012; docs/reports/m1_datasets_v3.1.json)
+  train_file: datasets/soe/v3.1/rl/verl/train.parquet
+  train_sha256: 2ea38a35b7d5a1b8bfa8b2d85bc94e45996b7163934c6955618b8ca123d805d3
+  val_file: datasets/soe/v3.1/rl/verl/val.parquet
+  val_sha256: 92e97417fb22727127ed4ef4ca7e5c857841a9cec9d579c23f66bd1722754e0f
+eval_suite: soe/trainer/config/eval_suite.yaml

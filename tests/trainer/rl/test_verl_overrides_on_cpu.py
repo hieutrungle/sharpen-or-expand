@@ -116,9 +116,10 @@ def test_fused_log_prob_reaches_verl_and_stats_logging_is_on() -> None:
     assert "+ray_kwargs.ray_init.runtime_env.env_vars.VLLM_LOGGING_LEVEL=INFO" in plain
 
 
-def test_memory_study_cells_differ_only_in_mode_lora_and_learning_rate() -> None:
+@pytest.mark.parametrize("study", ["memory", "throughput"])
+def test_m1_cells_differ_only_in_mode_lora_and_learning_rate(study: str) -> None:
     cells = [
-        yaml.safe_load(Path(f"examples/grpo_trainer/m1_memory_{c}_qwen35-4b.yaml").read_text())
+        yaml.safe_load(Path(f"examples/grpo_trainer/m1_{study}_{c}_qwen35-4b.yaml").read_text())
         for c in ("bf0", "bl")
     ]
     for cell in cells:
