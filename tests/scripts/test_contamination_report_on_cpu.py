@@ -56,3 +56,13 @@ def test_rl_references_flag_copies_of_rl_problems(
     pair = report["pairs"][0]
     assert pair["level"] == "rl_train" and pair["category"] == "E" and pair["same_answer"]
     assert report["residual_at_frozen_rule"]["single_problem"] == ["dapo/t1"]
+
+
+def test_min_share_lists_weaker_matches() -> None:
+    m = script()
+    words = " ".join(f"w{i}" for i in range(30))
+    reference = problem("c/1", words)
+    weak = problem("d/1", " ".join(f"w{i}" for i in range(11)) + " other words entirely here")
+    assert m.shares([reference], [weak], 8, frozenset()) == {}
+    found = m.shares([reference], [weak], 8, frozenset(), min_share=0.1)
+    assert list(found) == [("c/1", "d/1")] and 0.1 <= found[("c/1", "d/1")] < 0.2

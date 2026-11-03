@@ -1,0 +1,10 @@
+# M2.3 decontaminated SFT pool (decision 027): the M2.2 pool minus, in rounds, every problem a
+# contamination report lists: Levels A, B, C (share >= 0.2), Level C (>= 0.1) and RL train v3.1 +
+# validation (roadmap D2). Round k's reports are made on the pool left after round k-1.
+pool: datasets/soe/v1/sft/pool.jsonl
+pool_sha256: e255c1f32399a1a5952746562138a4f9331bb98d144ec3f5c46c48c5c6ac665f
+rounds:
+  - [docs/reports/m2_contamination_sft.json, docs/reports/m2_contamination_sft_levelc.json, docs/reports/m2_contamination_sft_rl.json]
+  - [docs/reports/m2_contamination_sft_r2.json, docs/reports/m2_contamination_sft_levelc_r2.json, docs/reports/m2_contamination_sft_rl_r2.json]
+output: datasets/soe/v1/sft/pool_clean.jsonl
+report: docs/reports/m2_sft_pool_clean.json

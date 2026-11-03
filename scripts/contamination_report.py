@@ -36,7 +36,7 @@ from soe.utils.reward_score.math_verify import answers_equivalent
 
 BOILERPLATE_MAX_COUNT = 20  # as in the build config (near_duplicate.boilerplate_max_count)
 FROZEN = (13, 0.5)  # the build's rule
-MIN_SHARE = 0.2  # candidate pairs listed from here
+MIN_SHARE = 0.2  # candidate pairs listed from here (default of --min-share)
 # `--references rl`: the RL pool every RL run and preference set samples from (decision 012)
 RL_REFERENCES = {
     "rl_train": "datasets/soe/v3.1/rl/train.jsonl",
@@ -97,9 +97,13 @@ def category(reference: Problem, train: Problem) -> str:
 
 
 def shares(
-    references: list[Problem], corpus: list[Problem], n: int, ignore: frozenset[Ngram]
+    references: list[Problem],
+    corpus: list[Problem],
+    n: int,
+    ignore: frozenset[Ngram],
+    min_share: float = MIN_SHARE,
 ) -> dict[tuple[str, str], float]:
-    """(reference, corpus problem) -> share of the reference's n-grams in it (>= MIN_SHARE)."""
+    """(reference, corpus problem) -> share of the reference's n-grams in it (>= min_share)."""
     owners: dict[Ngram, list[int]] = defaultdict(list)
     for i, problem in enumerate(corpus):
         for gram in word_ngrams(problem.question, n) - ignore:
@@ -112,7 +116,7 @@ def shares(
             for i in owners.get(gram, ()):
                 hits[i] += 1
         for i, count in hits.items():
-            if count / len(grams) >= MIN_SHARE:
+            if count / len(grams) >= min_share:
                 out[(ref.problem_id, corpus[i].problem_id)] = count / len(grams)
     return out
 
@@ -123,13 +127,19 @@ def main() -> None:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--train", default="datasets/soe/v2/rl/train.jsonl")  # under $SOE_DATA
     parser.add_argument("--references", choices=("suite", "rl"), default="suite")
+    # M2.3: pairs with Level C problems held after a source was built are read below 20% too.
+    parser.add_argument("--min-share", type=float, default=MIN_SHARE)
+    parser.add_argument(
+        "--levels", nargs="+", help="suite levels to check, e.g. C1 C2 (default all)"
+    )
     args = parser.parse_args()
     root = Path(os.environ["SOE_DATA"])
     if args.references == "suite":
         suite = load_suite(args.suite)
-        sets = {s.name: read_jsonl(root / s.path, Problem) for s in suite.problem_sets}
-        level_of = {p.problem_id: s.level.value for s in suite.problem_sets for p in sets[s.name]}
-        reference_files = {s.name: s.path for s in suite.problem_sets}
+        checked = [s for s in suite.problem_sets if not args.levels or s.level.value in args.levels]
+        sets = {s.name: read_jsonl(root / s.path, Problem) for s in checked}
+        level_of = {p.problem_id: s.level.value for s in checked for p in sets[s.name]}
+        reference_files = {s.name: s.path for s in checked}
     else:
         sets = {name: read_jsonl(root / path, Problem) for name, path in RL_REFERENCES.items()}
         level_of = {p.problem_id: name for name, ps in sets.items() for p in ps}
@@ -142,7 +152,7 @@ def main() -> None:
     ignores: dict[int, frozenset[Ngram]] = {}
     for n in (13, 8):
         ignores[n] = common_ngrams([p.question for p in train], n, BOILERPLATE_MAX_COUNT)
-        found[n] = shares(references, train, n, ignores[n])
+        found[n] = shares(references, train, n, ignores[n], args.min_share)
     pairs = [
         Pair(
             reference=ref_id,
@@ -161,7 +171,7 @@ def main() -> None:
         "3_plus_close_variants (option 2, or share >= 0.3)": lambda p: (
             p.category in "ER" or p.same_answer or p.share >= 0.3
         ),
-        "4_everything_listed (share >= 0.2)": lambda p: True,
+        f"4_everything_listed (share >= {args.min_share})": lambda p: True,
     }
     deletion = {}
     for name, rule in options.items():
@@ -183,6 +193,7 @@ def main() -> None:
             for name, path in reference_files.items()
         },
         "frozen_rule": {"ngram": FROZEN[0], "min_fraction": FROZEN[1]},
+        "min_share": args.min_share,
         "residual_at_frozen_rule": {
             "single_problem": frozen_hits,
             "covered_by_union": covered_by_union(
