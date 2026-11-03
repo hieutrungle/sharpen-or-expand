@@ -22,7 +22,6 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
-import pyarrow.parquet as pq
 import yaml
 from math_verify import parse
 from pydantic import BaseModel, ConfigDict, Field
@@ -118,6 +117,7 @@ def build_pool(rows: list[dict[str, object]], prefix: str) -> Pool:
 
 
 def read_rows(config: PoolConfig) -> list[dict[str, object]]:
+    import pyarrow.parquet as pq  # data extra / image only; CI installs CPU deps without it
     from huggingface_hub import snapshot_download  # offline, from the staged snapshot
 
     snapshot = Path(
