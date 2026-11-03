@@ -53,3 +53,13 @@ sees the token count at each save, every 2–4 hours. The M1.9 dev run also need
 - 2026-10-30 (user, M1.9): the development run's budget becomes 220M rollout tokens with the 20 h
   cap, so the cap binds (~36 steps); at ~6.2M rollout tokens per 512-rollout step (M1.5), the
   30M-token budget would have ended it after ~5 steps.
+- 2026-11-03 (user, M1.11: "Fix now in M1.11"): a save can lower the stop step but could not raise
+  it once verl had marked the current step as its last. verl 0.9.1 sets `is_last_step` when a step
+  starts and returns through it. So when an earlier estimate landed exactly on a later save step,
+  the run ended there even if that save's re-estimate asked for more (M1.11 B-L run: estimate 12 at
+  step 6, re-estimate 13 at step 12, ended at 12). With a token budget, a run could end up to one
+  step short. `soe.trainer.main_rl.train_to_stop` now launches verl again in the same job when
+  `stop_step.json` is later than the last saved step (the last step is always saved); the launch
+  resumes from that save, skips the validation before training and starts with the new stop. Cost:
+  one start-up (~10 min) and one more validation pass, only in runs that hit the case. CPU tests
+  `tests/trainer/test_main_rl_on_cpu.py`; first use on GPUs in M2.

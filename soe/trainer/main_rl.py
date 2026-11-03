@@ -10,9 +10,11 @@ stops the trainer within a minute, instead of verl training on the rest of the b
 import json
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from functools import partial
 from pathlib import Path
@@ -137,6 +139,29 @@ def segment_overrides(frozen: list[str], resumed_from: int, stop_step: int | Non
     return out
 
 
+def train_to_stop(frozen: list[str], run_dir: Path, launch: Callable[[list[str]], None]) -> None:
+    """Run verl until the stop rule's last step is saved (decision 020, 2026-11-03 amendment).
+
+    verl marks a step as its last when the step starts (`global_steps >= total_training_steps`),
+    so a save's re-estimate cannot extend a step verl has already marked as last: in M1.11 the B-L
+    run's step-6 estimate was its next save, step 12, and the step-12 re-estimate of 13 came too
+    late. verl then returns after that step; its last step is always saved, so it is launched
+    again, resuming from that save with the new stop."""
+    checkpoints = run_dir / "checkpoints"
+    while True:
+        saved = latest_checkpoint_step(checkpoints)
+        launch(segment_overrides(frozen, saved, read_stop_step(run_dir)))
+        reached, stop = latest_checkpoint_step(checkpoints), read_stop_step(run_dir)
+        if stop is None or reached >= stop:
+            return
+        if reached <= saved:
+            raise RuntimeError(f"verl returned at step {reached} without progress (stop {stop})")
+        print(f"soe: verl stopped at step {reached}, the stop rule says {stop}: relaunching it")
+        # The Ray cluster of the finished launch must be gone before the next one starts.
+        if shutil.which("ray"):
+            subprocess.run(["ray", "stop", "--force"], check=False, capture_output=True)
+
+
 def export_missing(run_dir: Path, data_root: Path, run_id: str) -> None:
     """Export every saved checkpoint that has no HF export yet, one after another."""
     for step in missing_exports(run_dir / "checkpoints", data_root, run_id):
@@ -227,14 +252,14 @@ class LaunchCli(BaseSettings):
         )
         # A checkpoint whose export the previous job did not finish (decision 018).
         export_missing(run_dir, data_root, info.run_id)
-        this_job = segment_overrides(overrides, resumed_from, read_stop_step(run_dir))
+        job_log = run_dir / "logs" / f"segment-{segment}.log"  # train.sbatch's copy
+
+        def launch(this_job: list[str]) -> None:
+            cmd = [sys.executable, "-m", "verl.trainer.main_ppo", *this_job]
+            run_until_failure(cmd, env, failures, job_log=job_log)
+
         try:
-            run_until_failure(
-                [sys.executable, "-m", "verl.trainer.main_ppo", *this_job],
-                env,
-                failures,
-                job_log=run_dir / "logs" / f"segment-{segment}.log",  # train.sbatch's copy
-            )
+            train_to_stop(overrides, run_dir, launch)
             export_missing(run_dir, data_root, info.run_id)
             # Shards kept at a save because their export was still running.
             assert config.checkpoint is not None
