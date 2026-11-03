@@ -91,3 +91,19 @@ def test_yield_stats_counts_kept_completions_per_problem() -> None:
     assert stats["truncation_rate"] == 3 / 12 and stats["stopped_boxed_rate"] == 1.0
     assert stats["kept_tokens"]["histogram_upper_edges"]["2048"] == 3  # 1,000 / 2,000 / 1,000
     assert stats["kept_per_problem_by_difficulty"]["5"] == {"problems": 2, "mean": 1.5}
+
+
+def test_pilot_config_samples_the_clean_pool_as_roadmap_d4() -> None:
+    import json
+
+    import yaml
+
+    m = script()
+    pilot = m.SampleConfig.model_validate(
+        yaml.safe_load(Path("examples/data_preprocess/m2_sft_pilot.yaml").read_text())
+    )
+    clean = json.loads(Path("docs/reports/m2_sft_pool_clean.json").read_text())["clean"]
+    assert (pilot.problems, pilot.problems_sha256) == (clean["path"], clean["sha256"])
+    assert (pilot.draw_start, pilot.draw_stop) == (0, 1000) and pilot.draw_stop <= clean["problems"]
+    assert (pilot.samples_per_problem, pilot.max_kept_per_problem, pilot.sampling_seed) == (4, 2, 2)
+    assert m.pinned_revision(pilot.model) == "1001bb4d826a52d1f399e183466143f4da7b741b"

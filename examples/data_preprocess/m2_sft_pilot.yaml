@@ -1,0 +1,17 @@
+# M2.4 sampling pilot (roadmap D1 (c), D4): the first 1,000 problems of a seeded permutation of the
+# clean SFT pool (decision 027), 4 samples each from Qwen3.5-4B-Base with the frozen suite's prompt,
+# sampling, FP8 KV and 16K cap, seed 2. M2.5 continues the same permutation from 1,000 on.
+version: m2-sft-pilot-v1
+suite: soe/trainer/config/eval_suite.yaml  # soe-eval-v4
+model: Qwen/Qwen3.5-4B-Base  # revision pinned in scripts/stage_assets.yaml
+problems: datasets/soe/v1/sft/pool_clean.jsonl
+problems_sha256: 87d55db66a7900aeabdeef3325e13e24f1bc54baca5456a55a1ca991a7949273
+meta: datasets/soe/v1/sft/pool_meta.jsonl
+draw_seed: 20261103
+draw_start: 0
+draw_stop: 1000
+samples_per_problem: 4
+max_kept_per_problem: 2
+sampling_seed: 2
+num_shards: 8  # 125 problems each; 1-GPU workers claim shards, so A30/A10/A40 speeds balance
+work_dir: samples/m2_sft_pilot
