@@ -1,0 +1,10 @@
+# M2.2 SFT problem pool (roadmap D1 (c), D2; decision 027 after the M2.3 review). DeepMath-103K
+# problems only; its R1 solutions are never read. Dates: release from the dataset card (News,
+# 2025-04-14), last modification from the Hub API (checked 2026-11-03).
+version: sft-pool-v1
+hf_id: zwhe99/DeepMath-103K
+revision: 5cf055d1fe3d7a2eb19719ac020211469736ae44
+source_released: "2025-04-14"
+source_last_modified: "2025-05-29"
+id_prefix: deepmath
+output_dir: datasets/soe/v1/sft

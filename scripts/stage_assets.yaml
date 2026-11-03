@@ -58,3 +58,8 @@ assets:
     repo_type: dataset
     revision: 31dd309567e3da778038cc87d868b6097a3ccf68
     note: de-duplicated English copy of BytedTsinghua-SIA/DAPO-Math-17k (Apache-2.0)
+  # --- SFT problem pool (M2, roadmap D1 (c)): problems only, the R1 solutions are not used
+  - hf_id: zwhe99/DeepMath-103K
+    repo_type: dataset
+    revision: 5cf055d1fe3d7a2eb19719ac020211469736ae44
+    note: MIT; 103,022 problems with final answers; ~2.1 GB (mostly R1 solutions)
