@@ -5,13 +5,16 @@ throughput_report: docs/reports/m1_throughput.json
 throughput_run: m1_throughput_bf0_qwen35-4b  # the G0 mode, full BF16
 memory_report: docs/reports/m1_memory_study.json
 memory_cell: B-F0  # SFT/DPO train at its update rate (forward + backward over every token)
-eval_compute_report: docs/reports/m0_compute.json
-eval_family: soe-eval-v3  # one full evaluation of a 4B checkpoint (M0's base reference)
-eval_samples: 50416  # samples in that evaluation (docs/report/m0.md)
+# one full evaluation of a 4B checkpoint (M0's base reference, soe-eval-v3) and M0's rate per GPU type
+eval_rates_report: docs/reports/m0_eval_gpu_rates.json
 queue_factor: 1.25  # the plan's factor for queueing and restarts
 save_every_hours: 3.0  # a save every 6 steps of ~0.5 h (M1.11), each evaluated on Lane B
 evals_per_run_cap: 4  # the alternative policy G1 can choose: at most 4 evaluated saves per run
-lane_b_workers: 10  # assumed: four A30s and six A10s; spare A40s would add to it
+# Lane B scenarios (one-GPU workers; QOS normal caps a user at 16 GPUs, Lane A takes 4 of them)
+lane_b_pools:
+  a30_a10: {A30: 4, A10: 6}  # every A30 and A10 on FASTER, no A40
+  with_fc096_fc097: {A40: 4, A30: 4, A10: 4}  # while fc098 trains: 12 GPUs under the cap
+  with_fc098: {A40: 8, A30: 4, A10: 4}  # only while no Lane A run holds fc098
 mean_response_tokens: [9000, 9500]  # M1.11 steps 2..N (9,000) and M0's 4B-Base mean (~9.5K)
 milestones:
   - name: M2 SFT

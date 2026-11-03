@@ -8,8 +8,10 @@ length band (lowest and highest of R x (1 -/+ spread) and the 0.5x / 1.5x length
 and DPO take training tokens / the M1.10 update rate (forward and backward over every token, the
 same work as an SFT step). Hours are also given x the queue factor.
 Lane B (1-GPU workers): every save of an RL run (one per `save_every_hours`) gets one full
-evaluation, costing what M0's 4B reference cost; preference sampling costs tokens / M0's sampling
-rate. Days assume `lane_b_workers` workers busy around the clock.
+evaluation, costing what M0's 4B reference cost in A40-hours (its completion tokens / M0's A40
+rate); preference sampling costs tokens / the A40 rate. A pool of GPUs counts as A40-equivalents
+(GPUs x its type's M0 rate / the A40 rate), and days assume the pool busy around the clock. Each
+pool in `lane_b_pools` is one scenario.
 The critical path adds, per milestone, the longer of the two lanes: a gate waits for the
 evaluations of its runs. It leaves out SFT data curation, human review and write-up time.
 """
@@ -45,13 +47,11 @@ class ScheduleInputs(BaseModel):
     throughput_run: str
     memory_report: Path
     memory_cell: str
-    eval_compute_report: Path
-    eval_family: str
-    eval_samples: int
+    eval_rates_report: Path
     queue_factor: float
     save_every_hours: float
     evals_per_run_cap: int
-    lane_b_workers: int
+    lane_b_pools: dict[str, dict[str, int]]  # scenario -> GPU type -> GPUs
     mean_response_tokens: Range
     milestones: list[Milestone]
 
@@ -74,15 +74,27 @@ def update_rate(memory: dict[str, Any], cell: str) -> float:
     return 3600 * tokens / sum(float(s["update_actor_s"]) for s in steps)
 
 
-def eval_gpu_hours(compute: dict[str, Any], family: str) -> float:
-    return float(compute["families"][family]["gpu_hours"])
+def a40_rate(rates: dict[str, Any]) -> float:
+    """M0's A40 sampling rate, tokens per hour."""
+    return 3600 * float(rates["by_gpu"]["A40"]["tokens_per_second"])
+
+
+def pool_a40_equivalents(rates: dict[str, Any], pool: dict[str, int]) -> float:
+    a40 = float(rates["by_gpu"]["A40"]["tokens_per_second"])
+    return sum(
+        n * float(rates["by_gpu"][gpu]["tokens_per_second"]) / a40 for gpu, n in pool.items()
+    )
 
 
 def milestone_plan(
-    m: Milestone, inputs: ScheduleInputs, rl: dict[str, float], train_rate: float, eval_h: float
+    m: Milestone,
+    inputs: ScheduleInputs,
+    rl: dict[str, float],
+    train_rate: float,
+    rates: dict[str, Any],
 ) -> dict[str, Any]:
-    # M0's sampling rate: its samples at M0's mean length (the high end of mean_response_tokens)
-    tokens_per_gpu_hour = inputs.eval_samples * inputs.mean_response_tokens[1] / eval_h
+    eval_h = float(rates["completion_tokens"]) / a40_rate(rates)
+    pools = {name: pool_a40_equivalents(rates, p) for name, p in inputs.lane_b_pools.items()}
 
     def lane_a(i: int) -> tuple[float, float]:  # i = 0: best case, 1: worst case
         rate = rl["high"] if i == 0 else rl["low"]
@@ -90,17 +102,17 @@ def milestone_plan(
         hours = m.speed_factor[i] * (m.rl_runs[i] * run_hours + m.train_tokens[i] / train_rate)
         return hours, m.speed_factor[i] * run_hours
 
-    def lane_b(i: int, run_hours: float, cap: int | None) -> dict[str, float]:
+    def lane_b(i: int, run_hours: float, cap: int | None) -> dict[str, Any]:
         per_run = math.ceil(run_hours / inputs.save_every_hours) if m.rl_runs[i] else 0
         if cap is not None:
             per_run = min(per_run, cap)
         evals = m.rl_runs[i] * per_run + m.extra_evals
-        sampling_h = m.generated_samples[i] * inputs.mean_response_tokens[i]
-        gpu_h = evals * eval_h + sampling_h / tokens_per_gpu_hour
+        sampling_tokens = m.generated_samples[i] * inputs.mean_response_tokens[i]
+        a40_h = evals * eval_h + sampling_tokens / a40_rate(rates)
         return {
             "evaluations": evals,
-            "gpu_hours": gpu_h,
-            "days": gpu_h / inputs.lane_b_workers / 24,
+            "a40_hours": a40_h,
+            "days": {name: a40_h / eq / 24 for name, eq in pools.items()},
         }
 
     out: dict[str, Any] = {"name": m.name}
@@ -120,28 +132,36 @@ def milestone_plan(
 def schedule(inputs: ScheduleInputs) -> dict[str, Any]:
     rl = rl_rate_band(json.loads(inputs.throughput_report.read_text()), inputs.throughput_run)
     train = update_rate(json.loads(inputs.memory_report.read_text()), inputs.memory_cell)
-    eval_h = eval_gpu_hours(json.loads(inputs.eval_compute_report.read_text()), inputs.eval_family)
-    rows = [milestone_plan(m, inputs, rl, train, eval_h) for m in inputs.milestones]
+    rates = json.loads(inputs.eval_rates_report.read_text())
+    rows = [milestone_plan(m, inputs, rl, train, rates) for m in inputs.milestones]
     totals: dict[str, Any] = {}
     for label in ("low", "high"):
         a = sum(r[label]["lane_a_days_with_queue_factor"] for r in rows)
         totals[label] = {"lane_a_days_with_queue_factor": a}
         for policy in ("lane_b_every_save", "lane_b_capped"):
-            b = sum(r[label][policy]["days"] for r in rows)
-            path = sum(
-                max(r[label]["lane_a_days_with_queue_factor"], r[label][policy]["days"])
-                for r in rows
-            )
+            days = {
+                pool: [r[label][policy]["days"][pool] for r in rows] for pool in inputs.lane_b_pools
+            }
             totals[label][policy] = {
                 "evaluations": sum(r[label][policy]["evaluations"] for r in rows),
-                "lane_b_days": b,
-                "critical_path_days": path,
+                "a40_hours": sum(r[label][policy]["a40_hours"] for r in rows),
+                "lane_b_days": {pool: sum(d) for pool, d in days.items()},
+                "critical_path_days": {
+                    pool: sum(
+                        max(r[label]["lane_a_days_with_queue_factor"], b)
+                        for r, b in zip(rows, d, strict=True)
+                    )
+                    for pool, d in days.items()
+                },
             }
     return {
         "inputs": json.loads(inputs.model_dump_json()),
         "rl_rate_tokens_per_hour": rl,
         "train_tokens_per_hour": train,
-        "eval_gpu_hours_per_checkpoint": eval_h,
+        "eval_a40_hours_per_checkpoint": float(rates["completion_tokens"]) / a40_rate(rates),
+        "lane_b_pool_a40_equivalents": {
+            name: pool_a40_equivalents(rates, p) for name, p in inputs.lane_b_pools.items()
+        },
         "milestones": rows,
         "totals": totals,
     }
@@ -159,12 +179,14 @@ class ScheduleCli(BaseSettings):
         self.out.write_text(json.dumps(result, indent=2) + "\n")
         for label, t in result["totals"].items():
             every, capped = t["lane_b_every_save"], t["lane_b_capped"]
-            print(
-                f"{label}: Lane A {t['lane_a_days_with_queue_factor']:.1f} d; Lane B "
-                f"{every['lane_b_days']:.1f} d ({every['evaluations']} evals), capped "
-                f"{capped['lane_b_days']:.1f} d; critical path {every['critical_path_days']:.1f} d"
-                f" / {capped['critical_path_days']:.1f} d capped"
-            )
+            print(f"{label}: Lane A {t['lane_a_days_with_queue_factor']:.1f} d")
+            for pool in inputs.lane_b_pools:
+                print(
+                    f"  {pool}: Lane B {every['lane_b_days'][pool]:.1f} d "
+                    f"({every['evaluations']} evals), capped {capped['lane_b_days'][pool]:.1f} d; "
+                    f"critical path {every['critical_path_days'][pool]:.1f} d / "
+                    f"{capped['critical_path_days'][pool]:.1f} d capped"
+                )
 
 
 if __name__ == "__main__":
