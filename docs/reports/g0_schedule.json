@@ -1,0 +1,530 @@
+{
+  "inputs": {
+    "throughput_report": "docs/reports/m1_throughput.json",
+    "throughput_run": "m1_throughput_bf0_qwen35-4b",
+    "memory_report": "docs/reports/m1_memory_study.json",
+    "memory_cell": "B-F0",
+    "eval_compute_report": "docs/reports/m0_compute.json",
+    "eval_family": "soe-eval-v3",
+    "eval_samples": 50416,
+    "queue_factor": 1.25,
+    "save_every_hours": 3.0,
+    "evals_per_run_cap": 4,
+    "lane_b_workers": 10,
+    "mean_response_tokens": [
+      9000.0,
+      9500.0
+    ],
+    "milestones": [
+      {
+        "name": "M2 SFT",
+        "rl_runs": [
+          0,
+          0
+        ],
+        "rl_tokens": [
+          0.0,
+          0.0
+        ],
+        "train_tokens": [
+          125000000.0,
+          500000000.0
+        ],
+        "generated_samples": [
+          0.0,
+          0.0
+        ],
+        "speed_factor": [
+          1.0,
+          1.0
+        ],
+        "extra_evals": 1
+      },
+      {
+        "name": "M3 screening",
+        "rl_runs": [
+          4,
+          4
+        ],
+        "rl_tokens": [
+          30000000.0,
+          50000000.0
+        ],
+        "train_tokens": [
+          0.0,
+          0.0
+        ],
+        "generated_samples": [
+          60000.0,
+          240000.0
+        ],
+        "speed_factor": [
+          1.0,
+          1.0
+        ],
+        "extra_evals": 0
+      },
+      {
+        "name": "M4 DPO",
+        "rl_runs": [
+          0,
+          0
+        ],
+        "rl_tokens": [
+          0.0,
+          0.0
+        ],
+        "train_tokens": [
+          240000000.0,
+          800000000.0
+        ],
+        "generated_samples": [
+          0.0,
+          0.0
+        ],
+        "speed_factor": [
+          1.0,
+          1.0
+        ],
+        "extra_evals": 1
+      },
+      {
+        "name": "M5 seed 1",
+        "rl_runs": [
+          3,
+          3
+        ],
+        "rl_tokens": [
+          100000000.0,
+          200000000.0
+        ],
+        "train_tokens": [
+          0.0,
+          0.0
+        ],
+        "generated_samples": [
+          0.0,
+          0.0
+        ],
+        "speed_factor": [
+          1.0,
+          1.0
+        ],
+        "extra_evals": 0
+      },
+      {
+        "name": "M6 seeds 2-3",
+        "rl_runs": [
+          6,
+          6
+        ],
+        "rl_tokens": [
+          100000000.0,
+          200000000.0
+        ],
+        "train_tokens": [
+          0.0,
+          0.0
+        ],
+        "generated_samples": [
+          0.0,
+          0.0
+        ],
+        "speed_factor": [
+          1.0,
+          1.0
+        ],
+        "extra_evals": 0
+      },
+      {
+        "name": "M7 ablations",
+        "rl_runs": [
+          3,
+          4
+        ],
+        "rl_tokens": [
+          100000000.0,
+          200000000.0
+        ],
+        "train_tokens": [
+          0.0,
+          0.0
+        ],
+        "generated_samples": [
+          0.0,
+          0.0
+        ],
+        "speed_factor": [
+          1.0,
+          1.0
+        ],
+        "extra_evals": 0
+      },
+      {
+        "name": "M7 group size",
+        "rl_runs": [
+          3,
+          3
+        ],
+        "rl_tokens": [
+          30000000.0,
+          50000000.0
+        ],
+        "train_tokens": [
+          0.0,
+          0.0
+        ],
+        "generated_samples": [
+          0.0,
+          0.0
+        ],
+        "speed_factor": [
+          1.0,
+          1.0
+        ],
+        "extra_evals": 0
+      },
+      {
+        "name": "M8 Gemma",
+        "rl_runs": [
+          2,
+          2
+        ],
+        "rl_tokens": [
+          100000000.0,
+          200000000.0
+        ],
+        "train_tokens": [
+          125000000.0,
+          500000000.0
+        ],
+        "generated_samples": [
+          0.0,
+          0.0
+        ],
+        "speed_factor": [
+          1.0,
+          1.5
+        ],
+        "extra_evals": 2
+      }
+    ]
+  },
+  "rl_rate_tokens_per_hour": {
+    "rate": 9282910.934749601,
+    "low": 8489574.425500223,
+    "high": 9762333.03839633
+  },
+  "train_tokens_per_hour": 24058458.041950136,
+  "eval_gpu_hours_per_checkpoint": 90.3,
+  "milestones": [
+    {
+      "name": "M2 SFT",
+      "low": {
+        "lane_a_hours": 5.195677951680885,
+        "lane_a_hours_with_queue_factor": 6.494597439601106,
+        "lane_a_days_with_queue_factor": 0.2706082266500461,
+        "hours_per_rl_run": 0.0,
+        "lane_b_every_save": {
+          "evaluations": 1,
+          "gpu_hours": 90.3,
+          "days": 0.37625
+        },
+        "lane_b_capped": {
+          "evaluations": 1,
+          "gpu_hours": 90.3,
+          "days": 0.37625
+        }
+      },
+      "high": {
+        "lane_a_hours": 20.78271180672354,
+        "lane_a_hours_with_queue_factor": 25.978389758404425,
+        "lane_a_days_with_queue_factor": 1.0824329066001843,
+        "hours_per_rl_run": 0.0,
+        "lane_b_every_save": {
+          "evaluations": 1,
+          "gpu_hours": 90.3,
+          "days": 0.37625
+        },
+        "lane_b_capped": {
+          "evaluations": 1,
+          "gpu_hours": 90.3,
+          "days": 0.37625
+        }
+      }
+    },
+    {
+      "name": "M3 screening",
+      "low": {
+        "lane_a_hours": 12.292143643125756,
+        "lane_a_hours_with_queue_factor": 15.365179553907195,
+        "lane_a_days_with_queue_factor": 0.6402158147461331,
+        "hours_per_rl_run": 3.073035910781439,
+        "lane_b_every_save": {
+          "evaluations": 8,
+          "gpu_hours": 824.2097846965876,
+          "days": 3.434207436235782
+        },
+        "lane_b_capped": {
+          "evaluations": 8,
+          "gpu_hours": 824.2097846965876,
+          "days": 3.434207436235782
+        }
+      },
+      "high": {
+        "lane_a_hours": 23.558306927524885,
+        "lane_a_hours_with_queue_factor": 29.447883659406106,
+        "lane_a_days_with_queue_factor": 1.2269951524752545,
+        "hours_per_rl_run": 5.889576731881221,
+        "lane_b_every_save": {
+          "evaluations": 8,
+          "gpu_hours": 1152.2635353855917,
+          "days": 4.801098064106632
+        },
+        "lane_b_capped": {
+          "evaluations": 8,
+          "gpu_hours": 1152.2635353855917,
+          "days": 4.801098064106632
+        }
+      }
+    },
+    {
+      "name": "M4 DPO",
+      "low": {
+        "lane_a_hours": 9.9757016672273,
+        "lane_a_hours_with_queue_factor": 12.469627084034125,
+        "lane_a_days_with_queue_factor": 0.5195677951680885,
+        "hours_per_rl_run": 0.0,
+        "lane_b_every_save": {
+          "evaluations": 1,
+          "gpu_hours": 90.3,
+          "days": 0.37625
+        },
+        "lane_b_capped": {
+          "evaluations": 1,
+          "gpu_hours": 90.3,
+          "days": 0.37625
+        }
+      },
+      "high": {
+        "lane_a_hours": 33.25233889075766,
+        "lane_a_hours_with_queue_factor": 41.56542361344708,
+        "lane_a_days_with_queue_factor": 1.731892650560295,
+        "hours_per_rl_run": 0.0,
+        "lane_b_every_save": {
+          "evaluations": 1,
+          "gpu_hours": 90.3,
+          "days": 0.37625
+        },
+        "lane_b_capped": {
+          "evaluations": 1,
+          "gpu_hours": 90.3,
+          "days": 0.37625
+        }
+      }
+    },
+    {
+      "name": "M5 seed 1",
+      "low": {
+        "lane_a_hours": 30.730359107814387,
+        "lane_a_hours_with_queue_factor": 38.412948884767985,
+        "lane_a_days_with_queue_factor": 1.6005395368653328,
+        "hours_per_rl_run": 10.24345303593813,
+        "lane_b_every_save": {
+          "evaluations": 12,
+          "gpu_hours": 1083.6,
+          "days": 4.515
+        },
+        "lane_b_capped": {
+          "evaluations": 12,
+          "gpu_hours": 1083.6,
+          "days": 4.515
+        }
+      },
+      "high": {
+        "lane_a_hours": 70.67492078257466,
+        "lane_a_hours_with_queue_factor": 88.34365097821832,
+        "lane_a_days_with_queue_factor": 3.680985457425763,
+        "hours_per_rl_run": 23.558306927524885,
+        "lane_b_every_save": {
+          "evaluations": 24,
+          "gpu_hours": 2167.2,
+          "days": 9.03
+        },
+        "lane_b_capped": {
+          "evaluations": 12,
+          "gpu_hours": 1083.6,
+          "days": 4.515
+        }
+      }
+    },
+    {
+      "name": "M6 seeds 2-3",
+      "low": {
+        "lane_a_hours": 61.46071821562877,
+        "lane_a_hours_with_queue_factor": 76.82589776953597,
+        "lane_a_days_with_queue_factor": 3.2010790737306656,
+        "hours_per_rl_run": 10.24345303593813,
+        "lane_b_every_save": {
+          "evaluations": 24,
+          "gpu_hours": 2167.2,
+          "days": 9.03
+        },
+        "lane_b_capped": {
+          "evaluations": 24,
+          "gpu_hours": 2167.2,
+          "days": 9.03
+        }
+      },
+      "high": {
+        "lane_a_hours": 141.34984156514932,
+        "lane_a_hours_with_queue_factor": 176.68730195643664,
+        "lane_a_days_with_queue_factor": 7.361970914851526,
+        "hours_per_rl_run": 23.558306927524885,
+        "lane_b_every_save": {
+          "evaluations": 48,
+          "gpu_hours": 4334.4,
+          "days": 18.06
+        },
+        "lane_b_capped": {
+          "evaluations": 24,
+          "gpu_hours": 2167.2,
+          "days": 9.03
+        }
+      }
+    },
+    {
+      "name": "M7 ablations",
+      "low": {
+        "lane_a_hours": 30.730359107814387,
+        "lane_a_hours_with_queue_factor": 38.412948884767985,
+        "lane_a_days_with_queue_factor": 1.6005395368653328,
+        "hours_per_rl_run": 10.24345303593813,
+        "lane_b_every_save": {
+          "evaluations": 12,
+          "gpu_hours": 1083.6,
+          "days": 4.515
+        },
+        "lane_b_capped": {
+          "evaluations": 12,
+          "gpu_hours": 1083.6,
+          "days": 4.515
+        }
+      },
+      "high": {
+        "lane_a_hours": 94.23322771009954,
+        "lane_a_hours_with_queue_factor": 117.79153463762442,
+        "lane_a_days_with_queue_factor": 4.907980609901018,
+        "hours_per_rl_run": 23.558306927524885,
+        "lane_b_every_save": {
+          "evaluations": 32,
+          "gpu_hours": 2889.6,
+          "days": 12.04
+        },
+        "lane_b_capped": {
+          "evaluations": 16,
+          "gpu_hours": 1444.8,
+          "days": 6.02
+        }
+      }
+    },
+    {
+      "name": "M7 group size",
+      "low": {
+        "lane_a_hours": 9.219107732344318,
+        "lane_a_hours_with_queue_factor": 11.523884665430398,
+        "lane_a_days_with_queue_factor": 0.4801618610595999,
+        "hours_per_rl_run": 3.073035910781439,
+        "lane_b_every_save": {
+          "evaluations": 6,
+          "gpu_hours": 541.8,
+          "days": 2.2575
+        },
+        "lane_b_capped": {
+          "evaluations": 6,
+          "gpu_hours": 541.8,
+          "days": 2.2575
+        }
+      },
+      "high": {
+        "lane_a_hours": 17.668730195643665,
+        "lane_a_hours_with_queue_factor": 22.08591274455458,
+        "lane_a_days_with_queue_factor": 0.9202463643564408,
+        "hours_per_rl_run": 5.889576731881221,
+        "lane_b_every_save": {
+          "evaluations": 6,
+          "gpu_hours": 541.8,
+          "days": 2.2575
+        },
+        "lane_b_capped": {
+          "evaluations": 6,
+          "gpu_hours": 541.8,
+          "days": 2.2575
+        }
+      }
+    },
+    {
+      "name": "M8 Gemma",
+      "low": {
+        "lane_a_hours": 25.682584023557144,
+        "lane_a_hours_with_queue_factor": 32.10323002944643,
+        "lane_a_days_with_queue_factor": 1.337634584560268,
+        "hours_per_rl_run": 10.24345303593813,
+        "lane_b_every_save": {
+          "evaluations": 10,
+          "gpu_hours": 903.0,
+          "days": 3.7624999999999997
+        },
+        "lane_b_capped": {
+          "evaluations": 10,
+          "gpu_hours": 903.0,
+          "days": 3.7624999999999997
+        }
+      },
+      "high": {
+        "lane_a_hours": 101.84898849265996,
+        "lane_a_hours_with_queue_factor": 127.31123561582494,
+        "lane_a_days_with_queue_factor": 5.304634817326039,
+        "hours_per_rl_run": 35.33746039128733,
+        "lane_b_every_save": {
+          "evaluations": 26,
+          "gpu_hours": 2347.7999999999997,
+          "days": 9.782499999999999
+        },
+        "lane_b_capped": {
+          "evaluations": 10,
+          "gpu_hours": 903.0,
+          "days": 3.7624999999999997
+        }
+      }
+    }
+  ],
+  "totals": {
+    "low": {
+      "lane_a_days_with_queue_factor": 9.650346429645467,
+      "lane_b_every_save": {
+        "evaluations": 74,
+        "lane_b_days": 28.26670743623578,
+        "critical_path_days": 28.410025231403868
+      },
+      "lane_b_capped": {
+        "evaluations": 74,
+        "lane_b_days": 28.26670743623578,
+        "critical_path_days": 28.410025231403868
+      }
+    },
+    "high": {
+      "lane_a_days_with_queue_factor": 26.21713887349652,
+      "lane_b_every_save": {
+        "evaluations": 146,
+        "lane_b_days": 56.723598064106625,
+        "critical_path_days": 58.78542362126711
+      },
+      "lane_b_capped": {
+        "evaluations": 78,
+        "lane_b_days": 31.13859806410663,
+        "critical_path_days": 34.74255843859315
+      }
+    }
+  }
+}

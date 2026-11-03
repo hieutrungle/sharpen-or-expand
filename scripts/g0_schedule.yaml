@@ -1,0 +1,45 @@
+# Inputs for scripts/g0_schedule.py, the schedule in the G0 memo (M1.12). Run counts and budgets are
+# the plan's (docs/milestone-plan.md, M2-M9); rates come from the reports named here. A pair is a
+# [low, high] range. Everything that is not measured is marked "assumed".
+throughput_report: docs/reports/m1_throughput.json
+throughput_run: m1_throughput_bf0_qwen35-4b  # the G0 mode, full BF16
+memory_report: docs/reports/m1_memory_study.json
+memory_cell: B-F0  # SFT/DPO train at its update rate (forward + backward over every token)
+eval_compute_report: docs/reports/m0_compute.json
+eval_family: soe-eval-v3  # one full evaluation of a 4B checkpoint (M0's base reference)
+eval_samples: 50416  # samples in that evaluation (docs/report/m0.md)
+queue_factor: 1.25  # the plan's factor for queueing and restarts
+save_every_hours: 3.0  # a save every 6 steps of ~0.5 h (M1.11), each evaluated on Lane B
+evals_per_run_cap: 4  # the alternative policy G1 can choose: at most 4 evaluated saves per run
+lane_b_workers: 10  # assumed: four A30s and six A10s; spare A40s would add to it
+mean_response_tokens: [9000, 9500]  # M1.11 steps 2..N (9,000) and M0's 4B-Base mean (~9.5K)
+milestones:
+  - name: M2 SFT
+    train_tokens: [125.0e+6, 500.0e+6]  # assumed: 25K-50K trajectories x 5K-10K tokens, 1 epoch
+    extra_evals: 1  # the SFT checkpoint
+  - name: M3 screening
+    rl_runs: [4, 4]  # GRPO, Dr.GRPO, DAPO, RS-GRPO
+    rl_tokens: [30.0e+6, 50.0e+6]
+    generated_samples: [60000, 240000]  # preference data: 15K-30K prompts x 4-8 samples
+  - name: M4 DPO
+    # assumed: 15K-30K pairs x 2 responses x 6K-10K tokens, x 4/3 for the reference forward
+    train_tokens: [240.0e+6, 800.0e+6]
+    extra_evals: 1
+  - name: M5 seed 1
+    rl_runs: [3, 3]  # GRPO, DAPO, RS-GRPO
+    rl_tokens: [100.0e+6, 200.0e+6]
+  - name: M6 seeds 2-3
+    rl_runs: [6, 6]
+    rl_tokens: [100.0e+6, 200.0e+6]
+  - name: M7 ablations
+    rl_runs: [3, 4]  # DAPO minus each component; overlong only if truncation shows up
+    rl_tokens: [100.0e+6, 200.0e+6]
+  - name: M7 group size
+    rl_runs: [3, 3]  # GRPO at G = 4, 8, 16, shorter runs matched by rollout tokens
+    rl_tokens: [30.0e+6, 50.0e+6]
+  - name: M8 Gemma
+    rl_runs: [2, 2]
+    rl_tokens: [100.0e+6, 200.0e+6]
+    train_tokens: [125.0e+6, 500.0e+6]  # Gemma SFT, the same recipe
+    speed_factor: [1.0, 1.5]  # assumed: Gemma 4 E4B is not measured; up to 1.5x the 4B time
+    extra_evals: 2  # Gemma base and Gemma SFT
