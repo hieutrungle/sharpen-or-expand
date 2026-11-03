@@ -1,0 +1,115 @@
+{
+ "version": "m2-sft-pilot-v1",
+ "config": {
+  "version": "m2-sft-pilot-v1",
+  "suite": "soe/trainer/config/eval_suite.yaml",
+  "model": "Qwen/Qwen3.5-4B-Base",
+  "problems": "datasets/soe/v1/sft/pool_clean.jsonl",
+  "problems_sha256": "87d55db66a7900aeabdeef3325e13e24f1bc54baca5456a55a1ca991a7949273",
+  "meta": "datasets/soe/v1/sft/pool_meta.jsonl",
+  "draw_seed": 20261103,
+  "draw_start": 0,
+  "draw_stop": 1000,
+  "samples_per_problem": 4,
+  "max_kept_per_problem": 2,
+  "sampling_seed": 2,
+  "num_shards": 8,
+  "work_dir": "samples/m2_sft_pilot"
+ },
+ "shard_files_sha256": {
+  "samples-0-of-8.jsonl": "9809c9b79a3a1c82e4474926595a5dc53e6ee425891b6de3d44cc38979615eea",
+  "samples-1-of-8.jsonl": "d06e54d8f8b73a7ea0b3677ea3eb81a3581fc55d35d8ad72f1f870c29ad474c7",
+  "samples-2-of-8.jsonl": "7154febe656ea51ccbf76a4a02b30b33384bb414a4855604309b08312ecad0fe",
+  "samples-3-of-8.jsonl": "ba2c120a73c6e8a96227a782fb0b19a0954b812561e78e795f4e6b15475f2be5",
+  "samples-4-of-8.jsonl": "c679a06c2dfd9cdf4fe17c9d99075e57978b45aa4842d665a8964978f20ed8b0",
+  "samples-5-of-8.jsonl": "f3dc126a89edecb5c4beacfd36a8d6d82cd1e651cfd3fef4704a2002851ea7cc",
+  "samples-6-of-8.jsonl": "3534cb16b238960d569d6f7b29194d607fa7495df9a027412b74db02139d6b33",
+  "samples-7-of-8.jsonl": "c8834bb44093a2211fd492586825a1ec6ebd340d2bb5acc1c929fc50c6b3f74c"
+ },
+ "problems": 1000,
+ "samples": 4000,
+ "accuracy": 0.76625,
+ "truncation_rate": 0.16125,
+ "stopped_boxed_rate": 1,
+ "stopped_one_think_end_rate": 1,
+ "kept_per_problem": {
+  "mean": 1.674,
+  "ci95": [
+   1.63,
+   1.717
+  ]
+ },
+ "problems_with_a_kept": 869,
+ "kept": 1674,
+ "kept_tokens": {
+  "mean": 4605.800477897252,
+  "histogram_upper_edges": {
+   "2048": 528,
+   "4096": 464,
+   "6144": 233,
+   "8192": 149,
+   "10240": 116,
+   "12288": 76,
+   "14336": 65,
+   "16384": 43
+  }
+ },
+ "kept_per_problem_by_difficulty": {
+  "2.5": {
+   "problems": 2,
+   "mean": 2
+  },
+  "3": {
+   "problems": 34,
+   "mean": 2
+  },
+  "3.5": {
+   "problems": 9,
+   "mean": 1.4444444444444444
+  },
+  "4": {
+   "problems": 50,
+   "mean": 1.9
+  },
+  "4.5": {
+   "problems": 53,
+   "mean": 1.7547169811320755
+  },
+  "5": {
+   "problems": 174,
+   "mean": 1.793103448275862
+  },
+  "5.5": {
+   "problems": 157,
+   "mean": 1.6815286624203822
+  },
+  "6": {
+   "problems": 186,
+   "mean": 1.7204301075268817
+  },
+  "6.5": {
+   "problems": 78,
+   "mean": 1.564102564102564
+  },
+  "7": {
+   "problems": 85,
+   "mean": 1.6823529411764706
+  },
+  "7.5": {
+   "problems": 53,
+   "mean": 1.3396226415094339
+  },
+  "8": {
+   "problems": 98,
+   "mean": 1.4387755102040816
+  },
+  "8.5": {
+   "problems": 18,
+   "mean": 1.3888888888888888
+  },
+  "9": {
+   "problems": 3,
+   "mean": 1
+  }
+ }
+}
