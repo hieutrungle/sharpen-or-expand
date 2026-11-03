@@ -107,3 +107,21 @@ def test_pilot_config_samples_the_clean_pool_as_roadmap_d4() -> None:
     assert (pilot.draw_start, pilot.draw_stop) == (0, 1000) and pilot.draw_stop <= clean["problems"]
     assert (pilot.samples_per_problem, pilot.max_kept_per_problem, pilot.sampling_seed) == (4, 2, 2)
     assert m.pinned_revision(pilot.model) == "1001bb4d826a52d1f399e183466143f4da7b741b"
+
+
+def test_full_config_continues_the_pilot_permutation() -> None:
+    import yaml
+
+    m = script()
+    pilot, full = (
+        m.SampleConfig.model_validate(
+            yaml.safe_load(Path(f"examples/data_preprocess/m2_sft_{name}.yaml").read_text())
+        )
+        for name in ("pilot", "full")
+    )
+    same = ("suite", "model", "problems", "problems_sha256", "meta", "draw_seed", "sampling_seed")
+    assert all(getattr(pilot, f) == getattr(full, f) for f in same)
+    assert (pilot.samples_per_problem, pilot.max_kept_per_problem) == (4, 2)
+    assert (full.samples_per_problem, full.max_kept_per_problem) == (4, 2)
+    assert (full.draw_start, full.draw_stop) == (pilot.draw_stop, 16000)  # M2.4's size
+    assert full.work_dir != pilot.work_dir
