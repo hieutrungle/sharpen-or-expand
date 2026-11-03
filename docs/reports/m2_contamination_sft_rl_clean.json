@@ -1,0 +1,62 @@
+{
+ "train": {
+  "path": "datasets/soe/v1/sft/pool_clean.jsonl",
+  "problems": 76565,
+  "sha256": "87d55db66a7900aeabdeef3325e13e24f1bc54baca5456a55a1ca991a7949273"
+ },
+ "references": {
+  "rl_train": {
+   "path": "datasets/soe/v3.1/rl/train.jsonl",
+   "problems": 11868,
+   "sha256": "427319c026558a0ea2894b96be4539397d407340e315c8e147419150ba344837"
+  },
+  "rl_val": {
+   "path": "datasets/soe/v3.1/rl/val.jsonl",
+   "problems": 256,
+   "sha256": "393e175ea162112e57d76118baa8c6449d87fee8bc8eb146decfb8ccf7797a6c"
+  }
+ },
+ "frozen_rule": {
+  "ngram": 13,
+  "min_fraction": 0.5
+ },
+ "min_share": 0.2,
+ "residual_at_frozen_rule": {
+  "single_problem": [],
+  "covered_by_union": []
+ },
+ "candidate_pairs": 0,
+ "per_category": {
+  "E": {
+   "pairs": 0,
+   "same_answer": 0
+  },
+  "R": {
+   "pairs": 0,
+   "same_answer": 0
+  },
+  "V": {
+   "pairs": 0,
+   "same_answer": 0
+  }
+ },
+ "deletion_options": {
+  "1_identical_text (E)": {
+   "train_dropped": 0,
+   "references_by_level": {}
+  },
+  "2_same_problem (E, R, or same answer)": {
+   "train_dropped": 0,
+   "references_by_level": {}
+  },
+  "3_plus_close_variants (option 2, or share >= 0.3)": {
+   "train_dropped": 0,
+   "references_by_level": {}
+  },
+  "4_everything_listed (share >= 0.2)": {
+   "train_dropped": 0,
+   "references_by_level": {}
+  }
+ },
+ "pairs": []
+}

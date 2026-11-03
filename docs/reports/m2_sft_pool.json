@@ -1,0 +1,72 @@
+{
+ "version": "sft-pool-v1",
+ "source": {
+  "hf_id": "zwhe99/DeepMath-103K",
+  "revision": "5cf055d1fe3d7a2eb19719ac020211469736ae44",
+  "released": "2025-04-14",
+  "last_modified": "2025-05-29"
+ },
+ "rows": 103022,
+ "kept": 81260,
+ "dropped": {
+  "binary_answer": 18876,
+  "duplicate_question": 1076,
+  "empty": 2,
+  "gold_unreadable": 1342,
+  "word_answer": 466
+ },
+ "kept_by_difficulty": {
+  "-1": 4,
+  "1": 14,
+  "1.5": 34,
+  "2": 104,
+  "2.5": 131,
+  "3": 2984,
+  "3.5": 902,
+  "4": 5070,
+  "4.5": 3956,
+  "5": 14822,
+  "5.5": 12996,
+  "6": 14943,
+  "6.5": 6174,
+  "7": 6434,
+  "7.5": 4676,
+  "8": 6418,
+  "8.5": 1288,
+  "9": 298,
+  "9.5": 11,
+  "10": 1
+ },
+ "kept_by_topic_top20": {
+  "Mathematics -> Calculus -> Integral Calculus -> Techniques of Integration -> Single-variable": 7428,
+  "Mathematics -> Precalculus -> Limits": 6908,
+  "Mathematics -> Calculus -> Differential Calculus -> Applications of Derivatives": 5280,
+  "Mathematics -> Calculus -> Integral Calculus -> Techniques of Integration -> Multi-variable": 4394,
+  "Mathematics -> Calculus -> Integral Calculus -> Applications of Integrals": 3760,
+  "Mathematics -> Applied Mathematics -> Statistics -> Probability -> Other": 3627,
+  "Mathematics -> Discrete Mathematics -> Combinatorics": 2892,
+  "Mathematics -> Algebra -> Intermediate Algebra -> Other": 2714,
+  "Mathematics -> Algebra -> Algebra -> Polynomial Operations": 2693,
+  "Mathematics -> Algebra -> Algebra -> Equations and Inequalities": 2455,
+  "Mathematics -> Number Theory -> Congruences": 2124,
+  "Mathematics -> Calculus -> Differential Calculus -> Derivatives": 2066,
+  "Mathematics -> Algebra -> Abstract Algebra -> Group Theory": 2031,
+  "Mathematics -> Algebra -> Linear Algebra -> Matrices": 1941,
+  "Mathematics -> Geometry -> Plane Geometry -> Triangulations": 1784,
+  "Mathematics -> Algebra -> Intermediate Algebra -> Exponential Functions": 1714,
+  "Mathematics -> Other": 1674,
+  "Mathematics -> Algebra -> Abstract Algebra -> Field Theory": 1598,
+  "Mathematics -> Algebra -> Intermediate Algebra -> Complex Numbers": 1487,
+  "Mathematics -> Precalculus -> Trigonometric Functions": 1359
+ },
+ "files": {
+  "pool.jsonl": {
+   "path": "datasets/soe/v1/sft/pool.jsonl",
+   "sha256": "e255c1f32399a1a5952746562138a4f9331bb98d144ec3f5c46c48c5c6ac665f"
+  },
+  "pool_meta.jsonl": {
+   "path": "datasets/soe/v1/sft/pool_meta.jsonl",
+   "sha256": "b5c870733473c4adb948325e1a1a3df323fee0864230b5dc315779f2022bf5f7"
+  }
+ }
+}

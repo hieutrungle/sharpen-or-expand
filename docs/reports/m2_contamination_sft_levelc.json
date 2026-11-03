@@ -1,0 +1,636 @@
+{
+ "train": {
+  "path": "datasets/soe/v1/sft/pool.jsonl",
+  "problems": 81260,
+  "sha256": "e255c1f32399a1a5952746562138a4f9331bb98d144ec3f5c46c48c5c6ac665f"
+ },
+ "references": {
+  "aime26": {
+   "path": "datasets/soe/v2/eval/aime26.jsonl",
+   "problems": 29,
+   "sha256": "8bf934043a664da4fb915f0f89b6f1bf300a74e56b4196865d928922cf625a49"
+  },
+  "hmmt_feb26": {
+   "path": "datasets/soe/v2/eval/hmmt_feb26.jsonl",
+   "problems": 33,
+   "sha256": "ba031e94b0b35e7b616b52c3ad2fcaba677926a2b422f3380c8514a6c4438787"
+  },
+  "hmmt_nov25": {
+   "path": "datasets/soe/v2/eval/hmmt_nov25.jsonl",
+   "problems": 30,
+   "sha256": "e0aab96067e75fd13cd4ba65d95e45f44dd67a47067f9fd6ac8f15e29b89a75d"
+  },
+  "hmmt_feb25": {
+   "path": "datasets/soe/v2/eval/hmmt_feb25.jsonl",
+   "problems": 30,
+   "sha256": "65be3dfbe1eda324c432783dee088d8e0f0588ad97d8b3c9a45514a8d1a95812"
+  },
+  "brumo25": {
+   "path": "datasets/soe/v2/eval/brumo25.jsonl",
+   "problems": 30,
+   "sha256": "9dcb21a1de89dd4f023180efd613926a698d6c32a955433e5c3e383232271b90"
+  },
+  "smt25": {
+   "path": "datasets/soe/v2/eval/smt25.jsonl",
+   "problems": 53,
+   "sha256": "8af0b3eb8f0cb16064d2ce095f5bd5927bcd9ef97cf5ea3443360f4e56462ac5"
+  },
+  "cmimc25": {
+   "path": "datasets/soe/v2/eval/cmimc25.jsonl",
+   "problems": 40,
+   "sha256": "0132f3a9535d8f3bfa6239e0b6c2093393d9c158950b1b072c5fee84ef491330"
+  }
+ },
+ "frozen_rule": {
+  "ngram": 13,
+  "min_fraction": 0.5
+ },
+ "min_share": 0.1,
+ "residual_at_frozen_rule": {
+  "single_problem": [],
+  "covered_by_union": []
+ },
+ "candidate_pairs": 60,
+ "per_category": {
+  "E": {
+   "pairs": 0,
+   "same_answer": 0
+  },
+  "R": {
+   "pairs": 0,
+   "same_answer": 0
+  },
+  "V": {
+   "pairs": 60,
+   "same_answer": 2
+  }
+ },
+ "deletion_options": {
+  "1_identical_text (E)": {
+   "train_dropped": 0,
+   "references_by_level": {}
+  },
+  "2_same_problem (E, R, or same answer)": {
+   "train_dropped": 2,
+   "references_by_level": {
+    "C2": 1
+   }
+  },
+  "3_plus_close_variants (option 2, or share >= 0.3)": {
+   "train_dropped": 4,
+   "references_by_level": {
+    "C1": 1,
+    "C2": 2
+   }
+  },
+  "4_everything_listed (share >= 0.1)": {
+   "train_dropped": 59,
+   "references_by_level": {
+    "C1": 5,
+    "C2": 8
+   }
+  }
+ },
+ "pairs": [
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/0bb97ecc19066499",
+   "share_13": 0.0,
+   "share_8": 0.115,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/1a30059abf73425a",
+   "share_13": 0.235,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/1c2b5a8ae7633d8d",
+   "share_13": 0.275,
+   "share_8": 0.288,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/23e27f1cafad2a4f",
+   "share_13": 0.255,
+   "share_8": 0.269,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/252d7c4843f8107c",
+   "share_13": 0.235,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/34a00ef21a8444c2",
+   "share_13": 0.235,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/8bbb832fe7dc1316",
+   "share_13": 0.255,
+   "share_8": 0.269,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/ad13376b6795aace",
+   "share_13": 0.314,
+   "share_8": 0.327,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/b6e16c36eda79f17",
+   "share_13": 0.216,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/baf35befb44765f7",
+   "share_13": 0.196,
+   "share_8": 0.212,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/fad9a304b39b4d31",
+   "share_13": 0.235,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "aime26/14",
+   "level": "C1",
+   "train": "deepmath/faee508a64aa51f4",
+   "share_13": 0.235,
+   "share_8": 0.25,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/040140f2459d21c9",
+   "share_13": 0.0,
+   "share_8": 0.222,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/190d48f6e4b6e305",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/1b999c4ff5fb5334",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/2c96c4167a84ee6f",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/3112836dc0659535",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/33803cf9fb31adf6",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/59ea388dca43d9f4",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/6d1e368a37516d44",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/871ed0f1e41fd9d8",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/9397b490d1d49aa3",
+   "share_13": 0.0,
+   "share_8": 0.444,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/a708115a5bb07b75",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/ad30ed5251c2a0e4",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/c0e86bb147174d43",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/df2c3c9f3d29d846",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/16",
+   "level": "C2",
+   "train": "deepmath/fe5a89203cf18c2d",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/13e109882bad53ba",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/3026084e2197f7be",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/43c93e5ad1da8736",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/6e6ccd682e04a463",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/79eea4285cc22087",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/82ea84cc7b0abbf5",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/8549e76945abeb2f",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/aa9a960cd4ba8021",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/b14b8ea501284d3d",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/c9c1b8b2946a847a",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": true,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/e10eea0e11f08ed0",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/19",
+   "level": "C2",
+   "train": "deepmath/fb319b08c06f74c5",
+   "share_13": 0.0,
+   "share_8": 0.125,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "brumo25/4",
+   "level": "C2",
+   "train": "deepmath/d1bc518b33a8f4a1",
+   "share_13": 0.0,
+   "share_8": 0.167,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb25/4",
+   "level": "C2",
+   "train": "deepmath/282aefdfa17ccf6e",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb25/4",
+   "level": "C2",
+   "train": "deepmath/4e0a8627b2fae54e",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb25/4",
+   "level": "C2",
+   "train": "deepmath/582b298106568d79",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb25/4",
+   "level": "C2",
+   "train": "deepmath/a049f70d81099c37",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/2",
+   "level": "C1",
+   "train": "deepmath/9397b490d1d49aa3",
+   "share_13": 0.0,
+   "share_8": 0.13,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/23",
+   "level": "C1",
+   "train": "deepmath/8097786a9a3178fa",
+   "share_13": 0.0,
+   "share_8": 0.147,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/3",
+   "level": "C1",
+   "train": "deepmath/0cbc8bbf9024d292",
+   "share_13": 0.0,
+   "share_8": 0.15,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/3",
+   "level": "C1",
+   "train": "deepmath/13e19881489a9fa2",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/3",
+   "level": "C1",
+   "train": "deepmath/428d6066bd98bf9a",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/3",
+   "level": "C1",
+   "train": "deepmath/52020a7ff8cdd4f5",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/3",
+   "level": "C1",
+   "train": "deepmath/56a45ab9fdf6ffe9",
+   "share_13": 0.0,
+   "share_8": 0.15,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/3",
+   "level": "C1",
+   "train": "deepmath/838b572708e7e992",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/3",
+   "level": "C1",
+   "train": "deepmath/c1911b0ec03786db",
+   "share_13": 0.0,
+   "share_8": 0.15,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_feb26/5",
+   "level": "C1",
+   "train": "deepmath/4236926ff67724e9",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "hmmt_nov25/26",
+   "level": "C2",
+   "train": "deepmath/7584acb1cbfa3092",
+   "share_13": 0.0,
+   "share_8": 0.103,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "smt25/36",
+   "level": "C2",
+   "train": "deepmath/5c95a434c572df4a",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "smt25/36",
+   "level": "C2",
+   "train": "deepmath/ecec22447aa30c11",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "smt25/50",
+   "level": "C2",
+   "train": "deepmath/258df615daeba515",
+   "share_13": 0.0,
+   "share_8": 0.1,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "smt25/50",
+   "level": "C2",
+   "train": "deepmath/f703c2abaf6afbd9",
+   "share_13": 0.0,
+   "share_8": 0.111,
+   "same_answer": false,
+   "category": "V"
+  },
+  {
+   "reference": "smt25/52",
+   "level": "C2",
+   "train": "deepmath/5d983156d8ccebae",
+   "share_13": 0.0,
+   "share_8": 0.105,
+   "same_answer": false,
+   "category": "V"
+  }
+ ]
+}

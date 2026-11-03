@@ -1,0 +1,45 @@
+{
+ "pool": {
+  "path": "datasets/soe/v1/sft/pool.jsonl",
+  "sha256": "e255c1f32399a1a5952746562138a4f9331bb98d144ec3f5c46c48c5c6ac665f"
+ },
+ "rounds": [
+  {
+   "round": 1,
+   "pool_sha256": "e255c1f32399a1a5952746562138a4f9331bb98d144ec3f5c46c48c5c6ac665f",
+   "problems": 81260,
+   "listed": {
+    "docs/reports/m2_contamination_sft.json": 640,
+    "docs/reports/m2_contamination_sft_levelc.json": 59,
+    "docs/reports/m2_contamination_sft_rl.json": 4170
+   },
+   "dropped": 4641,
+   "reports_sha256": {
+    "docs/reports/m2_contamination_sft.json": "634444deace726b9b2d836d1e5b5ce6f066ffac48824fce51ed66186a944ec04",
+    "docs/reports/m2_contamination_sft_levelc.json": "6238f8c96c11c318504fea1a89c20b984d273b474d5e20e58f7909d1c6ccaed4",
+    "docs/reports/m2_contamination_sft_rl.json": "1560a76d03c6b4c22b01f9eada6d96a626be8d684141aafbbe9337614ce449a4"
+   }
+  },
+  {
+   "round": 2,
+   "pool_sha256": "51cdf0c7fbdc97962ceb654d638195baa1290d8de800e59198b41ba9fb860f8f",
+   "problems": 76619,
+   "listed": {
+    "docs/reports/m2_contamination_sft_r2.json": 6,
+    "docs/reports/m2_contamination_sft_levelc_r2.json": 0,
+    "docs/reports/m2_contamination_sft_rl_r2.json": 53
+   },
+   "dropped": 54,
+   "reports_sha256": {
+    "docs/reports/m2_contamination_sft_r2.json": "679676362649bf7fb38e8d20e7a7c22de8176be372138f12de508a674409d4b1",
+    "docs/reports/m2_contamination_sft_levelc_r2.json": "8ccbf4976b4fad8b1dce575cffae6045125349c525dd2ca9590cefec710f1b2f",
+    "docs/reports/m2_contamination_sft_rl_r2.json": "45ef85707c3e0e9fe9ccef9994d799255bc8a97ba5154fc5ea91595b319403a0"
+   }
+  }
+ ],
+ "clean": {
+  "path": "datasets/soe/v1/sft/pool_clean.jsonl",
+  "sha256": "87d55db66a7900aeabdeef3325e13e24f1bc54baca5456a55a1ca991a7949273",
+  "problems": 76565
+ }
+}
