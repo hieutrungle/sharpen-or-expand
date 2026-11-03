@@ -1,0 +1,17 @@
+# M2.5 SFT data (roadmap D1 (c), D3, D4; decision 027): Qwen3.5-4B-Base's kept trajectories on
+# problems [0, 16000) of the clean pool's seeded permutation (M2.4's size), minus the problems that
+# decision 027's checks list on the kept set; 500 validation problems. Paths under $SOE_DATA unless
+# marked as repo paths.
+version: m2-sft-v1
+samples:  # repo paths, in draw order
+  - examples/data_preprocess/m2_sft_pilot.yaml
+  - examples/data_preprocess/m2_sft_full.yaml
+kept_problems: datasets/soe/v1/sft/kept_problems.jsonl
+clean_problems: datasets/soe/v1/sft/kept_problems_clean.jsonl
+clean_problems_sha256: null  # set from docs/reports/m2_sft_kept_clean.json after the cleaner
+clean_report: docs/reports/m2_sft_kept_clean.json  # repo path
+output_dir: datasets/soe/v1/sft
+val_problems: 500
+seed: 20261104
+max_length: 18432  # decision 023 (main_sft drops longer examples)
+report: docs/reports/m2_sft_data.json  # repo path
