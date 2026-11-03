@@ -7,3 +7,4 @@ per figure in `viz/`.
 | Chapter | Milestone | Status |
 |---|---|---|
 | [1 — The yardstick: evaluation suite, verifier and data](m0.md) | M0 | draft |
+| [2 — A working pipeline and what 4B training costs](m1.md) | M1 | draft |

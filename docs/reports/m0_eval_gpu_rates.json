@@ -1,0 +1,29 @@
+{
+  "eval_dir": "qwen35-4b-base_soe-eval-v3",
+  "shards": 96,
+  "completion_tokens": 487945471,
+  "shard_hours": 89.67666666666666,
+  "by_gpu": {
+    "A10": {
+      "shards": 18,
+      "shard_hours": 26.564722222222223,
+      "completion_tokens": 101510056,
+      "tokens_per_second": 1061.454267878243,
+      "median_shard_tokens_per_second": 1059.0511086405274
+    },
+    "A30": {
+      "shards": 27,
+      "shard_hours": 25.2425,
+      "completion_tokens": 137842770,
+      "tokens_per_second": 1516.8726684493745,
+      "median_shard_tokens_per_second": 1522.8745236001173
+    },
+    "A40": {
+      "shards": 51,
+      "shard_hours": 37.86944444444445,
+      "completion_tokens": 248592645,
+      "tokens_per_second": 1823.4625174209639,
+      "median_shard_tokens_per_second": 1827.8775781769793
+    }
+  }
+}

@@ -1,11 +1,11 @@
 # 025 — G0: full BF16 for every 4B run, and one shared 4B base config
 
 - Date: 2026-11-03
-- Status: proposed (training modes: user, 2026-11-03, "Full BF16" and SFT "Same as the RL mode";
-  the memo `docs/gates/G0.md` awaits sign-off)
+- Status: accepted (user, 2026-11-03: training modes "Full BF16" and SFT "Same as the RL mode";
+  memo `docs/gates/G0.md` signed off, "The G0 memo is good")
 - Milestone: M1 (task M1.12, gate G0)
 - Evidence: `docs/reports/m1_memory_study.json`, `docs/reports/m1_throughput.json`,
-  `docs/reports/g0_schedule.json`
+  `docs/reports/g0_schedule.json`, `docs/reports/m0_eval_gpu_rates.json`
 
 ## Context
 

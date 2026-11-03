@@ -63,10 +63,10 @@ Lane B builds and debugs the full pipeline on Qwen3.5-2B; Lane A spends about tw
 
 Exit criteria:
 
-- [ ] 2B GRPO run shows training reward rising with sensible evaluation behaviour
-- [ ] A deliberately killed job resumes from checkpoint with identical metrics continuity
-- [ ] **Gate G0:** full BF16 or BF16 LoRA chosen for all 4B algorithms; the memo also fixes the development model and which GPU type runs which comparison, including the Lane A type and the fallback rule when fc098 is unavailable
-- [ ] Measured throughput converts the 30–50M and 100–200M rollout-token budgets into wall-clock hours
+- [x] 2B GRPO run shows training reward rising with sensible evaluation behaviour
+- [x] A deliberately killed job resumes from checkpoint with identical metrics continuity
+- [x] **Gate G0:** full BF16 or BF16 LoRA chosen for all 4B algorithms; the memo also fixes the development model and which GPU type runs which comparison, including the Lane A type and the fallback rule when fc098 is unavailable
+- [x] Measured throughput converts the 30–50M and 100–200M rollout-token budgets into wall-clock hours
 
 ### M2 — Frozen SFT checkpoint (Weeks 2–3, Lane A trains, Lane B evaluates)
 
@@ -211,3 +211,5 @@ These hold for every run from M2 onward; breaking one makes the algorithm compar
 - RL rollouts sample at temperature 1.0, top-p 1.0 for every algorithm, for exploration; in-loop validation keeps the evaluation settings (0.6 / 0.95), and evaluation is unchanged (decision 017, replacing the sampling half of decision 014). DPO preference pairs are sampled at 1.0 / 1.0 as well, following the closest published setup (Online-DPO-R1; decision 017 amendment). Reward 0 at the cap stands. The report states that RL optimises a different sampler from the one pass@k measures.
 
 Details: `docs/roadmap/M1.md`.
+
+**2026-11-03, closing M1.** M1's exit criteria are ticked. Gate G0 (`docs/gates/G0.md`, decision 025) fixes full BF16 on 4×A40 (fc098) for every 4B run, SFT included, with one shared 4B base config and a frozen image. Measured rates put all Lane A work from M2 to M8 at about 10–26 days, against the 40–60 estimated in this plan, so Lane B evaluation, not Lane A, now limits the schedule; G1 fixes how many saves per run are evaluated. M1 used about 230 GPU-hours, above the 145–220 estimate (an IPC crash in the memory study, and both training modes run in the throughput study). Details: `docs/roadmap/M1.md` and the M1 report chapter.

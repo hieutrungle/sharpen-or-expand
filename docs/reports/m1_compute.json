@@ -1,0 +1,226 @@
+{
+ "since": "2026-10-28",
+ "until": "2026-11-04",
+ "total_gpu_hours": 321.9,
+ "families": {
+  "soe-eval-v3": {
+   "jobs": 14,
+   "gpu_hours": 90.3,
+   "by_gpu": {
+    "a10": 26.7,
+    "a30": 25.6,
+    "a40": 38.1
+   }
+  },
+  "soe-m1.10-probe-bl": {
+   "jobs": 2,
+   "gpu_hours": 49.5,
+   "by_gpu": {
+    "a40": 49.5
+   }
+  },
+  "soe-train": {
+   "jobs": 2,
+   "gpu_hours": 36.2,
+   "by_gpu": {
+    "a40": 36.2
+   }
+  },
+  "soe-m1.11-bf0": {
+   "jobs": 1,
+   "gpu_hours": 28.1,
+   "by_gpu": {
+    "a40": 28.1
+   }
+  },
+  "soe-m1.11-bl": {
+   "jobs": 1,
+   "gpu_hours": 26.3,
+   "by_gpu": {
+    "a40": 26.3
+   }
+  },
+  "soe-m1-resume-control": {
+   "jobs": 3,
+   "gpu_hours": 14.4,
+   "by_gpu": {
+    "a40": 14.4
+   }
+  },
+  "soe-m1.10-bl": {
+   "jobs": 1,
+   "gpu_hours": 11.8,
+   "by_gpu": {
+    "a40": 11.8
+   }
+  },
+  "soe-m1.9-dev": {
+   "jobs": 1,
+   "gpu_hours": 11.0,
+   "by_gpu": {
+    "a40": 11.0
+   }
+  },
+  "soe-m1.10-bf0": {
+   "jobs": 1,
+   "gpu_hours": 11.0,
+   "by_gpu": {
+    "a40": 11.0
+   }
+  },
+  "soe-m1.10-probe-bf0": {
+   "jobs": 1,
+   "gpu_hours": 10.0,
+   "by_gpu": {
+    "a40": 10.0
+   }
+  },
+  "soe-m1-resume-test": {
+   "jobs": 2,
+   "gpu_hours": 9.8,
+   "by_gpu": {
+    "a40": 9.8
+   }
+  },
+  "soe-m1-smoke": {
+   "jobs": 4,
+   "gpu_hours": 5.2,
+   "by_gpu": {
+    "a40": 5.2
+   }
+  },
+  "soe-m1.10-smoke": {
+   "jobs": 3,
+   "gpu_hours": 1.8,
+   "by_gpu": {
+    "a40": 1.8
+   }
+  },
+  "soe-m1.8-sft": {
+   "jobs": 3,
+   "gpu_hours": 1.7,
+   "by_gpu": {
+    "a30": 1.7
+   }
+  },
+  "soe-m1.9-eval-base": {
+   "jobs": 6,
+   "gpu_hours": 1.7,
+   "by_gpu": {
+    "a30": 1.1,
+    "a40": 0.6
+   }
+  },
+  "soe-m1.8-smoke": {
+   "jobs": 2,
+   "gpu_hours": 1.6,
+   "by_gpu": {
+    "a30": 0.5,
+    "a40": 1.1
+   }
+  },
+  "soe-m1.6-smoke": {
+   "jobs": 1,
+   "gpu_hours": 1.5,
+   "by_gpu": {
+    "a40": 1.5
+   }
+  },
+  "soe-m1.9-eval-s37": {
+   "jobs": 4,
+   "gpu_hours": 1.5,
+   "by_gpu": {
+    "a10": 0.5,
+    "a40": 1.0
+   }
+  },
+  "soe-m1-identity-full": {
+   "jobs": 5,
+   "gpu_hours": 1.4,
+   "by_gpu": {
+    "a30": 0.9,
+    "a40": 0.5
+   }
+  },
+  "soe-m1.9-eval-s12": {
+   "jobs": 3,
+   "gpu_hours": 1.4,
+   "by_gpu": {
+    "a30": 1.0,
+    "a40": 0.4
+   }
+  },
+  "soe-m1.9-eval-s24": {
+   "jobs": 3,
+   "gpu_hours": 1.4,
+   "by_gpu": {
+    "a30": 1.0,
+    "a40": 0.4
+   }
+  },
+  "soe-eval-v2b": {
+   "jobs": 4,
+   "gpu_hours": 0.9,
+   "by_gpu": {
+    "a30": 0.5,
+    "a40": 0.4
+   }
+  },
+  "soe-m1.10-smoke-bl": {
+   "jobs": 1,
+   "gpu_hours": 0.8,
+   "by_gpu": {
+    "a40": 0.8
+   }
+  },
+  "soe-m1-identity-lora": {
+   "jobs": 2,
+   "gpu_hours": 0.7,
+   "by_gpu": {
+    "a30": 0.7
+   }
+  },
+  "soe-fp8-probe": {
+   "jobs": 2,
+   "gpu_hours": 0.7,
+   "by_gpu": {
+    "a40": 0.7
+   }
+  },
+  "soe-m1.8-eval": {
+   "jobs": 1,
+   "gpu_hours": 0.5,
+   "by_gpu": {
+    "a30": 0.5
+   }
+  },
+  "soe-m1-eval-smoke": {
+   "jobs": 1,
+   "gpu_hours": 0.5,
+   "by_gpu": {
+    "a40": 0.5
+   }
+  },
+  "soe-gpu-probe": {
+   "jobs": 1,
+   "gpu_hours": 0.0,
+   "by_gpu": {
+    "a40": 0.0
+   }
+  },
+  "soe-m1-tmpclean": {
+   "jobs": 1,
+   "gpu_hours": 0.0,
+   "by_gpu": {
+    "a40": 0.0
+   }
+  },
+  "soe-m1-guard": {
+   "jobs": 1,
+   "gpu_hours": 0.0,
+   "by_gpu": {
+    "a30": 0.0
+   }
+  }
+ }
+}
