@@ -1,0 +1,481 @@
+{
+  "created_at": "2026-11-03T06:26:03.998330+00:00",
+  "job_hours": 66.0,
+  "queue_factor": 1.25,
+  "runs": [
+    {
+      "run_dir": "runs/20261102-153916-m1_throughput_bf0_qwen35-4b-s20261029-j3230133",
+      "config_name": "m1_throughput_bf0_qwen35-4b",
+      "training_mode": "full_bf16",
+      "gpus": "4 NVIDIA A40, 49140 MiB",
+      "node": "fc098",
+      "commit": "6eaf356b7640646e983c8541ad207121ff366f38",
+      "segments": 1,
+      "steps": 14,
+      "rollout_tokens": 65081310,
+      "wall_clock_hours": 7.010873039444444,
+      "rate_tokens_per_hour": 9282910.934749601,
+      "rate_spread": 0.018449318721713518,
+      "per_step_rate_tokens_per_hour": {
+        "2": 10300571.066443179,
+        "3": 10419766.321306217,
+        "4": 10347737.26491478,
+        "5": 10411375.19531173,
+        "6": 10325871.245306255,
+        "7": 10471416.767525418,
+        "8": 10300786.912918933,
+        "9": 10393129.622986574,
+        "10": 10229552.278967228,
+        "11": 10419914.73074483,
+        "12": 9921653.716701897,
+        "13": 10279196.335699841,
+        "14": 9846904.23104115
+      },
+      "time_split_hours": {
+        "steps": 6.318993621917649,
+        "validation": 0.41652169440303827,
+        "other": 0.27535772312375784
+      },
+      "validation_passes_s": {
+        "6": 501.57399339973927,
+        "12": 508.21284575760365,
+        "14": 489.6912606935948
+      },
+      "save_s": {
+        "6": 20.474151426926255,
+        "12": 31.00644331239164,
+        "14": 37.026832181960344
+      },
+      "base_response_length": 10132.10546875,
+      "run_response_length": 8998.448317307691,
+      "length_fit": {
+        "a": 194.1295106940197,
+        "b": 0.15762711903419296,
+        "se_b": 0.011074628020297059
+      },
+      "budgets": [
+        {
+          "rollout_tokens": 30000000,
+          "hours": 3.231744892402032,
+          "hours_range": [
+            3.1732014868037743,
+            3.292489072691884
+          ],
+          "jobs": 1,
+          "hours_with_queue_factor": 4.039681115502541
+        },
+        {
+          "rollout_tokens": 50000000,
+          "hours": 5.38624148733672,
+          "hours_range": [
+            5.288669144672957,
+            5.4874817878198066
+          ],
+          "jobs": 1,
+          "hours_with_queue_factor": 6.7328018591709
+        },
+        {
+          "rollout_tokens": 100000000,
+          "hours": 10.77248297467344,
+          "hours_range": [
+            10.577338289345914,
+            10.974963575639613
+          ],
+          "jobs": 1,
+          "hours_with_queue_factor": 13.4656037183418
+        },
+        {
+          "rollout_tokens": 200000000,
+          "hours": 21.54496594934688,
+          "hours_range": [
+            21.154676578691827,
+            21.949927151279226
+          ],
+          "jobs": 1,
+          "hours_with_queue_factor": 26.9312074366836
+        }
+      ],
+      "length_sensitivity": [
+        {
+          "length_factor": 0.5,
+          "mean_response_length": 5066.052734375,
+          "rate_tokens_per_hour": 8489574.425500223,
+          "extrapolated": true,
+          "budgets": [
+            {
+              "rollout_tokens": 30000000,
+              "hours": 3.5337460391287325,
+              "hours_range": [
+                3.469731850342876,
+                3.600166661314613
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 4.417182548910915
+            },
+            {
+              "rollout_tokens": 50000000,
+              "hours": 5.889576731881221,
+              "hours_range": [
+                5.782886417238126,
+                6.000277768857689
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 7.361970914851526
+            },
+            {
+              "rollout_tokens": 100000000,
+              "hours": 11.779153463762443,
+              "hours_range": [
+                11.565772834476252,
+                12.000555537715378
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 14.723941829703053
+            },
+            {
+              "rollout_tokens": 200000000,
+              "hours": 23.558306927524885,
+              "hours_range": [
+                23.131545668952505,
+                24.001111075430757
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 29.447883659406106
+            }
+          ]
+        },
+        {
+          "length_factor": 1.0,
+          "mean_response_length": 10132.10546875,
+          "rate_tokens_per_hour": 9409658.587039463,
+          "extrapolated": true,
+          "budgets": [
+            {
+              "rollout_tokens": 30000000,
+              "hours": 3.1882134428682627,
+              "hours_range": [
+                3.130458614150663,
+                3.2481394019473457
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 3.9852668035853283
+            },
+            {
+              "rollout_tokens": 50000000,
+              "hours": 5.313689071447104,
+              "hours_range": [
+                5.217431023584439,
+                5.413565669912242
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 6.64211133930888
+            },
+            {
+              "rollout_tokens": 100000000,
+              "hours": 10.627378142894209,
+              "hours_range": [
+                10.434862047168878,
+                10.827131339824485
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 13.28422267861776
+            },
+            {
+              "rollout_tokens": 200000000,
+              "hours": 21.254756285788417,
+              "hours_range": [
+                20.869724094337755,
+                21.65426267964897
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 26.56844535723552
+            }
+          ]
+        },
+        {
+          "length_factor": 1.5,
+          "mean_response_length": 15198.158203125,
+          "rate_tokens_per_hour": 9762333.03839633,
+          "extrapolated": true,
+          "budgets": [
+            {
+              "rollout_tokens": 30000000,
+              "hours": 3.073035910781439,
+              "hours_range": [
+                3.0173675354199254,
+                3.1307969821582557
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 3.841294888476799
+            },
+            {
+              "rollout_tokens": 50000000,
+              "hours": 5.121726517969065,
+              "hours_range": [
+                5.028945892366543,
+                5.217994970263759
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 6.402158147461331
+            },
+            {
+              "rollout_tokens": 100000000,
+              "hours": 10.24345303593813,
+              "hours_range": [
+                10.057891784733085,
+                10.435989940527518
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 12.804316294922662
+            },
+            {
+              "rollout_tokens": 200000000,
+              "hours": 20.48690607187626,
+              "hours_range": [
+                20.11578356946617,
+                20.871979881055037
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 25.608632589845325
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run_dir": "runs/20261102-224210-m1_throughput_bl_qwen35-4b-s20261029-j3230134",
+      "config_name": "m1_throughput_bl_qwen35-4b",
+      "training_mode": "lora_bf16",
+      "gpus": "4 NVIDIA A40, 49140 MiB",
+      "node": "fc098",
+      "commit": "6eaf356b7640646e983c8541ad207121ff366f38",
+      "segments": 1,
+      "steps": 12,
+      "rollout_tokens": 57339224,
+      "wall_clock_hours": 6.554014081388889,
+      "rate_tokens_per_hour": 8748718.462907087,
+      "rate_spread": 0.008562673909501772,
+      "per_step_rate_tokens_per_hour": {
+        "2": 9661679.376465742,
+        "3": 9941114.019022496,
+        "4": 9707544.729429659,
+        "5": 9770501.056847012,
+        "6": 9657173.481901547,
+        "7": 9757766.579501148,
+        "8": 9805814.987701677,
+        "9": 9732264.016315043,
+        "10": 9658582.512018107,
+        "11": 9763955.935573144,
+        "12": 9692661.865224829
+      },
+      "time_split_hours": {
+        "steps": 5.879999563952183,
+        "validation": 0.3060386486289402,
+        "other": 0.3679758688077648
+      },
+      "validation_passes_s": {
+        "6": 557.9007941950113,
+        "12": 543.8383408691734
+      },
+      "save_s": {
+        "6": 19.312007451429963,
+        "12": 16.642846131697297
+      },
+      "base_response_length": 10311.873046875,
+      "run_response_length": 9243.527166193182,
+      "length_fit": {
+        "a": 33.498601484882556,
+        "b": 0.18559652406643823,
+        "se_b": 0.008312402071390428
+      },
+      "budgets": [
+        {
+          "rollout_tokens": 30000000,
+          "hours": 3.429073655438146,
+          "hours_range": [
+            3.3999608989553347,
+            3.4586892839307324
+          ],
+          "jobs": 1,
+          "hours_with_queue_factor": 4.286342069297683
+        },
+        {
+          "rollout_tokens": 50000000,
+          "hours": 5.7151227590635765,
+          "hours_range": [
+            5.666601498258891,
+            5.764482139884555
+          ],
+          "jobs": 1,
+          "hours_with_queue_factor": 7.14390344882947
+        },
+        {
+          "rollout_tokens": 100000000,
+          "hours": 11.430245518127153,
+          "hours_range": [
+            11.333202996517782,
+            11.52896427976911
+          ],
+          "jobs": 1,
+          "hours_with_queue_factor": 14.28780689765894
+        },
+        {
+          "rollout_tokens": 200000000,
+          "hours": 22.860491036254306,
+          "hours_range": [
+            22.666405993035564,
+            23.05792855953822
+          ],
+          "jobs": 1,
+          "hours_with_queue_factor": 28.57561379531788
+        }
+      ],
+      "length_sensitivity": [
+        {
+          "length_factor": 0.5,
+          "mean_response_length": 5155.9365234375,
+          "rate_tokens_per_hour": 8617866.484174386,
+          "extrapolated": true,
+          "budgets": [
+            {
+              "rollout_tokens": 30000000,
+              "hours": 3.4811400310147738,
+              "hours_range": [
+                3.4515852322005887,
+                3.5112053373477843
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 4.351425038768467
+            },
+            {
+              "rollout_tokens": 50000000,
+              "hours": 5.801900051691289,
+              "hours_range": [
+                5.752642053667648,
+                5.85200889557964
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 7.252375064614112
+            },
+            {
+              "rollout_tokens": 100000000,
+              "hours": 11.603800103382579,
+              "hours_range": [
+                11.505284107335296,
+                11.70401779115928
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 14.504750129228224
+            },
+            {
+              "rollout_tokens": 200000000,
+              "hours": 23.207600206765157,
+              "hours_range": [
+                23.01056821467059,
+                23.40803558231856
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 29.00950025845645
+            }
+          ]
+        },
+        {
+          "length_factor": 1.0,
+          "mean_response_length": 10311.873046875,
+          "rate_tokens_per_hour": 8766112.566974895,
+          "extrapolated": true,
+          "budgets": [
+            {
+              "rollout_tokens": 30000000,
+              "hours": 3.422269537471012,
+              "hours_range": [
+                3.393214547793281,
+                3.4518264013378768
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 4.277836921838765
+            },
+            {
+              "rollout_tokens": 50000000,
+              "hours": 5.7037825624516865,
+              "hours_range": [
+                5.655357579655468,
+                5.753044002229795
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 7.129728203064608
+            },
+            {
+              "rollout_tokens": 100000000,
+              "hours": 11.407565124903373,
+              "hours_range": [
+                11.310715159310936,
+                11.50608800445959
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 14.259456406129216
+            },
+            {
+              "rollout_tokens": 200000000,
+              "hours": 22.815130249806746,
+              "hours_range": [
+                22.621430318621872,
+                23.01217600891918
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 28.51891281225843
+            }
+          ]
+        },
+        {
+          "length_factor": 1.5,
+          "mean_response_length": 15467.8095703125,
+          "rate_tokens_per_hour": 8816667.866906038,
+          "extrapolated": true,
+          "budgets": [
+            {
+              "rollout_tokens": 30000000,
+              "hours": 3.4026460396230918,
+              "hours_range": [
+                3.3737576529908453,
+                3.432033422667908
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 4.253307549528865
+            },
+            {
+              "rollout_tokens": 50000000,
+              "hours": 5.671076732705153,
+              "hours_range": [
+                5.622929421651409,
+                5.720055704446513
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 7.088845915881441
+            },
+            {
+              "rollout_tokens": 100000000,
+              "hours": 11.342153465410306,
+              "hours_range": [
+                11.245858843302818,
+                11.440111408893026
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 14.177691831762882
+            },
+            {
+              "rollout_tokens": 200000000,
+              "hours": 22.68430693082061,
+              "hours_range": [
+                22.491717686605636,
+                22.880222817786052
+              ],
+              "jobs": 1,
+              "hours_with_queue_factor": 28.355383663525764
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
