@@ -91,7 +91,10 @@ run_in_container() {
 chain_next_job() {
     local left="${CHAIN_LEFT:-0}"
     if (( left > 0 )); then
+        # --job-name: a successor would otherwise take the script's default (soe-train), and
+        # scripts/gpu_hours.py could not attribute it to its task (M1 report 2.9; M2 roadmap D10).
         sbatch --dependency="afterany:$SLURM_JOB_ID" --nodelist="$SLURM_JOB_NODELIST" \
+            --job-name="$SLURM_JOB_NAME" \
             --export="ALL,RUN_DIR=$RUN_DIR,CHAIN_LEFT=$((left - 1)),SOE_EXPECTED_COMMIT=$(git rev-parse HEAD)" \
             "$@"
     fi
