@@ -16,6 +16,7 @@ from collections import defaultdict
 from collections.abc import Callable
 from pathlib import Path
 
+from soe.trainer.main_eval import common_suite
 from soe.utils.jsonl import read_jsonl
 from soe.utils.metric.eval_tables import Counts, ProblemResult
 from soe.utils.metric.pass_at_k import pass_at_k
@@ -79,6 +80,7 @@ def main() -> None:
     parser.add_argument("--main-k", type=int, default=16)
     parser.add_argument("--hard-k", type=int, default=64)
     args = parser.parse_args()
+    suite = common_suite(args.a, args.b)  # decision 026: never compare across suite versions
 
     def load(path: Path) -> dict[str, ProblemResult]:
         return {r.problem_id: r for r in read_jsonl(path / "per_problem.jsonl", ProblemResult)}
@@ -86,7 +88,13 @@ def main() -> None:
     a, b = load(args.a), load(args.b)
     table = compare(a, b, main_k=args.main_k, hard_k=args.hard_k)
     only = {"a": len(a.keys() - b.keys()), "b": len(b.keys() - a.keys())}
-    report = {"a": str(args.a), "b": str(args.b), "problems_in_one_run_only": only, **table}
+    report = {
+        "a": str(args.a),
+        "b": str(args.b),
+        "suite": suite,
+        "problems_in_one_run_only": only,
+        **table,
+    }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1) + "\n")
     print(f"problems in one run only: {only}")

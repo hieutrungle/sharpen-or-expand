@@ -18,6 +18,7 @@ from typing import Any
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
 from soe.trainer.config.eval_suite import load_suite
+from soe.trainer.main_eval import common_suite
 from soe.trainer.rl.checkpoints import read_records
 from soe.utils.dataset.problems import Level
 from soe.utils.jsonl import read_jsonl
@@ -78,11 +79,15 @@ class TransitionsCli(BaseSettings):
     report: Path
 
     def cli_cmd(self) -> None:
+        suite = common_suite(self.before, self.after)  # decision 026: one suite version
+        if load_suite(self.suite).name != suite:
+            raise SystemExit(f"{self.suite} is not {suite}, the suite both evaluations used")
         before = read_jsonl(self.before / "per_problem.jsonl", ProblemResult)
         after = read_jsonl(self.after / "per_problem.jsonl", ProblemResult)
         result: dict[str, Any] = {
             "before": str(self.before),
             "after": str(self.after),
+            "suite": suite,
             **transitions(before, after, self.suite),
         }
         if (self.run_dir is None) != (self.step is None):

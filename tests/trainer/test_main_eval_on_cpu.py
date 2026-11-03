@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 import yaml
@@ -181,3 +182,92 @@ def test_report_rescores_stored_verdicts_with_the_current_verifier() -> None:
     assert not main_eval.rescored(truncated, "10").correct  # truncated stays incorrect
     unboxed = record.model_copy(update={"completion": "10", "correct": True})
     assert not main_eval.rescored(unboxed, "10").correct
+
+
+def sampled_evaluation(tmp_path: Path) -> tuple[Path, EvalSuite, Path]:
+    """The tiny suite fully sampled into tmp_path/old (2 shards, every sample correct)."""
+    suite_path, suite = tiny_suite(tmp_path)
+    units = main_eval.eval_units(suite, tmp_path, None)
+    old = tmp_path / "old"
+    plan = main_eval.make_plan(suite_path, suite, CHECKPOINT, units, 2, None)
+    main_eval.write_or_check_plan(old, plan)
+    for k in range(2):
+        records = [
+            SampleRecord(
+                problem_id=u.problem.problem_id,
+                sample_index=i,
+                checkpoint=CHECKPOINT,
+                completion="\\boxed{1}",
+                extracted_answer="1",
+                correct=True,
+                completion_tokens=5,
+                finish_reason="stop",
+            )
+            for u in units[k::2]
+            for i in range(u.n)
+        ]
+        write_jsonl(shard_path(old, k, 2), records)
+        mark_done(old, k)
+    return suite_path, suite, old
+
+
+def revised(tmp_path: Path, suite_path: Path, **changes: Any) -> tuple[Path, EvalSuite]:
+    data = yaml.safe_load(suite_path.read_text()) | {"name": "tiny-v2"} | changes
+    path = tmp_path / "suite_v2.yaml"
+    path.write_text(yaml.safe_dump(data))
+    return path, load_suite(path)
+
+
+def rescore_cli(new_path: Path, old_path: Path, old: Path, out: Path) -> main_eval.EvaluateCli:
+    return main_eval.EvaluateCli(
+        suite=new_path,
+        checkpoint=CHECKPOINT,
+        output=out,
+        stage="report",
+        rescore_from=old,
+        rescore_suite=old_path,
+    )
+
+
+def test_rescore_drops_newly_excluded_samples_and_records_provenance(tmp_path: Path) -> None:
+    old_path, _, old = sampled_evaluation(tmp_path)
+    new_path, new = revised(tmp_path, old_path, excluded_problems={"b/1": "impossible gold"})
+    units = main_eval.eval_units(new, tmp_path, None)
+    out = tmp_path / "new"
+    assert main_eval.run_rescore(rescore_cli(new_path, old_path, old, out), new, units) == 0
+    report = json.loads((out / "report.json").read_text())
+    source = report["plan"]["rescored_from"]
+    assert source["dropped_problems"] == ["b/1"] and source["dropped_samples"] == 16
+    assert source["suite_file_sha256"] == file_sha256(old_path)
+    assert set(source["shard_files_sha256"]) == {"samples-0-of-2.jsonl", "samples-1-of-2.jsonl"}
+    assert report["plan"]["suite_name"] == "tiny-v2" and report["plan"]["samples"] == 64 + 3 * 16
+    assert report["main"]["per_level"]["B"]["problems"] == 1
+    assert report["main"]["per_level"]["A"]["problems"] == 3  # untouched
+    assert not list(out.glob("samples-*"))  # nothing is copied or re-sampled
+
+
+def test_rescore_refuses_a_suite_that_changes_what_is_sampled(tmp_path: Path) -> None:
+    old_path, old_suite, _ = sampled_evaluation(tmp_path)
+    sampling = old_suite.sampling.model_dump() | {"temperature": 1.0}
+    _, new = revised(tmp_path, old_path, sampling=sampling, excluded_problems={"b/1": "x"})
+    with pytest.raises(ValueError, match=r"differ in \['sampling'\]"):
+        main_eval.newly_excluded(old_suite, new)
+
+
+def test_rescore_refuses_a_suite_that_drops_an_exclusion(tmp_path: Path) -> None:
+    old_path, old_suite, _ = sampled_evaluation(tmp_path)
+    earlier = old_suite.model_copy(update={"excluded_problems": {"a/1": "x"}})
+    _, new = revised(tmp_path, old_path)
+    with pytest.raises(ValueError, match="drops exclusions"):
+        main_eval.newly_excluded(earlier, new)
+
+
+def test_rescore_refuses_the_wrong_source_suite_or_unfinished_shards(tmp_path: Path) -> None:
+    old_path, _, old = sampled_evaluation(tmp_path)
+    new_path, new = revised(tmp_path, old_path, excluded_problems={"b/1": "x"})
+    units = main_eval.eval_units(new, tmp_path, None)
+    with pytest.raises(SystemExit, match="is not the suite"):  # new passed as the old suite
+        main_eval.run_rescore(rescore_cli(new_path, new_path, old, tmp_path / "o1"), new, units)
+    (old / "claims" / "shard-1" / "done").unlink()
+    with pytest.raises(SystemExit, match=r"shards \[1\] not finished"):
+        main_eval.run_rescore(rescore_cli(new_path, old_path, old, tmp_path / "o2"), new, units)

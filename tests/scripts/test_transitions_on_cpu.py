@@ -6,6 +6,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from types import ModuleType
 
+import pytest
+
+from soe.trainer.main_eval import EvalPlan
 from soe.trainer.rl.checkpoints import CheckpointRecord, append_record
 from soe.utils.dataset.problems import Level
 from soe.utils.jsonl import write_jsonl
@@ -79,6 +82,7 @@ def test_transitions_per_level_and_hard_tier(tmp_path: Path) -> None:
     for name, rows in (("before", before), ("after", after)):
         (tmp_path / name).mkdir()
         write_jsonl(tmp_path / name / "per_problem.jsonl", rows)
+        write_plan(tmp_path / name, "soe-eval-v4")
     run = tmp_path / "run"
     run.mkdir()
     append_record(
@@ -100,3 +104,24 @@ def test_transitions_per_level_and_hard_tier(tmp_path: Path) -> None:
     efficiency = json.loads(report.read_text())["efficiency"]
     assert efficiency["newly_solved_heldout"] == {"1": 1, "16": 1}
     assert efficiency["newly_solved_heldout_per_million_rollout_tokens"] == {"1": 0.5, "16": 0.5}
+
+    # decision 026: evaluations of two suite versions are never compared
+    write_plan(tmp_path / "before", "soe-eval-v3")
+    with pytest.raises(SystemExit, match="different suites"):
+        m.TransitionsCli(
+            before=tmp_path / "before", after=tmp_path / "after", report=tmp_path / "x.json"
+        ).cli_cmd()
+
+
+def write_plan(directory: Path, suite_name: str) -> None:
+    plan = EvalPlan(
+        suite_name=suite_name,
+        suite_file_sha256="0" * 64,
+        checkpoint="c",
+        revision=None,
+        num_shards=1,
+        limit_per_set=None,
+        units=0,
+        samples=0,
+    )
+    (directory / "plan.json").write_text(plan.model_dump_json())

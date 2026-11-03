@@ -1,11 +1,12 @@
 # The frozen evaluation suite (decision 004). v2 (decision 007): Level B text repaired (42 problems,
 # same ids); every other file is byte-identical to v1. v3 (decision 009): FP8 KV cache; problems,
-# exclusions and scoring identical to v2. Earlier versions stay in eval_suite_v1.yaml and
-# eval_suite_v2.yaml for the runs that used them.
+# exclusions and scoring identical to v2. v4 (decision 026): one more Level B exclusion, everything
+# else identical to v3, so v3 samples are re-scored under v4 without re-sampling. Earlier versions
+# stay in eval_suite_v1.yaml, eval_suite_v2.yaml and eval_suite_v3.yaml for the runs that used them.
 # Every checkpoint -- base, SFT, DPO, every RL run --
 # is evaluated with exactly these settings. Never edit after the M0 freeze: a change needs a new
 # decision note and a new suite name. Problem-set hashes come from the data build report below.
-name: soe-eval-v3
+name: soe-eval-v4
 data_build_report: docs/reports/m0_datasets_v2.json
 
 # As in Yue et al. (2025), "Does Reinforcement Learning Really Incentivize Reasoning Capacity in
@@ -107,6 +108,7 @@ excluded_problems:
   olympiadbench_en/2843: "garbled example: T after AAB gives 15, T before gives 14 (gold) (G16)"
   olympiadbench_en/2349: "gold '221,$8' is format debris (m, n of 221/8); no general rule reads it (decision 008)"
   olympiadbench_en/2498: "gold '\\frac{1}{2},\\sqrt{x}' is format debris for sqrt(x)/2; no general rule reads it (decision 008)"
+  dapo/254353b7-e34c-4b96-99f5-0b51ec637c7f: "gold 2 is impossible; the RL-pool copy dropped in decision 011 has gold 329 (excluded in v4, decision 026)"
 removed_from_hard_subset:
   math500/test/prealgebra/1233.json: "percent: 72/80 samples answer 10% (gold 10); verifier false negative (G01)"
   math500/test/precalculus/263.json: "pmatrix vs tuple: 64/80 samples give the gold vector as a tuple (G03)"

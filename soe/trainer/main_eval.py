@@ -5,6 +5,8 @@
                     --output. Run several jobs at once on any GPU type; `--shard k` finishes one.
     --stage report  CPU. Checks completeness and writes per_problem.jsonl and report.json:
                     pass@k / maj@k per problem set and per level (main tier) and on the hard subset.
+                    With --rescore-from DIR --rescore-suite OLD.yaml it scores DIR's samples, drawn
+                    under OLD, under --suite instead, which may only add exclusions (decision 026).
 
 Sampling uses only the suite's settings (seed included); nothing here can override them. The output
 directory's plan.json pins checkpoint, suite file and sharding, so jobs never mix two evaluations.
@@ -27,7 +29,7 @@ import yaml
 from pydantic import BaseModel, ConfigDict
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
-from soe.trainer.config.eval_suite import EvalSuite, hash_mismatches, load_suite
+from soe.trainer.config.eval_suite import EvalSuite, file_sha256, hash_mismatches, load_suite
 from soe.utils.dataset.problems import Level, Problem
 from soe.utils.dataset.records import SampleRecord, SamplingRunInfo
 from soe.utils.jsonl import read_jsonl, write_jsonl
@@ -55,6 +57,21 @@ class EvalUnit:
     hard: bool
 
 
+class RescoreSource(BaseModel):
+    """Where a re-scored evaluation's samples came from (decision 026): an evaluation sampled under
+    an earlier suite that differs only in its name and in problems it excludes."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    directory: str
+    plan_sha256: str
+    suite_name: str
+    suite_file_sha256: str
+    shard_files_sha256: dict[str, str]
+    dropped_problems: list[str]  # sampled there, excluded here
+    dropped_samples: int
+
+
 class EvalPlan(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -68,6 +85,7 @@ class EvalPlan(BaseModel):
     only_problems_sha256: str | None = None  # partial re-evaluation of listed problems (e.g. 007)
     units: int
     samples: int
+    rescored_from: RescoreSource | None = None  # set only by `--rescore-from` (decision 026)
 
 
 def eval_units(
@@ -176,6 +194,7 @@ def make_plan(
     limit_per_set: int | None,
     *,
     only_problems_sha256: str | None = None,
+    rescored_from: RescoreSource | None = None,
 ) -> EvalPlan:
     return EvalPlan(
         suite_name=suite.name,
@@ -187,6 +206,7 @@ def make_plan(
         only_problems_sha256=only_problems_sha256,
         units=len(units),
         samples=sum(u.n for u in units),
+        rescored_from=rescored_from,
     )
 
 
@@ -331,15 +351,112 @@ def print_main_table(main: dict[str, Any], ks: list[int]) -> None:
         )
 
 
+def read_samples(directory: Path, num_shards: int) -> dict[str, list[SampleRecord]]:
+    by_problem: dict[str, list[SampleRecord]] = defaultdict(list)
+    for k in range(num_shards):
+        for record in read_jsonl(shard_path(directory, k, num_shards), SampleRecord):
+            by_problem[record.problem_id].append(record)
+    return by_problem
+
+
 def run_report(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan: EvalPlan) -> int:
     left = unfinished_shards(cli.output, plan.num_shards)
     if left:
         print(f"not finished: shards {left}")
         return 1
-    by_problem: dict[str, list[SampleRecord]] = defaultdict(list)
-    for k in range(plan.num_shards):
-        for record in read_jsonl(shard_path(cli.output, k, plan.num_shards), SampleRecord):
-            by_problem[record.problem_id].append(record)
+    return write_report(cli.output, suite, units, plan, read_samples(cli.output, plan.num_shards))
+
+
+def common_suite(*evaluations: Path) -> str:
+    """The suite every evaluation directory was scored under. Reports of different suites (v3 and
+    v4, decision 026) are never compared problem by problem, so a mix is refused."""
+    names = {
+        str(d): EvalPlan.model_validate_json((d / "plan.json").read_text()).suite_name
+        for d in evaluations
+    }
+    if len(set(names.values())) != 1:
+        raise SystemExit(f"evaluations scored under different suites: {names}")
+    return next(iter(names.values()))
+
+
+def newly_excluded(old: EvalSuite, new: EvalSuite) -> frozenset[str]:
+    """The problems `new` excludes beyond `old`, if samples drawn under `old` can be scored under
+    `new` without re-sampling: everything that decides what is sampled (problem files, hard
+    subset, sampling, prompt, tiers) and how it is scored is identical, and `new` only adds
+    exclusions (decision 026)."""
+    if not set(old.excluded_problems) <= set(new.excluded_problems):
+        raise ValueError(f"{new.name} drops exclusions of {old.name}; re-sample instead")
+    aligned = old.model_copy(update={"name": new.name, "excluded_problems": new.excluded_problems})
+    if aligned != new:
+        fields = [f for f in EvalSuite.model_fields if getattr(aligned, f) != getattr(new, f)]
+        raise ValueError(f"{old.name} and {new.name} differ in {fields}; re-sample instead")
+    return frozenset(set(new.excluded_problems) - set(old.excluded_problems))
+
+
+def run_rescore(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit]) -> int:
+    """Score an evaluation sampled under an earlier suite as if sampled under `suite` (decision
+    026): the old shards are read, samples of newly excluded problems are dropped and counted, and
+    the report goes to a new directory whose plan records where its samples came from."""
+    assert cli.rescore_from is not None and cli.rescore_suite is not None
+    source = cli.rescore_from
+    source_plan_text = (source / "plan.json").read_text()
+    source_plan = EvalPlan.model_validate_json(source_plan_text)
+    old = load_suite(cli.rescore_suite)
+    old_sha = hashlib.sha256(cli.rescore_suite.read_bytes()).hexdigest()
+    if (old.name, old_sha) != (source_plan.suite_name, source_plan.suite_file_sha256):
+        raise SystemExit(f"{cli.rescore_suite} is not the suite {source} was sampled with")
+    dropped = newly_excluded(old, suite)
+    asked = (cli.checkpoint, cli.limit_per_set)
+    if (source_plan.checkpoint, source_plan.limit_per_set) != asked:
+        raise SystemExit(f"{source} evaluated {source_plan.checkpoint}, not {cli.checkpoint}")
+    if source_plan.only_problems_sha256 is not None:
+        raise SystemExit("re-scoring a partial evaluation (--only-problems) is not supported")
+    left = unfinished_shards(source, source_plan.num_shards)
+    if left:
+        raise SystemExit(f"{source}: shards {left} not finished")
+    if any(cli.output.glob("samples-*.jsonl")):
+        raise SystemExit(f"{cli.output} holds samples; a re-score writes to a new directory")
+    by_problem = read_samples(source, source_plan.num_shards)
+    dropped_ids = sorted(dropped & set(by_problem))
+    dropped_samples = sum(len(by_problem.pop(pid)) for pid in dropped_ids)
+    shard_files = [
+        shard_path(source, k, source_plan.num_shards) for k in range(source_plan.num_shards)
+    ]
+    provenance = RescoreSource(
+        directory=str(source),
+        plan_sha256=hashlib.sha256(source_plan_text.encode()).hexdigest(),
+        suite_name=source_plan.suite_name,
+        suite_file_sha256=source_plan.suite_file_sha256,
+        shard_files_sha256={f.name: file_sha256(f) for f in shard_files},
+        dropped_problems=dropped_ids,
+        dropped_samples=dropped_samples,
+    )
+    plan = make_plan(
+        cli.suite,
+        suite,
+        cli.checkpoint,
+        units,
+        source_plan.num_shards,
+        cli.limit_per_set,
+        rescored_from=provenance,
+    )
+    if (plan.units, plan.samples) != (
+        source_plan.units - len(dropped_ids),
+        source_plan.samples - dropped_samples,
+    ):
+        raise SystemExit("the re-scored plan does not account for every source sample")
+    write_or_check_plan(cli.output, plan)
+    print(f"re-scoring {source}: dropped {dropped_samples} samples of {dropped_ids}")
+    return write_report(cli.output, suite, units, plan, by_problem)
+
+
+def write_report(
+    output: Path,
+    suite: EvalSuite,
+    units: list[EvalUnit],
+    plan: EvalPlan,
+    by_problem: dict[str, list[SampleRecord]],
+) -> int:
     results, changed = [], 0
     for unit in units:
         stored = by_problem.pop(unit.problem.problem_id, [])
@@ -363,7 +480,7 @@ def run_report(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan
         )
     if by_problem:
         raise SystemExit(f"samples for problems outside the plan: {sorted(by_problem)[:5]}")
-    write_jsonl(cli.output / "per_problem.jsonl", results)
+    write_jsonl(output / "per_problem.jsonl", results)
 
     commit = git_commit()
     timeouts = [[p[:200], g[:200]] for p, g in timed_out_comparisons()]
@@ -373,7 +490,7 @@ def run_report(cli: "EvaluateCli", suite: EvalSuite, units: list[EvalUnit], plan
         "verifier_timeouts": timeouts,  # (predicted, gold) pairs math-verify's time limit decided
     }
     report = {"plan": plan.model_dump(), "scoring": scoring, **report_tables(results, suite)}
-    (cli.output / "report.json").write_text(json.dumps(report, indent=1) + "\n")
+    (output / "report.json").write_text(json.dumps(report, indent=1) + "\n")
     print(
         f"scored at {commit[:7]}; {changed} verdicts differ from sampling time; "
         f"{len(timeouts)} comparisons hit the verifier's time limit"
@@ -395,6 +512,10 @@ class EvaluateCli(BaseSettings):
     num_shards: int = 32
     limit_per_set: int | None = None  # smoke tests: the first N problems (by id) of each set
     only_problems: Path | None = None  # file with one problem id per line: evaluate just those
+    # Report stage only (decision 026): score the samples of an evaluation drawn under an earlier
+    # suite (`rescore_suite`, its file) that this suite only adds exclusions to; writes to --output.
+    rescore_from: Path | None = None
+    rescore_suite: Path | None = None
     # vLLM speed knobs only (recorded per shard); sampling always comes from the suite
     gpu_memory_utilization: float = 0.9
     max_num_seqs: int | None = None
@@ -411,6 +532,14 @@ class EvaluateCli(BaseSettings):
             only = frozenset(line.strip() for line in text.decode().splitlines() if line.strip())
             only_sha = hashlib.sha256(text).hexdigest()
         units = eval_units(suite, data_root, self.limit_per_set, only=only)
+        if (self.rescore_from is None) != (self.rescore_suite is None):
+            raise SystemExit("--rescore-from and --rescore-suite go together")
+        if self.rescore_from is not None:
+            if self.stage != "report" or only is not None:
+                raise SystemExit("--rescore-from is a full report-stage run")
+            if run_rescore(self, suite, units):
+                raise SystemExit(1)
+            return
         plan = make_plan(
             self.suite,
             suite,

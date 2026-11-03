@@ -9,6 +9,8 @@ from pydantic import ValidationError
 from soe.trainer.config.eval_suite import EvalSuite, file_sha256, hash_mismatches, load_suite
 
 SUITE = Path("soe/trainer/config/eval_suite.yaml")
+V3 = Path("soe/trainer/config/eval_suite_v3.yaml")
+NEW_IN_V4 = "dapo/254353b7-e34c-4b96-99f5-0b51ec637c7f"
 
 
 def suite_dict() -> dict[str, Any]:
@@ -68,16 +70,35 @@ def test_v1_suite_is_kept_byte_for_byte_for_the_runs_that_used_it() -> None:
 
 
 def test_v3_differs_from_v2_only_in_the_kv_cache_dtype() -> None:
-    v2, v3 = load_suite(Path("soe/trainer/config/eval_suite_v2.yaml")), load_suite(SUITE)
+    v2, v3 = load_suite(Path("soe/trainer/config/eval_suite_v2.yaml")), load_suite(V3)
     assert (v2.name, v3.name) == ("soe-eval-v2", "soe-eval-v3")
     assert (v2.sampling.kv_cache_dtype, v3.sampling.kv_cache_dtype) == ("auto", "fp8")
     same = v3.model_copy(update={"name": v2.name, "sampling": v2.sampling})
     assert same == v2  # problems, exclusions, prompt, scoring and tiers unchanged
 
 
+def test_v3_suite_is_kept_byte_for_byte_for_the_runs_that_used_it() -> None:
+    base_eval = json.loads(Path("docs/reports/qwen35-4b-base_soe-eval-v3_report.json").read_text())
+    assert file_sha256(V3) == base_eval["plan"]["suite_file_sha256"]
+
+
+def test_v4_differs_from_v3_only_in_its_name_and_one_level_b_exclusion() -> None:
+    v3, v4 = load_suite(V3), load_suite(SUITE)
+    assert (v3.name, v4.name) == ("soe-eval-v3", "soe-eval-v4")
+    assert set(v4.excluded_problems) - set(v3.excluded_problems) == {NEW_IN_V4}
+    assert set(v3.excluded_problems) < set(v4.excluded_problems)
+    same = v4.model_copy(update={"name": v3.name, "excluded_problems": v3.excluded_problems})
+    assert same == v3  # files, hard subset, sampling, prompt, scoring and tiers unchanged
+
+
+def test_v4_exclusion_is_a_level_b_problem_outside_the_hard_subset() -> None:
+    selection = json.loads(Path("docs/reports/m0_hard_subset_v1.json").read_text())
+    assert NEW_IN_V4 not in selection["selected_problem_ids"]  # only Level B's main tier changes
+
+
 def test_excluded_problems_have_reasons_and_belong_to_the_suite() -> None:
     suite = load_suite(SUITE)
-    assert len(suite.excluded_problems) == 21 and all(suite.excluded_problems.values())
+    assert len(suite.excluded_problems) == 22 and all(suite.excluded_problems.values())
     prefixes = {pid.split("/")[0] for pid in suite.excluded_problems}
     assert prefixes == {"math500", "olympiadbench_en", "dapo"}  # Levels A and B; C untouched
     assert len(suite.removed_from_hard_subset) == 8 and all(suite.removed_from_hard_subset.values())
