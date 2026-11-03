@@ -12,6 +12,10 @@ of a reference's 13-grams or 8-grams, classified so that deletion options can be
 Ids and numbers only: MathArena problem text is CC-BY-NC-SA and never goes into git.
 
     python scripts/contamination_report.py --out docs/reports/m0_contamination_rl.json
+
+M2.3 checks the SFT problem pool the same way (`--train datasets/soe/v1/sft/pool.jsonl`), against
+the suite's Levels A, B, C (default) and, with `--references rl`, against RL train v3.1 and its
+validation split (roadmap D2: the SFT pool is disjoint from the RL pool).
 """
 
 import argparse
@@ -24,7 +28,7 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from soe.trainer.config.eval_suite import load_suite
+from soe.trainer.config.eval_suite import file_sha256, load_suite
 from soe.utils.dataset.decontaminate import Ngram, common_ngrams, covered_by_union, word_ngrams
 from soe.utils.dataset.problems import Problem
 from soe.utils.jsonl import read_jsonl
@@ -33,6 +37,11 @@ from soe.utils.reward_score.math_verify import answers_equivalent
 BOILERPLATE_MAX_COUNT = 20  # as in the build config (near_duplicate.boilerplate_max_count)
 FROZEN = (13, 0.5)  # the build's rule
 MIN_SHARE = 0.2  # candidate pairs listed from here
+# `--references rl`: the RL pool every RL run and preference set samples from (decision 012)
+RL_REFERENCES = {
+    "rl_train": "datasets/soe/v3.1/rl/train.jsonl",
+    "rl_val": "datasets/soe/v3.1/rl/val.jsonl",
+}
 # DAPO appends answer-format instructions; they are not part of the problem.
 _SUFFIX = re.compile(
     r"(the (original )?answer (is|should be) (in|of) the form|please provide|please give|"
@@ -113,11 +122,18 @@ def main() -> None:
     parser.add_argument("--suite", type=Path, default=Path("soe/trainer/config/eval_suite.yaml"))
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--train", default="datasets/soe/v2/rl/train.jsonl")  # under $SOE_DATA
+    parser.add_argument("--references", choices=("suite", "rl"), default="suite")
     args = parser.parse_args()
     root = Path(os.environ["SOE_DATA"])
-    suite = load_suite(args.suite)
-    sets = {s.name: read_jsonl(root / s.path, Problem) for s in suite.problem_sets}
-    level_of = {p.problem_id: s.level.value for s in suite.problem_sets for p in sets[s.name]}
+    if args.references == "suite":
+        suite = load_suite(args.suite)
+        sets = {s.name: read_jsonl(root / s.path, Problem) for s in suite.problem_sets}
+        level_of = {p.problem_id: s.level.value for s in suite.problem_sets for p in sets[s.name]}
+        reference_files = {s.name: s.path for s in suite.problem_sets}
+    else:
+        sets = {name: read_jsonl(root / path, Problem) for name, path in RL_REFERENCES.items()}
+        level_of = {p.problem_id: name for name, ps in sets.items() for p in ps}
+        reference_files = RL_REFERENCES
     references = [p for ps in sets.values() for p in ps]
     train = read_jsonl(root / args.train, Problem)
     by_id = {p.problem_id: p for p in train} | {p.problem_id: p for p in references}
@@ -157,7 +173,15 @@ def main() -> None:
         }
     frozen_hits = sorted({r for (r, _), share in found[13].items() if share >= FROZEN[1]})
     report = {
-        "train": {"path": args.train, "problems": len(train)},
+        "train": {
+            "path": args.train,
+            "problems": len(train),
+            "sha256": file_sha256(root / args.train),
+        },
+        "references": {
+            name: {"path": path, "problems": len(sets[name]), "sha256": file_sha256(root / path)}
+            for name, path in reference_files.items()
+        },
         "frozen_rule": {"ngram": FROZEN[0], "min_fraction": FROZEN[1]},
         "residual_at_frozen_rule": {
             "single_problem": frozen_hits,
