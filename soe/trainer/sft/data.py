@@ -15,6 +15,8 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, ConfigDict
 
+from soe.utils.dataset.records import SampleRecord
+
 THINK_END = "</think>"
 
 
@@ -45,6 +47,22 @@ def tokenize_example(
         input_ids=prompt_ids + completion_ids,
         completion_mask=[0] * len(prompt_ids) + [1] * len(completion_ids),
     )
+
+
+def kept_completions(records: Sequence[SampleRecord], max_per_problem: int) -> list[SampleRecord]:
+    """The samples of one problem that become SFT trajectories (M2 roadmap D4): stopped on their
+    own, correct under the verifier, exactly one `</think>` (decision 006's format), text distinct
+    from those already kept, at most `max_per_problem`, taken in sample order."""
+    kept: list[SampleRecord] = []
+    for record in sorted(records, key=lambda r: r.sample_index):
+        usable = record.finish_reason == "stop" and record.correct
+        well_formed = record.completion.count(THINK_END) == 1
+        new = all(record.completion != k.completion for k in kept)
+        if usable and well_formed and new:
+            kept.append(record)
+        if len(kept) == max_per_problem:
+            break
+    return kept
 
 
 def fitting(
