@@ -22,6 +22,11 @@ from soe.trainer.rl.segments import SegmentEvent, append_event, read_events
 from soe.trainer.sft.resume import TRAINER_DIR, SavedCheckpoint, last_complete_checkpoint
 from soe.utils.run import check_gpu_count, library_versions
 
+# Expandable segments cut the caching allocator's fragmentation: the M2.8 4B probe reserved
+# 45.3 GiB for 36.7 GiB allocated and left under 4 GiB free (decision 028). Set before the workers
+# touch CUDA.
+WORKER_ENVIRONMENT = {"PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"}
+
 
 def worker_command(run_dir: Path, n_gpus: int, resume: SavedCheckpoint | None = None) -> list[str]:
     command = [
@@ -79,7 +84,11 @@ class SftLaunchCli(BaseSettings):
             ),
         )
         try:
-            subprocess.run(worker_command(run_dir, config.sft.n_gpus, resume), check=True)
+            subprocess.run(
+                worker_command(run_dir, config.sft.n_gpus, resume),
+                check=True,
+                env=os.environ | WORKER_ENVIRONMENT,
+            )
         except BaseException:
             append_event(run_dir, record(event="end", at=datetime.now(UTC), exit="failed"))
             raise

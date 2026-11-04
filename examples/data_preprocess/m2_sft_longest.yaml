@@ -1,0 +1,10 @@
+# M2.8 worst-case development data (user, 2026-11-04): the 256 longest SFT train examples by
+# tokens, one epoch of 8 steps of 32 sequences for the 4B worst-case probe
+# (examples/sft/m2_probe_longest_qwen35-4b.yaml). Development only; never trained on for a result.
+input: datasets/soe/v1/sft/train.jsonl
+input_sha256: 0264027c44287993689733d9871b5811922728938fd89953cad722ae54357b76
+model: Qwen/Qwen3.5-4B-Base  # revision pinned in scripts/stage_assets.yaml
+suite: soe/trainer/config/eval_suite.yaml
+count: 256
+output: datasets/soe/v1/sft/dev_longest.jsonl
+report: logs/m2/m2_sft_longest.json
