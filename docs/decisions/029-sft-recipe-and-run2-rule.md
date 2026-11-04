@@ -1,7 +1,7 @@
 # 029 — Pre-registered SFT recipe (run #1) and the run-#2 rule
 
 - Date: 2026-11-04
-- Status: proposed
+- Status: accepted (user, 2026-11-04)
 - Milestone: M2 (task M2.9; roadmap D5 and D6, both answered (a) on 2026-11-03). Supersedes decision
   028's line "validation loss is computed once per epoch" for runs that save (item 3 below).
 - Config and code: `examples/sft/m2_run1_qwen35-4b.yaml`, `soe/trainer/sft/args.py`,
