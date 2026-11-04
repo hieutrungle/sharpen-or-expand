@@ -1,8 +1,8 @@
 # M2.7 development run of the full-BF16 SFT path (decision 028) on Lane B: 2B, FSDP2 over 2 A40s.
 # Wiring and the kill-and-resume check only; never in conclusions. Data: the M2.5 SFT files (they
 # hold the M2.4 pilot's trajectories), capped by sft.max_steps. Recipe as run #1 (roadmap D5):
-# 32 sequences per optimizer step. max_steps and save_every_steps are first guesses for a ~1.5 h
-# control run with a save about every 20 min; M2.7's smoke measures the step time and sets them.
+# 32 sequences per optimizer step. Sized from the M2.7 smoke (job 3232372: about 32 s per step on 2
+# A40s, a save about 24 s): 160 steps is about 1.5 h, a save every 40 steps about every 21 min.
 name: sft_m2_dev_full_qwen35-2b
 milestone: m2
 development: true
@@ -15,7 +15,7 @@ training_mode: full_bf16  # the G0 mode (decision 025)
 algorithm: sft
 optim:
   learning_rate: 1.0e-5
-  warmup_steps: 1  # 3% of max_steps, rounded up
+  warmup_steps: 5  # 3% of max_steps, rounded up
   weight_decay: 0.0
 sft:
   n_gpus: 2
@@ -24,9 +24,9 @@ sft:
   batch_size_per_gpu: 1
   gradient_accumulation_steps: 16  # 32 sequences per optimizer step on 2 GPUs (D5)
   lr_scheduler: cosine
-  save_every_steps: 6
+  save_every_steps: 40
   keep_last: 2
-  max_steps: 24
+  max_steps: 160
 data:
   train_file: datasets/soe/v1/sft/train.jsonl
   train_sha256: 0264027c44287993689733d9871b5811922728938fd89953cad722ae54357b76

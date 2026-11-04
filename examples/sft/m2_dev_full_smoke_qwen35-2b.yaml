@@ -1,7 +1,7 @@
 # M2.7 smoke of the full-BF16 SFT path (decision 028) on Lane B: 2B, FSDP2 over 2 A40s, 4 steps
 # with saves at 2 and 4. Measures memory, step time, a sharded save and the export, so the control
 # and kill-and-resume config (m2_dev_full_qwen35-2b.yaml) can be sized. Otherwise identical to it.
-# (The text below describes that config.)
+# (The text below describes that config; this one keeps its first guesses.)
 # Wiring and the kill-and-resume check only; never in conclusions. Data: the M2.5 SFT files (they
 # hold the M2.4 pilot's trajectories), capped by sft.max_steps. Recipe as run #1 (roadmap D5):
 # 32 sequences per optimizer step. max_steps and save_every_steps are first guesses for a ~1.5 h

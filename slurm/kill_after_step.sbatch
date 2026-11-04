@@ -28,7 +28,8 @@ while [[ -z "$RUN_DIR" ]]; do
 done
 METRICS="$RUN_DIR/metrics/segment-$JOB.jsonl"
 echo "watching $METRICS for step $STEP"
-until [[ -f "$METRICS" ]] && grep -q "^{\"step\":$STEP," "$METRICS"; do
+# verl writes {"step":N,...}; the SFT worker (json.dumps) writes {"step": N, ...}.
+until [[ -f "$METRICS" ]] && grep -qE "^\{\"step\": ?$STEP," "$METRICS"; do
     alive || { echo "job $JOB ended before logging step $STEP" >&2; exit 1; }
     sleep 30
 done

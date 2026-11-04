@@ -74,8 +74,8 @@ checkpoints and resume; three of the settings it needs are not exposed by `Train
   (examples, learning rate and loss continue), and the full export through `like_base` on a tiny
   Qwen3.5. Its FSDP2 variant (two ranks, Liger, fla kernels) skips without 2 GPUs, and is the
   first step of M2.7.
-- Validation loss is computed once per epoch (`eval_strategy: epoch`): at the end of run #1's single
-  epoch, and never in a capped development run.
+- Validation loss is computed once per epoch (`eval_strategy: epoch`), i.e. at the end of training:
+  run #1's single epoch, or a capped development run (2B smoke: about 4 min for 967 examples).
 
 ## Alternatives considered
 
