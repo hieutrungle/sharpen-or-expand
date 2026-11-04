@@ -1,13 +1,21 @@
-"""Full-BF16 SFT under FSDP2 on CPU with gloo (decision 028; M2.6 acceptance): a tiny
-Qwen3.5-shaped model trains 4 steps with saves at 2 and 4, a second launch resumes from step 2
-with the same example order and learning rate, and the export changes only language-model tensors.
-Image only (torch, transformers, TRL); needs the staged 2B snapshot for its config."""
+"""The full-BF16 SFT path (decision 028; M2.6 acceptance) on a tiny Qwen3.5-shaped model: 4 steps
+with saves at 2 and 4, a second launch resumed from step 2 with the same examples, learning rate and
+loss, and an export that changes only language-model tensors.
+
+- On CPU (every container run): one process without FSDP, because accelerate enables FSDP only for
+  multi-accelerator setups. This covers the FP32 load, the frozen vision tower, `export_full`
+  through `like_base`, the example-id log and the trainer's resume.
+- On 2 GPUs (M2.7): the exact path, FSDP2 over two ranks with Liger and the fla kernels.
+
+Image only (torch, transformers, TRL); needs the staged 2B snapshot for its config and tokenizer.
+"""
 
 import json
 import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 import torch
@@ -17,6 +25,7 @@ from soe.trainer.main_rl import model_path
 from soe.trainer.sft.resume import continuity
 
 WORKER = Path(__file__).with_name("fsdp_tiny_worker.py")
+needs_data = pytest.mark.skipif("SOE_DATA" not in os.environ, reason="needs the staged 2B snapshot")
 
 
 def tiny_base(out: Path) -> None:
@@ -34,35 +43,50 @@ def tiny_base(out: Path) -> None:
     vision.depth, vision.hidden_size, vision.intermediate_size = 1, 32, 64
     vision.num_heads, vision.out_hidden_size = 2, 64
     torch.manual_seed(0)
-    AutoModelForImageTextToText.from_config(hf, dtype=torch.float32).to(
-        torch.bfloat16
-    ).save_pretrained(out)
+    model = AutoModelForImageTextToText.from_config(hf, dtype=torch.float32)
+    model.to(torch.bfloat16).save_pretrained(out)
 
 
-def launch(tmp: Path, *extra: str) -> None:
-    command = [sys.executable, "-m", "torch.distributed.run", "--standalone", "--nproc_per_node=2"]
-    subprocess.run([*command, str(WORKER), str(tmp), *extra], check=True, timeout=1200)
-
-
-@pytest.mark.skipif("SOE_DATA" not in os.environ, reason="needs the staged 2B snapshot")
-def test_fsdp2_trains_resumes_and_exports_on_cpu(tmp_path: Path) -> None:
-    tiny_base(tmp_path / "base")
-    launch(tmp_path)
-    launch(tmp_path, "resume")
+def run_twice(tmp: Path, fsdp: bool) -> tuple[dict[str, Any], dict[str, Any]]:
+    tiny_base(tmp / "base")
+    if fsdp:
+        command = [
+            sys.executable,
+            "-m",
+            "torch.distributed.run",
+            "--standalone",
+            "--nproc_per_node=2",
+        ]
+    else:
+        command = [sys.executable]
+    for launch in ("first", "resume"):
+        extra = [] if fsdp else ["--no-fsdp"]
+        subprocess.run([*command, str(WORKER), str(tmp), launch, *extra], check=True, timeout=1200)
     first, second = (
-        json.loads((tmp_path / f"result-{s}.json").read_text()) for s in ("first", "resume")
+        json.loads((tmp / f"result-{s}.json").read_text()) for s in ("first", "resume")
     )
-    assert any(name.startswith("FSDP") for name in first["modules"])  # FSDP2 wrapped the layers
     for result in (first, second):
         export = result["export"]
         assert export["training"] == "full" and export["tensors_changed_vs_base"] > 0
-        assert all(
-            p.startswith(("model.language_model", "lm_head")) for p in export["trained_by_prefix"]
-        )
-    gaps = continuity(tmp_path / "run")
+        prefixes = export["trained_by_prefix"]
+        assert prefixes and all(p.startswith(("model.language_model", "lm_head")) for p in prefixes)
+    gaps = continuity(tmp / "run")
     assert gaps.redone_steps == [3, 4] and gaps.mismatched_steps == []
     assert sorted(second["steps"]) == ["1", "2", "3", "4"]  # steps 1-2 come from the saved state
     for step in ("3", "4"):
         before, after = first["steps"][step], second["steps"][step]
         assert after["lr"] == pytest.approx(before["lr"], rel=1e-9)
         assert after["loss"] == pytest.approx(before["loss"], rel=1e-3)
+    return first, second
+
+
+@needs_data
+def test_full_sft_path_resumes_and_exports_on_cpu(tmp_path: Path) -> None:
+    run_twice(tmp_path, fsdp=False)
+
+
+@needs_data
+@pytest.mark.skipif(torch.cuda.device_count() < 2, reason="FSDP2 needs 2 GPUs (M2.7)")
+def test_fsdp2_resumes_and_exports_on_two_gpus(tmp_path: Path) -> None:
+    first, _ = run_twice(tmp_path, fsdp=True)
+    assert any(name.startswith("FSDP") for name in first["modules"])  # decoder layers sharded
