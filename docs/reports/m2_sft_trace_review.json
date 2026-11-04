@@ -1,0 +1,412 @@
+{
+ "about": "M2.5 hand reading (2026-11-04, roadmap risk 8) of 50 train examples drawn with random.Random(20261104).sample(range(25551), 50) over the lines of datasets/soe/v1/sft/train.jsonl (sha256 0264027c...). Read: problem, gold, the end of the reasoning where the answer is derived and the answer section; screened by machine for repetition (max repeats of a >=30-char line and of a 12-word sequence). Lucky guess = a correct answer the reasoning does not derive. Ids only.",
+ "train_sha256": "0264027c44287993689733d9871b5811922728938fd89953cad722ae54357b76",
+ "counts": {
+  "read": 50,
+  "lucky_guess": 0,
+  "repetition_loop": 0,
+  "guessable_gold_0_or_1": 11
+ },
+ "traces": [
+  {
+   "line": 213,
+   "problem_id": "deepmath/022d5b51c38a75d2",
+   "max_line_repeats": 2,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 662,
+   "problem_id": "deepmath/068b22e8edd5ea4a",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 928,
+   "problem_id": "deepmath/09729d3d82e2aad5",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 2412,
+   "problem_id": "deepmath/17b7c172d733c33a",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 3640,
+   "problem_id": "deepmath/24739ba407ffda38",
+   "max_line_repeats": 2,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": "answer is the empty set (no discontinuities); derivation simplifies f to (x+y)sin(x+y)"
+  },
+  {
+   "line": 3779,
+   "problem_id": "deepmath/25b4bdec8b33654e",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 5250,
+   "problem_id": "deepmath/34a7836276b3564b",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 5945,
+   "problem_id": "deepmath/3b99213e248bd39f",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 6850,
+   "problem_id": "deepmath/44a75ff3d3fa9716",
+   "max_line_repeats": 2,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 6971,
+   "problem_id": "deepmath/460d0f15c949d763",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 7472,
+   "problem_id": "deepmath/4a9543e3e1a7ea16",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 7841,
+   "problem_id": "deepmath/4e22780c981a4cd6",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 9363,
+   "problem_id": "deepmath/5d4ce2d978db356a",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 4,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 9540,
+   "problem_id": "deepmath/5efdb50a90d66bf5",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 4,
+   "verdict": "ok",
+   "note": "question supplies the example data; growth factor derived from the nearest obstacle"
+  },
+  {
+   "line": 10257,
+   "problem_id": "deepmath/65acf0db302e5daa",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 10471,
+   "problem_id": "deepmath/67af178d55e2a311",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 3,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 10583,
+   "problem_id": "deepmath/68d3f41a3eaa0466",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 7,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 12150,
+   "problem_id": "deepmath/781b34eebbed48c8",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 12308,
+   "problem_id": "deepmath/79b5f0ded01163cc",
+   "max_line_repeats": 2,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 12635,
+   "problem_id": "deepmath/7d06cdb99f5ff625",
+   "max_line_repeats": 2,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 12692,
+   "problem_id": "deepmath/7d9c68bb4f8d3054",
+   "max_line_repeats": 2,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 13637,
+   "problem_id": "deepmath/8780bb5e76ccd0ac",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 4,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 14688,
+   "problem_id": "deepmath/92fea14812e82cd8",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 14807,
+   "problem_id": "deepmath/946c642303284934",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 14988,
+   "problem_id": "deepmath/964a68aa7526652f",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 15440,
+   "problem_id": "deepmath/9abee14c6094e323",
+   "max_line_repeats": 4,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 16167,
+   "problem_id": "deepmath/a263e099e7ddbe06",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 16317,
+   "problem_id": "deepmath/a3ff1c6d1a004a40",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 16343,
+   "problem_id": "deepmath/a447b9222f0cd2f4",
+   "max_line_repeats": 4,
+   "max_12gram_repeats": 7,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 16508,
+   "problem_id": "deepmath/a5d5bf66af558107",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 17231,
+   "problem_id": "deepmath/acbfdd8a7b8c3eff",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 17424,
+   "problem_id": "deepmath/ae78bc12a10ddfd6",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 17745,
+   "problem_id": "deepmath/b1f39bd10fd4e414",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 17933,
+   "problem_id": "deepmath/b3cd76032eb9196a",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 18036,
+   "problem_id": "deepmath/b4bcdefc53507eb0",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 19203,
+   "problem_id": "deepmath/c04bc39334ed953b",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 19376,
+   "problem_id": "deepmath/c2402347134505b2",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 20291,
+   "problem_id": "deepmath/cab2f1ec7643f9fd",
+   "max_line_repeats": 2,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 20703,
+   "problem_id": "deepmath/ce7e77187849b0b4",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 21278,
+   "problem_id": "deepmath/d4348f3ff4d67acf",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 22363,
+   "problem_id": "deepmath/dea34d1f5b617b55",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 22386,
+   "problem_id": "deepmath/df020d7baabb40d1",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 1,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 22574,
+   "problem_id": "deepmath/e0d9c1800dfa3c3f",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 22710,
+   "problem_id": "deepmath/e2523584d643a8b5",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 23126,
+   "problem_id": "deepmath/e6745f98d31fb995",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 3,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 24224,
+   "problem_id": "deepmath/f15617a049fde52a",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 24270,
+   "problem_id": "deepmath/f1e3323d75f22984",
+   "max_line_repeats": 1,
+   "max_12gram_repeats": 3,
+   "verdict": "ok",
+   "note": ""
+  },
+  {
+   "line": 24507,
+   "problem_id": "deepmath/f4974f78bce9af4d",
+   "max_line_repeats": 2,
+   "max_12gram_repeats": 2,
+   "verdict": "ok",
+   "note": "case answer (0 at z=0, undefined elsewhere) matches the gold 0 at z=0"
+  },
+  {
+   "line": 25232,
+   "problem_id": "deepmath/fc4fb65ea9fb6fad",
+   "max_line_repeats": 4,
+   "max_12gram_repeats": 3,
+   "verdict": "ok",
+   "note": "multiple-choice letter (c); kernel-inclusion argument supports it"
+  },
+  {
+   "line": 25488,
+   "problem_id": "deepmath/ff260d93bb571dbc",
+   "max_line_repeats": 2,
+   "max_12gram_repeats": 3,
+   "verdict": "ok",
+   "note": ""
+  }
+ ]
+}
