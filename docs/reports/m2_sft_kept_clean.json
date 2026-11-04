@@ -1,0 +1,29 @@
+{
+ "pool": {
+  "path": "datasets/soe/v1/sft/kept_problems.jsonl",
+  "sha256": "e9abe7f0e6c330c0525b0d3618b90c7cd47a12ea08bb31d651839186883883e1"
+ },
+ "rounds": [
+  {
+   "round": 1,
+   "pool_sha256": "e9abe7f0e6c330c0525b0d3618b90c7cd47a12ea08bb31d651839186883883e1",
+   "problems": 13776,
+   "listed": {
+    "docs/reports/m2_contamination_kept.json": 6,
+    "docs/reports/m2_contamination_kept_levelc.json": 16,
+    "docs/reports/m2_contamination_kept_rl.json": 40
+   },
+   "dropped": 61,
+   "reports_sha256": {
+    "docs/reports/m2_contamination_kept.json": "68f9e67d95db0a99a793fcc2a2d0fe167184073e99ee55ad42073dba1cdcc3f6",
+    "docs/reports/m2_contamination_kept_levelc.json": "cf39f1a8f2c6990d90ef3a64e61e6f57bbfc9bc6f7ecc9e546b1e43f3358ba85",
+    "docs/reports/m2_contamination_kept_rl.json": "f1b51a5c640d69039a76dda2bd51a2c60e55ad7ca8b2e05b0f27e67350ba1a71"
+   }
+  }
+ ],
+ "clean": {
+  "path": "datasets/soe/v1/sft/kept_problems_clean.jsonl",
+  "sha256": "0b20026ce4bc01ddc306f05b47f5a38f7ef8e68bac8ed846003898604dc5aac4",
+  "problems": 13715
+ }
+}

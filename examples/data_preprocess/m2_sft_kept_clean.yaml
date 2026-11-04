@@ -1,0 +1,9 @@
+# M2.5: decision 027's checks on exactly the problems that keep a trajectory (m2_sft_data.py
+# problems). A set this size has fewer boilerplate n-grams than the 76K pool, so the checks can list
+# pairs the pool hid; every listed problem is dropped, in rounds until a check lists nothing.
+pool: datasets/soe/v1/sft/kept_problems.jsonl
+pool_sha256: e9abe7f0e6c330c0525b0d3618b90c7cd47a12ea08bb31d651839186883883e1
+rounds:
+  - [docs/reports/m2_contamination_kept.json, docs/reports/m2_contamination_kept_levelc.json, docs/reports/m2_contamination_kept_rl.json]
+output: datasets/soe/v1/sft/kept_problems_clean.jsonl
+report: docs/reports/m2_sft_kept_clean.json

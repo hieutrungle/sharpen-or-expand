@@ -32,12 +32,19 @@ def test_every_listed_problem_is_dropped() -> None:
         m.clean(problems, {"d/9"})
 
 
-def test_committed_rounds_end_at_a_check_that_lists_nothing() -> None:
-    config = script().CleanConfig.model_validate(
-        yaml.safe_load(Path("examples/data_preprocess/m2_sft_pool_clean.yaml").read_text())
-    )
+@pytest.mark.parametrize(
+    ("config_path", "finals_glob"),
+    [
+        ("examples/data_preprocess/m2_sft_pool_clean.yaml", "m2_contamination_sft*_clean.json"),
+        ("examples/data_preprocess/m2_sft_kept_clean.yaml", "m2_contamination_kept*_final.json"),
+    ],
+)
+def test_committed_rounds_end_at_a_check_that_lists_nothing(
+    config_path: str, finals_glob: str
+) -> None:
+    config = script().CleanConfig.model_validate(yaml.safe_load(Path(config_path).read_text()))
     clean = json.loads(config.report.read_text())["clean"]
-    finals = sorted(Path("docs/reports").glob("m2_contamination_sft*_clean.json"))
+    finals = sorted(Path("docs/reports").glob(finals_glob))
     assert len(finals) == 3  # Levels A/B/C, Level C at 10%, RL pool
     for path in finals:
         report = json.loads(path.read_text())

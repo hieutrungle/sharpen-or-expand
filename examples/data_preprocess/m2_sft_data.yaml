@@ -8,7 +8,7 @@ samples:  # repo paths, in draw order
   - examples/data_preprocess/m2_sft_full.yaml
 kept_problems: datasets/soe/v1/sft/kept_problems.jsonl
 clean_problems: datasets/soe/v1/sft/kept_problems_clean.jsonl
-clean_problems_sha256: null  # set from docs/reports/m2_sft_kept_clean.json after the cleaner
+clean_problems_sha256: 0b20026ce4bc01ddc306f05b47f5a38f7ef8e68bac8ed846003898604dc5aac4  # m2_sft_kept_clean.json
 clean_report: docs/reports/m2_sft_kept_clean.json  # repo path
 output_dir: datasets/soe/v1/sft
 val_problems: 500
