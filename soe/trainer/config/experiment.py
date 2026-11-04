@@ -201,7 +201,8 @@ class DataSpec(FrozenModel):
 
 
 class SftSpec(FrozenModel):
-    """TRL SFT (M1.8). Examples longer than max_length are dropped, never truncated."""
+    """TRL SFT: BF16 LoRA (M1.8) or full BF16 with FSDP2 (M2.6, decision 028). Examples longer than
+    max_length are dropped, never truncated."""
 
     n_gpus: int = Field(gt=0)
     max_length: int = Field(gt=0)  # prompt + completion tokens, turn end included
@@ -209,6 +210,10 @@ class SftSpec(FrozenModel):
     batch_size_per_gpu: int = Field(gt=0)
     gradient_accumulation_steps: int = Field(gt=0)
     lr_scheduler: Literal["constant_with_warmup", "cosine"]
+    # Saves land every 2-4 h (set from M2.8's step time); null: only the final export, no resume.
+    save_every_steps: int | None = Field(gt=0)
+    keep_last: int = Field(ge=1)  # sharded trainer checkpoints kept for resume
+    max_steps: int | None = Field(default=None, gt=0)  # development only: stop before the epochs
 
 
 class ExperimentConfig(FrozenModel):
@@ -261,9 +266,13 @@ class ExperimentConfig(FrozenModel):
         if self.algorithm is Algorithm.SFT:
             if self.init_checkpoint is not None:
                 raise ValueError("SFT starts from the base model (init_checkpoint must be null)")
-            if self.training_mode is not TrainingMode.LORA_BF16:
-                # Full-BF16 SFT is added with the G0 training mode, before M2 (M1.8 decision).
-                raise ValueError("SFT supports lora_bf16 only so far")
+            assert self.sft is not None
+            if self.training_mode is TrainingMode.QLORA:
+                raise ValueError("SFT trains in full_bf16 or lora_bf16 (no QLoRA SFT path)")
+            if not self.development and self.sft.save_every_steps is None:
+                raise ValueError("a non-development SFT run must checkpoint (sft.save_every_steps)")
+            if not self.development and self.sft.max_steps is not None:
+                raise ValueError("sft.max_steps is for development runs only")
         if self.policy_loss is not None:
             self._check_clip_consistency(self.policy_loss)
         smoke = self.rollout is not None and self.rollout.smoke_max_response_tokens is not None

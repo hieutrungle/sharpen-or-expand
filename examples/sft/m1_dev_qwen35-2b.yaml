@@ -27,6 +27,8 @@ sft:
   batch_size_per_gpu: 1
   gradient_accumulation_steps: 8  # 16 sequences per optimizer step on 2 GPUs
   lr_scheduler: cosine
+  save_every_steps: null  # M1.8 saved only the final export (fields added in M2.6)
+  keep_last: 1
 data:
   train_file: datasets/soe/dev/sft-m1/train.jsonl
   train_sha256: 3c504098b83f61a8070fc0b38a9b1eca3a4deceec89a092ea69cc150ce8b1dce

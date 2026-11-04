@@ -1,14 +1,23 @@
-"""TRL SFT worker (M1.8): one process per GPU, started by `soe.trainer.main_sft` with torchrun.
+"""TRL SFT worker: one process per GPU, started by `soe.trainer.main_sft` with torchrun.
 
-    torchrun --standalone --nproc_per_node=N -m soe.trainer.sft.trainer --run-dir runs/<id>
+    torchrun --standalone --nproc_per_node=N -m soe.trainer.sft.trainer --run-dir runs/<id> \
+        [--resume-from runs/<id>/trainer/checkpoint-<step>]
 
-Trains BF16 LoRA (language model only; the config's lora block, as in RL) with TRL 0.27's
-SFTTrainer on pre-tokenized examples (soe/trainer/sft/data.py), so the loss mask is ours and TRL
-adds no EOS. Liger's fused cross-entropy keeps 18K-token sequences from materialising the logits.
-Rank 0 then merges the adapters in FP32 and writes the checkpoint in the base snapshot's layout
-(soe/trainer/rl/export.py: vision tower and mtp unchanged, the base's config, tokenizer and chat
-template copied) to `$SOE_DATA/checkpoints/<run_id>/step_<N>/hf`, which main_eval and verl's
-`init_checkpoint` load.
+TRL 0.27's SFTTrainer on pre-tokenized examples (soe/trainer/sft/data.py), so the loss mask is ours
+and TRL adds no EOS; Liger's fused cross-entropy keeps 18K-token sequences from materialising the
+logits. Two training modes (arguments in soe/trainer/sft/args.py):
+
+- full_bf16 (M2.6, decision 028): the model is loaded in FP32 (exact master weights, the base's F32
+  tensors included), the vision tower frozen, and FSDP2 shards it over the GPUs with BF16 compute
+  and FP32 gradient reduction. At the end the full FP32 state dict is gathered to rank 0 and
+  written in the base layout.
+- lora_bf16 (M1.8, decision 023): BF16 LoRA on the language model, merged in FP32 at the end.
+
+Saves every `sft.save_every_steps` (sharded model, optimizer, scheduler, RNG, trainer state) let a
+chained job resume; every training micro-batch logs its example ids (soe/trainer/sft/resume.py).
+The export (soe/trainer/rl/export.py: vision tower unchanged, mtp copied, the base's config,
+tokenizer and chat template) goes to `$SOE_DATA/checkpoints/<run_id>/step_<N>/hf`, which main_eval
+and verl's `init_checkpoint` load. A resumed job whose training had finished only exports.
 
 Image only (torch, transformers, peft, TRL).
 """
@@ -24,6 +33,7 @@ from datasets import Dataset
 from peft import LoraConfig
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 from safetensors import safe_open
+from torch.distributed.fsdp import MixedPrecisionPolicy
 from transformers import (
     AutoModelForImageTextToText,
     AutoTokenizer,
@@ -35,7 +45,7 @@ from transformers import (
 from trl import SFTConfig, SFTTrainer
 
 from soe.trainer.config.eval_suite import PromptSpec, load_suite
-from soe.trainer.config.experiment import ExperimentConfig, load_config
+from soe.trainer.config.experiment import ExperimentConfig, TrainingMode, load_config
 from soe.trainer.main_rl import checked_data_file, model_path
 from soe.trainer.rl.checkpoints import export_dir
 from soe.trainer.rl.export import (
@@ -46,7 +56,9 @@ from soe.trainer.rl.export import (
     trained_by_prefix,
     write_export,
 )
+from soe.trainer.sft.args import FSDP_ENVIRONMENT, plain_name, trainer_arguments
 from soe.trainer.sft.data import SftExample, TokenizedExample, fitting, tokenize_example
+from soe.trainer.sft.resume import TRAINER_DIR, example_key, log_path
 from soe.utils.jsonl import read_jsonl
 from soe.utils.run import read_run_info
 from soe.workers.rollout.chat import turn_end_text
@@ -104,21 +116,43 @@ class MetricsFile(TrainerCallback):  # type: ignore[misc]
 
 
 class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
-    """Liger skips the logits only in training mode; in evaluation it would build the full
-    sequence x vocabulary logits (12 GB for one 18K-token example on 2B, job 3223714 OOM). The
-    loss and token accuracy come from Liger's fused kernel in both modes, so logits are never
-    needed."""
+    """Two additions to TRL's trainer.
+
+    Liger skips the logits only in training mode; in evaluation it would build the full sequence x
+    vocabulary logits (12 GB for one 18K-token example on 2B, job 3223714 OOM). The loss and token
+    accuracy come from Liger's fused kernel in both modes, so logits are never needed.
+
+    Each training micro-batch appends the train-set indices of its examples to this rank's log, so
+    the data order can be compared across a resume."""
+
+    def __init__(self, *args: Any, example_index: dict[str, int], example_log: Path, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._example_index = example_index
+        self._example_log = example_log
+        example_log.parent.mkdir(parents=True, exist_ok=True)
 
     def compute_loss(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+        if model.training:
+            self._log_examples(inputs)
         return super().compute_loss(model, {**inputs, "skip_logits": True}, *args, **kwargs)
+
+    def _log_examples(self, inputs: dict[str, Any]) -> None:
+        ids, mask = inputs["input_ids"], inputs.get("attention_mask")
+        rows = [ids[i] if mask is None else ids[i][mask[i].bool()] for i in range(ids.shape[0])]
+        examples = [self._example_index[example_key(row.tolist())] for row in rows]
+        with open(self._example_log, "a") as f:  # step: the optimizer step this batch counts toward
+            f.write(json.dumps({"step": self.state.global_step + 1, "examples": examples}) + "\n")
 
 
 def datasets(
     config: ExperimentConfig, tokenizer: Tokenizer, data_root: Path
-) -> tuple[dict[str, Dataset], dict[str, dict[str, int]]]:
+) -> tuple[dict[str, Dataset], dict[str, dict[str, int]], list[str]]:
+    """Tokenized train/val sets, their counts, and the key of every train example (its index is
+    the example id the trainer logs)."""
     assert config.sft is not None
     out: dict[str, Dataset] = {}
     counts: dict[str, dict[str, int]] = {}
+    train_keys: list[str] = []
     files = {
         "train": (config.data.train_file, config.data.train_sha256),
         "val": (config.data.val_file, config.data.val_sha256),
@@ -132,13 +166,15 @@ def datasets(
             "tokens": sum(len(e.input_ids) for e in kept),
             "loss_tokens": sum(sum(e.completion_mask) for e in kept),
         }
+        if split == "train":
+            train_keys = [example_key(e.input_ids) for e in kept]
         out[split] = Dataset.from_dict(
             {
                 "input_ids": [e.input_ids for e in kept],
                 "completion_mask": [e.completion_mask for e in kept],
             }
         )
-    return out, counts
+    return out, counts, train_keys
 
 
 def restore_checkpoint_dtypes(model: Any, base: Path) -> list[str]:
@@ -192,61 +228,89 @@ def export_merged(
     return info
 
 
-def train(run_dir: Path) -> None:
+def export_full(
+    state: dict[str, torch.Tensor],
+    trained: list[str],
+    base: Path,
+    out_dir: Path,
+    *,
+    run_id: str,
+    step: int,
+    config: ExperimentConfig,
+) -> ExportInfo:
+    """The gathered FP32 state dict in the base layout; only language-model tensors may differ."""
+    check_trained(trained, is_lora=False)
+    tensors = {plain_name(k): v.detach().to("cpu", torch.float32) for k, v in state.items()}
+    numels = {k: v.numel() for k, v in tensors.items()}
+    layout = like_base(tensors, base, lora_modules=None)
+    info = ExportInfo(
+        run_id=run_id,
+        step=step,
+        rollout_tokens=None,
+        source_checkpoint="trl-sft",
+        base_model=f"{config.model.hf_id}@{config.model.revision}",
+        training="full",
+        lora_rank=None,
+        lora_alpha=None,
+        merged_lora_modules=0,
+        trained_tensors=len(trained),
+        trained_parameters=sum(numels[k] for k in trained),
+        trained_by_prefix=trained_by_prefix(trained, numels),
+        tensors_changed_vs_base=layout.changed,
+        copied_from_base=layout.copied,
+        created_at=datetime.now(UTC),
+    )
+    out_dir.parent.mkdir(parents=True, exist_ok=True)
+    write_export(layout, base, out_dir, info)
+    return info
+
+
+def freeze_vision(model: Any) -> int:
+    """Decision 019's rule: only the language model trains. Returns the frozen tensor count."""
+    frozen = 0
+    for name, param in model.named_parameters():
+        if name.startswith("model.visual."):
+            param.requires_grad_(False)
+            frozen += 1
+    return frozen
+
+
+def train(run_dir: Path, resume_from: Path | None) -> None:
     config = load_config(run_dir / "config.yaml")
     info = read_run_info(run_dir)
     sft, lora = config.sft, config.lora
-    if sft is None or lora is None:
-        raise ValueError(f"{config.name} is not a LoRA SFT config")
+    full = config.training_mode is TrainingMode.FULL_BF16
+    if sft is None or (lora is None and not full):
+        raise ValueError(f"{config.name} is not a full-BF16 or LoRA SFT config")
     data_root = Path(os.environ["SOE_DATA"])
     base = model_path(config, data_root)
     tokenizer = Tokenizer(base, load_suite(Path(config.eval_suite)).prompt)
-    data, counts = datasets(config, tokenizer, data_root)
-    rank0 = int(os.environ.get("RANK", "0")) == 0
-    if rank0:
+    data, counts, train_keys = datasets(config, tokenizer, data_root)
+    rank = int(os.environ.get("RANK", "0"))
+    if rank == 0:
         (run_dir / SFT_DATA).write_text(json.dumps(counts, indent=1, sort_keys=True) + "\n")
         print(f"soe sft data: {counts}", flush=True)
 
-    model = AutoModelForImageTextToText.from_pretrained(base, dtype=torch.bfloat16)
-    restored = restore_checkpoint_dtypes(model, base)
-    if rank0:
-        print(f"soe sft: {len(restored)} F32 checkpoint tensors kept in F32", flush=True)
-    args = SFTConfig(
-        output_dir=str(run_dir / "trainer"),
-        num_train_epochs=sft.epochs,
-        per_device_train_batch_size=sft.batch_size_per_gpu,
-        per_device_eval_batch_size=sft.batch_size_per_gpu,
-        gradient_accumulation_steps=sft.gradient_accumulation_steps,
-        learning_rate=config.optim.learning_rate,
-        warmup_steps=config.optim.warmup_steps,
-        weight_decay=config.optim.weight_decay,
-        lr_scheduler_type=sft.lr_scheduler,
-        bf16=True,
-        gradient_checkpointing=True,
-        gradient_checkpointing_kwargs={"use_reentrant": False},
-        use_liger_kernel=True,
-        max_length=None,  # examples are already filtered to sft.max_length
-        packing=False,
-        completion_only_loss=True,
-        logging_steps=1,
-        eval_strategy="epoch",
-        prediction_loss_only=True,  # validation loss only; no logits are gathered
-        save_strategy="no",  # the merged checkpoint is written below; SFT resume arrives at M2
-        report_to=[],
-        seed=info.seed,
-        data_seed=info.seed,
-        ddp_find_unused_parameters=False,
-    )
+    if full:
+        # FP32 load: exact master weights (the checkpoint's F32 tensors stay F32, the BF16 ones are
+        # exact in FP32), so no dtype restore is needed and the export writes the base's dtypes.
+        model = AutoModelForImageTextToText.from_pretrained(base, dtype=torch.float32)
+        frozen = freeze_vision(model)
+        os.environ.update(FSDP_ENVIRONMENT)  # before the Trainer builds accelerate's FSDP plugin
+        if rank == 0:
+            print(f"soe sft: full BF16, {frozen} vision tensors frozen", flush=True)
+    else:
+        model = AutoModelForImageTextToText.from_pretrained(base, dtype=torch.bfloat16)
+        restored = restore_checkpoint_dtypes(model, base)
+        if rank == 0:
+            print(f"soe sft: {len(restored)} F32 checkpoint tensors kept in F32", flush=True)
+    args = SFTConfig(**trainer_arguments(config, seed=info.seed, output_dir=run_dir / TRAINER_DIR))
     segment = os.environ.get("SLURM_JOB_ID", "local")
     metrics = run_dir / "metrics" / f"segment-{segment}.jsonl"
     metrics.parent.mkdir(exist_ok=True)
-    trainer = SoeSftTrainer(
-        model=model,
-        args=args,
-        train_dataset=data["train"],
-        eval_dataset=data["val"],
-        processing_class=tokenizer.hf,
-        peft_config=LoraConfig(
+    peft_config = None
+    if lora is not None:
+        peft_config = LoraConfig(
             r=lora.rank,
             lora_alpha=lora.alpha,
             target_modules=lora.target_modules,
@@ -254,16 +318,44 @@ def train(run_dir: Path) -> None:
             lora_dropout=0.0,
             bias="none",
             task_type="CAUSAL_LM",
-        ),
+        )
+    trainer = SoeSftTrainer(
+        model=model,
+        args=args,
+        train_dataset=data["train"],
+        eval_dataset=data["val"],
+        processing_class=tokenizer.hf,
+        peft_config=peft_config,
         callbacks=[MetricsFile(metrics)],
+        example_index={key: i for i, key in enumerate(train_keys)},
+        example_log=log_path(run_dir, segment, rank),
     )
-    trainer.train()
-    if trainer.accelerator.is_main_process:
-        step = trainer.state.global_step
+    if full:
+        # D6: BF16 compute, FP32 gradient reduction. accelerate's bf16 default reduces in BF16, and
+        # TrainingArguments has no field for it; the plugin is read when train() wraps the model.
+        trainer.accelerator.state.fsdp_plugin.mixed_precision_policy = MixedPrecisionPolicy(
+            param_dtype=torch.bfloat16, reduce_dtype=torch.float32, output_dtype=torch.bfloat16
+        )
+    trainer.train(resume_from_checkpoint=str(resume_from) if resume_from is not None else None)
+
+    step = trainer.state.global_step
+    out_dir = export_dir(data_root, info.run_id, step)
+    main = trainer.accelerator.is_main_process
+    if full:
+        state = trainer.accelerator.get_state_dict(trainer.model)  # a collective: every rank
+        if main and not out_dir.exists():
+            trained = [
+                plain_name(n) for n, p in trainer.model.named_parameters() if p.requires_grad
+            ]
+            exported = export_full(
+                state, trained, base, out_dir, run_id=info.run_id, step=step, config=config
+            )
+            print(f"soe sft: exported step {step}: {exported.model_dump_json()}", flush=True)
+    elif main and not out_dir.exists():
         exported = export_merged(
             trainer.accelerator.unwrap_model(trainer.model),
             base,
-            export_dir(data_root, info.run_id, step),
+            out_dir,
             run_id=info.run_id,
             step=step,
             config=config,
@@ -278,9 +370,10 @@ class SftWorkerCli(BaseSettings):
     )
 
     run_dir: Path
+    resume_from: Path | None = None  # a complete trainer checkpoint (main_sft picks it)
 
     def cli_cmd(self) -> None:
-        train(self.run_dir.resolve())
+        train(self.run_dir.resolve(), self.resume_from)
 
 
 if __name__ == "__main__":

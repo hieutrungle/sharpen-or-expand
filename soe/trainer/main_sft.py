@@ -2,8 +2,9 @@
 
 Starts the TRL worker (soe/trainer/sft/trainer.py) on the config's GPUs with torchrun, records the
 job segment in `segments.jsonl` like main_rl, and writes the DONE marker when training and the
-checkpoint export finished. SFT has no resume yet (M2): a run directory that already has a job
-segment is refused rather than trained again from the start.
+checkpoint export finished. A run that already has segments resumes from its newest complete
+trainer checkpoint (decision 028; `resumed_from_step` in the start event), or starts again from
+step 0 if none was saved; slurm/train.sbatch chains the jobs (`CHAIN_LEFT`).
 """
 
 import os
@@ -18,11 +19,12 @@ from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
 from soe.trainer.config.experiment import load_config
 from soe.trainer.rl.segments import SegmentEvent, append_event, read_events
+from soe.trainer.sft.resume import TRAINER_DIR, SavedCheckpoint, last_complete_checkpoint
 from soe.utils.run import check_gpu_count, library_versions
 
 
-def worker_command(run_dir: Path, n_gpus: int) -> list[str]:
-    return [
+def worker_command(run_dir: Path, n_gpus: int, resume: SavedCheckpoint | None = None) -> list[str]:
+    command = [
         sys.executable,
         "-m",
         "torch.distributed.run",  # torchrun
@@ -33,6 +35,12 @@ def worker_command(run_dir: Path, n_gpus: int) -> list[str]:
         "--run-dir",
         str(run_dir),
     ]
+    return command + (["--resume-from", str(resume.path)] if resume is not None else [])
+
+
+def resume_point(run_dir: Path) -> SavedCheckpoint | None:
+    """Where a job continues: the newest complete checkpoint of a run that was started before."""
+    return last_complete_checkpoint(run_dir / TRAINER_DIR) if read_events(run_dir) else None
 
 
 class SftLaunchCli(BaseSettings):
@@ -47,9 +55,11 @@ class SftLaunchCli(BaseSettings):
         config = load_config(run_dir / "config.yaml")
         if config.sft is None:
             raise ValueError(f"{config.name} is not an SFT config")
-        if read_events(run_dir):
-            raise RuntimeError(f"{run_dir} was started before; SFT resume is not supported yet")
+        if (run_dir / "DONE").exists():
+            print(f"soe sft: {run_dir} already finished", flush=True)
+            return
         check_gpu_count(config.sft.n_gpus)
+        resume = resume_point(run_dir)
         segment = os.environ.get("SLURM_JOB_ID", "local")
         record = partial(
             SegmentEvent,
@@ -62,11 +72,14 @@ class SftLaunchCli(BaseSettings):
         append_event(
             run_dir,
             record(
-                event="start", at=started, resumed_from_step=0, library_versions=library_versions()
+                event="start",
+                at=started,
+                resumed_from_step=resume.step if resume is not None else 0,
+                library_versions=library_versions(),
             ),
         )
         try:
-            subprocess.run(worker_command(run_dir, config.sft.n_gpus), check=True)
+            subprocess.run(worker_command(run_dir, config.sft.n_gpus, resume), check=True)
         except BaseException:
             append_event(run_dir, record(event="end", at=datetime.now(UTC), exit="failed"))
             raise

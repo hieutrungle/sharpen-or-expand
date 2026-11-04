@@ -1,0 +1,35 @@
+# M2.7 development run of the full-BF16 SFT path (decision 028) on Lane B: 2B, FSDP2 over 2 A40s.
+# Wiring and the kill-and-resume check only; never in conclusions. Data: the M2.5 SFT files (they
+# hold the M2.4 pilot's trajectories), capped by sft.max_steps. Recipe as run #1 (roadmap D5):
+# 32 sequences per optimizer step. max_steps and save_every_steps are first guesses for a ~1.5 h
+# control run with a save about every 20 min; M2.7's smoke measures the step time and sets them.
+name: sft_m2_dev_full_qwen35-2b
+milestone: m2
+development: true
+lane: B
+model:
+  hf_id: Qwen/Qwen3.5-2B-Base
+  revision: b1485b2fa6dfa1287294f269f5fb618e03d52d7c
+init_checkpoint: null  # SFT starts from the base model
+training_mode: full_bf16  # the G0 mode (decision 025)
+algorithm: sft
+optim:
+  learning_rate: 1.0e-5
+  warmup_steps: 1  # 3% of max_steps, rounded up
+  weight_decay: 0.0
+sft:
+  n_gpus: 2
+  max_length: 18432  # 2,048 prompt + 16,384 response tokens (the evaluation cap)
+  epochs: 1
+  batch_size_per_gpu: 1
+  gradient_accumulation_steps: 16  # 32 sequences per optimizer step on 2 GPUs (D5)
+  lr_scheduler: cosine
+  save_every_steps: 6
+  keep_last: 2
+  max_steps: 24
+data:
+  train_file: datasets/soe/v1/sft/train.jsonl
+  train_sha256: 0264027c44287993689733d9871b5811922728938fd89953cad722ae54357b76
+  val_file: datasets/soe/v1/sft/val.jsonl
+  val_sha256: 48f248847bf265bd1f612b08b32081e1aba471712a9a1900e6f4e4e911aa09e1
+eval_suite: soe/trainer/config/eval_suite.yaml

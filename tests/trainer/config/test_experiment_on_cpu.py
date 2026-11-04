@@ -6,7 +6,7 @@ import yaml
 from pydantic import ValidationError
 
 from soe.trainer.config.eval_suite import load_suite
-from soe.trainer.config.experiment import ExperimentConfig, rollout_protocol
+from soe.trainer.config.experiment import ExperimentConfig, TrainingMode, rollout_protocol
 
 EXAMPLE = Path("examples/grpo_trainer/m1_dev_qwen35-2b.yaml")
 SUITE = Path("soe/trainer/config/eval_suite.yaml")
@@ -216,5 +216,22 @@ def test_sft_block_rules() -> None:
     with pytest.raises(ValidationError, match="starts from the base model"):
         ExperimentConfig.model_validate(data | {"init_checkpoint": "checkpoints/x"})
     full = {k: v for k, v in data.items() if k != "lora"} | {"training_mode": "full_bf16"}
-    with pytest.raises(ValidationError, match="lora_bf16 only"):
-        ExperimentConfig.model_validate(full)
+    assert ExperimentConfig.model_validate(full).training_mode is TrainingMode.FULL_BF16
+    with pytest.raises(ValidationError, match="no QLoRA SFT"):
+        ExperimentConfig.model_validate(data | {"training_mode": "qlora"})
+
+
+def test_non_dev_sft_checkpoints_and_runs_whole_epochs() -> None:
+    data: dict[str, Any] = yaml.safe_load(
+        Path("examples/sft/m2_dev_full_qwen35-2b.yaml").read_text()
+    )
+    assert ExperimentConfig.model_validate(data).sft is not None
+    real = data | {"development": False}
+    with pytest.raises(ValidationError, match="max_steps is for development"):
+        ExperimentConfig.model_validate(real)
+    no_cap = real | {"sft": data["sft"] | {"max_steps": None}}
+    assert ExperimentConfig.model_validate(no_cap).sft is not None
+    with pytest.raises(ValidationError, match="must checkpoint"):
+        ExperimentConfig.model_validate(
+            no_cap | {"sft": no_cap["sft"] | {"save_every_steps": None}}
+        )
