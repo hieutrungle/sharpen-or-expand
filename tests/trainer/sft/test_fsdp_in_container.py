@@ -59,9 +59,13 @@ def run_twice(tmp: Path, fsdp: bool) -> tuple[dict[str, Any], dict[str, Any]]:
         ]
     else:
         command = [sys.executable]
+    # Without FSDP the variant is the CPU one: on a GPU node one process would use DataParallel.
+    env = os.environ | ({} if fsdp else {"CUDA_VISIBLE_DEVICES": ""})
     for launch in ("first", "resume"):
         extra = [] if fsdp else ["--no-fsdp"]
-        subprocess.run([*command, str(WORKER), str(tmp), launch, *extra], check=True, timeout=1200)
+        subprocess.run(
+            [*command, str(WORKER), str(tmp), launch, *extra], check=True, timeout=1200, env=env
+        )
     first, second = (
         json.loads((tmp / f"result-{s}.json").read_text()) for s in ("first", "resume")
     )
