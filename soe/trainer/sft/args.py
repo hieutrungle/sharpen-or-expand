@@ -40,6 +40,11 @@ def trainer_arguments(config: ExperimentConfig, *, seed: int, output_dir: Path) 
         "warmup_steps": config.optim.warmup_steps,
         "weight_decay": config.optim.weight_decay,
         "max_grad_norm": 1.0,  # D5's clip; the Trainer default, written out
+        # The Trainer's AdamW under torch >= 2.8, written out so a library default cannot drift.
+        "optim": "adamw_torch_fused",
+        "adam_beta1": 0.9,
+        "adam_beta2": 0.999,
+        "adam_epsilon": 1e-8,
         "lr_scheduler_type": sft.lr_scheduler,
         "bf16": True,
         "use_liger_kernel": True,
@@ -47,7 +52,11 @@ def trainer_arguments(config: ExperimentConfig, *, seed: int, output_dir: Path) 
         "packing": False,
         "completion_only_loss": True,
         "logging_steps": 1,
-        "eval_strategy": "epoch",
+        # Validation at every save, plus the Trainer's one at the last step: run #1 validates at
+        # 290, 580 and 799, the three points of decision 029's criterion 1. Runs without saves
+        # (development) validate once, at the end of the epoch.
+        "eval_strategy": "steps" if saves else "epoch",
+        "eval_steps": sft.save_every_steps if saves else None,
         "prediction_loss_only": True,  # validation loss only; no logits are gathered
         "save_strategy": "steps" if saves else "no",
         "save_steps": sft.save_every_steps if saves else 500,  # 500: TRL's default, unused

@@ -1,0 +1,36 @@
+# M2.10 SFT run #1, pre-registered in decision 029 (recipe D5, run-#2 rule D6). Qwen3.5-4B-Base, full
+# BF16 (decision 025) with FSDP2 over the 4 A40s of fc098 (decision 028). One epoch of the M2.5 SFT
+# set: 25,551 examples, 32 per optimizer step = 799 steps. Seed 1 (the train.sbatch argument):
+#   SBATCH_GRES=gpu:a40:4 CHAIN_LEFT=1 sbatch --nodelist=fc098 --job-name=m2-sft-run1 \
+#       slurm/train.sbatch examples/sft/m2_run1_qwen35-4b.yaml 1
+# The frozen SFT checkpoint is this run's final export (no checkpoint selection), unless decision
+# 029's rule triggers run #2.
+name: sft_m2_run1_qwen35-4b
+milestone: m2
+development: false
+lane: A
+model:
+  hf_id: Qwen/Qwen3.5-4B-Base
+  revision: 1001bb4d826a52d1f399e183466143f4da7b741b
+init_checkpoint: null  # SFT starts from the base model
+training_mode: full_bf16  # the G0 mode (decision 025)
+algorithm: sft
+optim:
+  learning_rate: 1.0e-5
+  warmup_steps: 24  # 3% of 799 steps, rounded up; cosine decay to 0 after it
+  weight_decay: 0.0
+sft:
+  n_gpus: 4
+  max_length: 18432  # 2,048 prompt + 16,384 response tokens; no example is longer (M2.5)
+  epochs: 1
+  batch_size_per_gpu: 1
+  gradient_accumulation_steps: 8  # 32 sequences per optimizer step on 4 GPUs (D5)
+  lr_scheduler: cosine
+  save_every_steps: 290  # about every 3 h at M2.8's 37.3 s per step; validation at each save
+  keep_last: 2
+data:
+  train_file: datasets/soe/v1/sft/train.jsonl
+  train_sha256: 0264027c44287993689733d9871b5811922728938fd89953cad722ae54357b76
+  val_file: datasets/soe/v1/sft/val.jsonl
+  val_sha256: 48f248847bf265bd1f612b08b32081e1aba471712a9a1900e6f4e4e911aa09e1
+eval_suite: soe/trainer/config/eval_suite.yaml
