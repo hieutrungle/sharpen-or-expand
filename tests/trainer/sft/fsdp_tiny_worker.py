@@ -17,7 +17,7 @@ from typing import Any
 import torch
 import transformers.models.qwen3_5.modeling_qwen3_5 as qwen3_5
 from datasets import Dataset
-from transformers import AutoModelForImageTextToText
+from transformers import AutoModelForImageTextToText, AutoTokenizer
 from trl import SFTConfig, SFTTrainer
 
 from soe.trainer.config.experiment import ExperimentConfig
@@ -71,6 +71,7 @@ def main() -> None:
         model=model,
         args=SFTConfig(**kwargs),
         train_dataset=train,
+        processing_class=AutoTokenizer.from_pretrained(base),
         example_index={example_key(r): i for i, r in enumerate(rows)},
         example_log=log_path(run_dir, segment, rank),
     )

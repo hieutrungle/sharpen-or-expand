@@ -20,10 +20,12 @@ WORKER = Path(__file__).with_name("fsdp_tiny_worker.py")
 
 
 def tiny_base(out: Path) -> None:
-    from transformers import AutoConfig, AutoModelForImageTextToText
+    from transformers import AutoConfig, AutoModelForImageTextToText, AutoTokenizer
 
     config = load_config(Path("examples/sft/m2_dev_full_qwen35-2b.yaml"))
-    hf = AutoConfig.from_pretrained(model_path(config, Path(os.environ["SOE_DATA"])))
+    snapshot = model_path(config, Path(os.environ["SOE_DATA"]))
+    AutoTokenizer.from_pretrained(snapshot).save_pretrained(out)  # the trainer's processing_class
+    hf = AutoConfig.from_pretrained(snapshot)
     text, vision = hf.text_config, hf.vision_config
     text.num_hidden_layers, text.layer_types = 2, ["linear_attention", "full_attention"]
     text.hidden_size, text.intermediate_size = 64, 128
