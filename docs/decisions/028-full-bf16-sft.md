@@ -64,6 +64,15 @@ checkpoints and resume; three of the settings it needs are not exposed by `Train
 
 - Every RL run and DPO starts from one SFT checkpoint, so nothing here differs between algorithms.
   The SFT checkpoint is in the base layout and dtypes, as with LoRA.
+- **Export precision (accepted, M2.7).** Writing the base's dtypes rounds each FP32 master weight
+  to BF16, so a change smaller than one BF16 step is lost. It shows on small vectors (`dt_bias`,
+  q/k and layer norms, magnitude 0.6–5.8, one BF16 step 0.004–0.03): 37 of 320 trained tensors
+  equal the base after 3 steps of the 2B smoke, 30 after 160 steps of the M2.7 control. This is
+  kept as is: vLLM serves BF16 for evaluation and rollouts, so the lost part never reaches a
+  sampled token; verl and DPO load the same file, so every algorithm starts from the same values;
+  a mixed-dtype export would be extra code and a loader risk for no measurable gain. The final
+  Trainer checkpoint keeps the FP32 weights if they are ever needed. Run #1 reports the number of
+  unchanged tensors in its export log.
 - Resume is continuity, not bitwise equality (D12): BF16 compute and collective order can differ
   across jobs. M2.7 checks example order, learning rate, step count and loss noise.
 - FP32 master state costs memory (about 18 GB per A40 for 4B on 4 GPUs, decision 025's arithmetic)
