@@ -1,7 +1,7 @@
 # 028 — Full-BF16 SFT: FSDP2 through the Trainer, sharded checkpoints, resume, full export
 
 - Date: 2026-11-04
-- Status: proposed
+- Status: accepted (user, 2026-11-04, after M2.7 and M2.8)
 - Milestone: M2 (task M2.6; roadmap D6, D12). Supersedes decision 023 items 3 (training mode) and
   5 (no resume); its format, masking, length rule, memory and dtype items stand.
 - Code: `soe/trainer/sft/trainer.py`, `soe/trainer/sft/args.py`, `soe/trainer/sft/resume.py`,
