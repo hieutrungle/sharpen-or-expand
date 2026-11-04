@@ -1,0 +1,12 @@
+{
+ "input": "datasets/soe/v1/sft/train.jsonl",
+ "output": "datasets/soe/v1/sft/dev_longest.jsonl",
+ "output_sha256": "c3099ee3fc15684308f51ee021a395cb1ae1dd34dea08d22a816519e843044e7",
+ "count": 256,
+ "tokens": {
+  "max": 16549,
+  "min": 15783
+ },
+ "over_16384_in_input": 33,
+ "over_16384_kept": 33
+}

@@ -77,6 +77,20 @@ checkpoints and resume; three of the settings it needs are not exposed by `Train
   across jobs. M2.7 checks example order, learning rate, step count and loss noise.
 - FP32 master state costs memory (about 18 GB per A40 for 4B on 4 GPUs, decision 025's arithmetic)
   and FP32 reduction costs bandwidth; M2.8 measures both before run #1.
+- **Memory margin (M2.8, user's choice of response 2026-11-04).** The 4B probe (job 3233371,
+  `docs/reports/m2_sft_probe_4b.json`) left 1.1–2.6 GiB free per A40 by nvidia-smi, under the
+  roadmap's 4 GiB line; rank 0's torch peak was 36.7 GiB allocated and 45.3 GiB reserved. Response:
+  the SFT workers run with `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`
+  (`soe/trainer/main_sft.py`; allocator only, the maths is unchanged), and a worst-case probe
+  trained only on the train set's 256 longest examples (15,783–16,549 tokens, the longest in the
+  train set; job 3233927, `docs/reports/m2_sft_probe_4b_longest.json`). There rank 0's torch peak
+  is 36.8 GiB allocated and 43.8 GiB reserved; nvidia-smi shows 2.7–3.7 GiB free. The recipe is
+  kept (one sequence per micro-batch, no offload): the worst case is measured and needs about
+  37 GiB, and the cached memory above it is returned to the allocator before an out-of-memory
+  error. nvidia-smi's free memory is still under 4 GiB, so the line is read here as torch's
+  allocated peak plus the non-torch memory (CUDA context, NCCL: about 1.5 GiB), about 38.3 GiB of
+  48.0. If run #1 hits an out-of-memory error, the next change is a recipe decision, not a
+  mid-run edit.
 - **Testing limit.** accelerate enables FSDP only for multi-accelerator setups, never on CPU. The
   container test (`tests/trainer/sft/test_fsdp_in_container.py`) therefore runs the full-mode code
   on CPU in one process without FSDP: FP32 load, frozen vision tower, example log, resume

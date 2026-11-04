@@ -1,0 +1,109 @@
+{
+ "commit": "5209ccc49965428555cc262b27d4e692c2f0ee09",
+ "hardware": "4 NVIDIA A40, 49140 MiB",
+ "loss_tokens_per_hour": 28630319.49032654,
+ "memory": {
+  "below_free_margin": true,
+  "host": {
+   "node_peak_used_gib": 86.64422225952148,
+   "node_used_at_start_gib": 12.324642181396484
+  },
+  "min_free_gib": 2.6552734375,
+  "nvidia_smi": {
+   "0": {
+    "free_at_peak_gib": 2.6552734375,
+    "peak_used_gib": 45.3330078125,
+    "total_gib": 47.98828125
+   },
+   "1": {
+    "free_at_peak_gib": 3.6318359375,
+    "peak_used_gib": 44.3564453125,
+    "total_gib": 47.98828125
+   },
+   "2": {
+    "free_at_peak_gib": 3.6513671875,
+    "peak_used_gib": 44.3369140625,
+    "total_gib": 47.98828125
+   },
+   "3": {
+    "free_at_peak_gib": 3.6123046875,
+    "peak_used_gib": 44.3759765625,
+    "total_gib": 47.98828125
+   }
+  },
+  "torch_rank0_peak_allocated_gib": 36.80892324447632,
+  "torch_rank0_peak_reserved_gib": 43.818359375
+ },
+ "node": "fc098",
+ "run": "20261104-163824-sft_m2_probe_longest_qwen35-4b-s1-j3233927",
+ "run1_estimate": {
+  "hours_with_3h_saves": 0.3119339041486924,
+  "note": "same rate as the probe's timed steps; start-up, validation and export once",
+  "save_every_steps_for": {
+   "2h": 112,
+   "3h": 167,
+   "4h": 223
+  },
+  "steps": 8,
+  "train_tokens": 4131552,
+  "training_hours": 0.14336610850790588
+ },
+ "seconds": {
+  "export": 32.51916480064392,
+  "save": 22.74955713748932,
+  "saves": [
+   23.45687484741211,
+   22.04223942756653
+  ],
+  "start_to_step1": 270.6332423686981,
+  "validation": 280.9421
+ },
+ "sequences_per_step": 32,
+ "step_seconds": {
+  "mean": 64.54569356782096,
+  "sd": 0.32248722766881965
+ },
+ "steps": {
+  "2": {
+   "loss_tokens": 513030,
+   "seconds": 64.32041215896606,
+   "tokens": 516392
+  },
+  "3": {
+   "loss_tokens": 516035,
+   "seconds": 64.74845027923584,
+   "tokens": 519157
+  },
+  "4": {
+   "loss_tokens": 513124,
+   "seconds": 64.76435375213623,
+   "tokens": 516556
+  },
+  "5": {
+   "loss_tokens": 513648,
+   "seconds": 64.10813570022583,
+   "tokens": 516753
+  },
+  "6": {
+   "loss_tokens": 513325,
+   "seconds": 64.89512920379639,
+   "tokens": 516338
+  },
+  "7": {
+   "loss_tokens": 512463,
+   "seconds": 64.7788438796997,
+   "tokens": 516296
+  },
+  "8": {
+   "loss_tokens": 511638,
+   "seconds": 64.20453000068665,
+   "tokens": 515350
+  }
+ },
+ "timed_steps": [
+  2,
+  8
+ ],
+ "tokens_per_hour": 28818191.712110028,
+ "vs_g0_rate": 1.197763579056942
+}
