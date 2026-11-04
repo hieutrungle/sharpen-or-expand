@@ -24,6 +24,7 @@ Image only (torch, transformers, peft, TRL).
 
 import json
 import os
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -97,10 +98,15 @@ class Tokenizer:
 
 
 class MetricsFile(TrainerCallback):  # type: ignore[misc]
-    """Trainer logs as `{"step", "data"}` lines, the format of verl's file logger."""
+    """Trainer logs as `{"step", "data"}` lines, the format of verl's file logger.
+
+    Each log line also carries the wall time and rank 0's torch peak memory (M2.8 times steps
+    and sizes run #1 from them), and each save adds a `save_seconds` line. The Trainer logs,
+    evaluates (which logs too) and then saves, so the time since the last log is the save."""
 
     def __init__(self, path: Path) -> None:
         self._path = path
+        self._last_log = time.time()
 
     def on_log(
         self,
@@ -110,9 +116,29 @@ class MetricsFile(TrainerCallback):  # type: ignore[misc]
         logs: dict[str, float] | None = None,
         **kwargs: Any,
     ) -> None:
+        self._last_log = time.time()
         if state.is_world_process_zero and logs:
-            with open(self._path, "a") as f:
-                f.write(json.dumps({"step": state.global_step, "data": logs}) + "\n")
+            self._write(state.global_step, {**logs, "wall_time": self._last_log, **peak_memory()})
+
+    def on_save(
+        self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs: Any
+    ) -> None:
+        if state.is_world_process_zero:
+            self._write(state.global_step, {"save_seconds": time.time() - self._last_log})
+
+    def _write(self, step: int, data: dict[str, float]) -> None:
+        with open(self._path, "a") as f:
+            f.write(json.dumps({"step": step, "data": data}) + "\n")
+
+
+def peak_memory() -> dict[str, float]:
+    """This rank's torch peak since the start (nvidia-smi in gpu_memory/ adds NCCL and the rest)."""
+    if not torch.cuda.is_available():
+        return {}
+    return {
+        "gpu_peak_allocated_gib": torch.cuda.max_memory_allocated() / 2**30,
+        "gpu_peak_reserved_gib": torch.cuda.max_memory_reserved() / 2**30,
+    }
 
 
 class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
@@ -140,8 +166,14 @@ class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
         ids, mask = inputs["input_ids"], inputs.get("attention_mask")
         rows = [ids[i] if mask is None else ids[i][mask[i].bool()] for i in range(ids.shape[0])]
         examples = [self._example_index[example_key(row.tolist())] for row in rows]
-        with open(self._example_log, "a") as f:  # step: the optimizer step this batch counts toward
-            f.write(json.dumps({"step": self.state.global_step + 1, "examples": examples}) + "\n")
+        record = {
+            "step": self.state.global_step + 1,  # the optimizer step this batch counts toward
+            "examples": examples,
+            "tokens": sum(len(r) for r in rows),
+            "loss_tokens": int((inputs["labels"] != -100).sum()),  # TRL's collator masks with -100
+        }
+        with open(self._example_log, "a") as f:
+            f.write(json.dumps(record) + "\n")
 
 
 def datasets(

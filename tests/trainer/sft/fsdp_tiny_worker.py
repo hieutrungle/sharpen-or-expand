@@ -26,7 +26,7 @@ from trl import SFTConfig, SFTTrainer
 from soe.trainer.config.experiment import ExperimentConfig
 from soe.trainer.sft.args import FSDP_ENVIRONMENT, plain_name, trainer_arguments
 from soe.trainer.sft.resume import example_key, log_path
-from soe.trainer.sft.trainer import SoeSftTrainer, export_full, freeze_vision
+from soe.trainer.sft.trainer import MetricsFile, SoeSftTrainer, export_full, freeze_vision
 
 ON_GPU = torch.cuda.is_available()
 if not ON_GPU:
@@ -67,6 +67,8 @@ def main() -> None:
     model = AutoModelForImageTextToText.from_pretrained(base, dtype=torch.float32)
     freeze_vision(model)
     cfg = config()
+    metrics = run_dir / "metrics" / f"segment-{launch}.jsonl"
+    metrics.parent.mkdir(parents=True, exist_ok=True)
     kwargs = trainer_arguments(cfg, seed=1, output_dir=run_dir / "trainer") | {
         "eval_strategy": "no"
     }
@@ -83,6 +85,7 @@ def main() -> None:
         processing_class=AutoTokenizer.from_pretrained(base),
         example_index={example_key(r): i for i, r in enumerate(rows)},
         example_log=log_path(run_dir, launch, rank),
+        callbacks=[MetricsFile(metrics)],
     )
     if fsdp:
         trainer.accelerator.state.fsdp_plugin.mixed_precision_policy = (

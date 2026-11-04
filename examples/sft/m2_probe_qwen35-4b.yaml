@@ -1,0 +1,37 @@
+# M2.8 memory and timing probe of the full-BF16 SFT path (decision 028) on Lane A: 4B, FSDP2 over the
+# 4 A40s of fc098. Measures peak memory, tokens/h, save, validation and export times for run #1;
+# the checkpoint is discarded and nothing enters conclusions (hence development: true, which also
+# allows max_steps). Recipe as run #1 (roadmap D5): 32 sequences per optimizer step, same length
+# cap and data. Data: the M2.5 SFT files (they hold the M2.4 pilot's trajectories), capped by
+# sft.max_steps; 40 steps leave >= 30 timed steps after the slow first one. Saves at 20 and 40 time
+# two saves; validation of the 967 val examples and the export run at the end, as in run #1.
+name: sft_m2_probe_qwen35-4b
+milestone: m2
+development: true
+lane: A
+model:
+  hf_id: Qwen/Qwen3.5-4B-Base
+  revision: 1001bb4d826a52d1f399e183466143f4da7b741b
+init_checkpoint: null  # SFT starts from the base model
+training_mode: full_bf16  # the G0 mode (decision 025)
+algorithm: sft
+optim:
+  learning_rate: 1.0e-5
+  warmup_steps: 2  # 3% of max_steps, rounded up
+  weight_decay: 0.0
+sft:
+  n_gpus: 4
+  max_length: 18432  # 2,048 prompt + 16,384 response tokens (the evaluation cap)
+  epochs: 1
+  batch_size_per_gpu: 1
+  gradient_accumulation_steps: 8  # 32 sequences per optimizer step on 4 GPUs (D5)
+  lr_scheduler: cosine
+  save_every_steps: 20
+  keep_last: 2
+  max_steps: 40
+data:
+  train_file: datasets/soe/v1/sft/train.jsonl
+  train_sha256: 0264027c44287993689733d9871b5811922728938fd89953cad722ae54357b76
+  val_file: datasets/soe/v1/sft/val.jsonl
+  val_sha256: 48f248847bf265bd1f612b08b32081e1aba471712a9a1900e6f4e4e911aa09e1
+eval_suite: soe/trainer/config/eval_suite.yaml

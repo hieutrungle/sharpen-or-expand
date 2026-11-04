@@ -47,6 +47,19 @@ def tiny_base(out: Path) -> None:
     model.to(torch.bfloat16).save_pretrained(out)
 
 
+def check_logs(run_dir: Path, lengths: range) -> None:
+    """M2.8's measurements: tokens and loss tokens per micro-batch, wall time and save time."""
+    for path in (run_dir / "examples").glob("*.jsonl"):
+        for row in map(json.loads, path.read_text().splitlines()):
+            sizes = [lengths[i] for i in row["examples"]]  # the worker's i-th example
+            assert row["tokens"] == sum(sizes)
+            assert row["loss_tokens"] == sum(n - n // 2 for n in sizes)  # the completion half
+    lines = [json.loads(x) for x in (run_dir / "metrics" / "segment-first.jsonl").open()]
+    assert all("wall_time" in x["data"] for x in lines if "loss" in x["data"])
+    saves = [x["step"] for x in lines if "save_seconds" in x["data"]]
+    assert saves == [2, 4] and all(x["data"].get("save_seconds", 0) >= 0 for x in lines)
+
+
 def run_twice(tmp: Path, fsdp: bool) -> tuple[dict[str, Any], dict[str, Any]]:
     tiny_base(tmp / "base")
     if fsdp:
@@ -74,6 +87,7 @@ def run_twice(tmp: Path, fsdp: bool) -> tuple[dict[str, Any], dict[str, Any]]:
         assert export["training"] == "full" and export["tensors_changed_vs_base"] > 0
         prefixes = export["trained_by_prefix"]
         assert prefixes and all(p.startswith(("model.language_model", "lm_head")) for p in prefixes)
+    check_logs(tmp / "run", lengths=range(20, 36, 2) if fsdp else range(20, 28, 2))
     gaps = continuity(tmp / "run")
     assert gaps.redone_steps == [3, 4] and gaps.mismatched_steps == []
     assert sorted(second["steps"]) == ["1", "2", "3", "4"]  # steps 1-2 come from the saved state
