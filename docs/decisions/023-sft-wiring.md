@@ -1,7 +1,8 @@
 # 023 — SFT wiring: TRL on pre-tokenized prompt/completion examples, LoRA merged into the base layout
 
 - Date: 2026-10-29
-- Status: accepted (user, 2026-10-29: "LoRA now, full BF16 at M2"; "Drop them, and count how many")
+- Status: accepted (user, 2026-10-29: "LoRA now, full BF16 at M2"; "Drop them, and count how many");
+  items 3 and 5 superseded by [028](028-full-bf16-sft.md)
 - Milestone: M1 (task M1.8)
 - Code: `soe/trainer/sft/data.py`, `soe/trainer/sft/trainer.py`, `soe/trainer/main_sft.py`,
   `soe/trainer/config/experiment.py` (`SftSpec`), `soe/trainer/rl/export.py` (shared steps),
