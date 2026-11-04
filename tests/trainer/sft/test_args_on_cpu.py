@@ -13,11 +13,14 @@ def test_full_bf16_uses_fsdp2_with_native_activation_checkpointing() -> None:
     fsdp = args["fsdp_config"]
     assert fsdp["version"] == 2 and fsdp["transformer_layer_cls_to_wrap"] == DECODER_LAYERS
     assert fsdp["activation_checkpointing"] and not args["gradient_checkpointing"]
-    assert (args["save_strategy"], args["save_steps"], args["save_total_limit"]) == ("steps", 6, 2)
+    sft = config.sft
+    assert sft is not None and sft.max_steps is not None
+    saves = ("steps", sft.save_every_steps, sft.keep_last)
+    assert (args["save_strategy"], args["save_steps"], args["save_total_limit"]) == saves
     assert not args["save_only_model"]  # optimizer, scheduler and RNG state too
-    assert (args["max_steps"], args["seed"], args["data_seed"]) == (24, 3, 3)
+    assert (args["max_steps"], args["seed"], args["data_seed"]) == (sft.max_steps, 3, 3)
     assert args["bf16"] and args["use_liger_kernel"] and not args["packing"]
-    assert args["gradient_accumulation_steps"] * config.sft.n_gpus == 32  # type: ignore[union-attr]
+    assert args["gradient_accumulation_steps"] * sft.n_gpus == 32
 
 
 def test_lora_keeps_the_m18_wiring() -> None:
