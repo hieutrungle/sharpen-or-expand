@@ -35,6 +35,7 @@ from peft import LoraConfig
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 from safetensors import safe_open
 from torch.distributed.fsdp import FSDPModule, MixedPrecisionPolicy
+from torch.distributed.fsdp._fully_shard._fsdp_common import TrainingState
 from transformers import (
     AutoModelForImageTextToText,
     AutoTokenizer,
@@ -151,10 +152,13 @@ class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
     Each training micro-batch appends the train-set indices of its examples to this rank's log, so
     the data order can be compared across a resume.
 
-    After a validation, every FSDP2 module is resharded. A forward without backward leaves the
-    root module's parameters gathered; the save that follows swaps them back to shards without
-    FSDP noticing, so the next training forward skipped the gather and failed (job 3234134 at step
-    291: the embedding weight was still a DTensor)."""
+    After a validation, every FSDP2 module is set back to idle and resharded, as the end of a
+    backward pass does in training. accelerate shards the tied `embed_tokens` and `lm_head` as
+    their own units without resharding after forward; a forward without backward leaves them in
+    the FORWARD state with their weights gathered, where `reshard()` is a no-op. The save that
+    follows swapped the weights back to shards behind FSDP's back, so the next training forward
+    skipped the gather and failed (job 3234134 at step 291: the embedding weight was a DTensor).
+    Private torch state, pinned at 2.11; the 2-GPU container test covers it."""
 
     def __init__(self, *args: Any, example_index: dict[str, int], example_log: Path, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -166,6 +170,10 @@ class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
         metrics: dict[str, float] = super().evaluate(*args, **kwargs)
         for module in self.model.modules():
             if isinstance(module, FSDPModule):
+                state = module._get_fsdp_state()
+                state._training_state = TrainingState.IDLE
+                if state._fsdp_param_group is not None:
+                    state._fsdp_param_group._training_state = TrainingState.IDLE
                 module.reshard()
         return metrics
 
