@@ -152,13 +152,13 @@ class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
     Each training micro-batch appends the train-set indices of its examples to this rank's log, so
     the data order can be compared across a resume.
 
-    After a validation, every FSDP2 module is set back to idle and resharded, as the end of a
-    backward pass does in training. accelerate shards the tied `embed_tokens` and `lm_head` as
-    their own units without resharding after forward; a forward without backward leaves them in
-    the FORWARD state with their weights gathered, where `reshard()` is a no-op. The save that
-    follows swapped the weights back to shards behind FSDP's back, so the next training forward
-    skipped the gather and failed (job 3234134 at step 291: the embedding weight was a DTensor).
-    Private torch state, pinned at 2.11; the 2-GPU container test covers it."""
+    After a validation, every FSDP2 unit is reset as the end of a backward pass resets it in
+    training (torch's `_root_post_backward_final_callback`). accelerate shards the tied
+    `embed_tokens` and `lm_head` as one two-module unit; Liger reads `lm_head.weight` without
+    calling `lm_head`, so after a forward without backward the unit still waits for `lm_head`'s
+    forward. Its pre-forward hook then never fired again: the next training forward used the
+    sharded embedding and failed (job 3234134 at step 291). Private torch state, pinned at 2.11;
+    the 2-GPU container test covers it."""
 
     def __init__(self, *args: Any, example_index: dict[str, int], example_log: Path, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -171,6 +171,7 @@ class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
         for module in self.model.modules():
             if isinstance(module, FSDPModule):
                 state = module._get_fsdp_state()
+                state._modules_to_run_forward.clear()  # lm_head never runs forward (Liger)
                 state._training_state = TrainingState.IDLE
                 if state._fsdp_param_group is not None:
                     state._fsdp_param_group._training_state = TrainingState.IDLE
