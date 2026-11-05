@@ -69,9 +69,9 @@ def main() -> None:
     cfg = config()
     metrics = run_dir / "metrics" / f"segment-{launch}.jsonl"
     metrics.parent.mkdir(parents=True, exist_ok=True)
-    kwargs = trainer_arguments(cfg, seed=1, output_dir=run_dir / "trainer") | {
-        "eval_strategy": "no"
-    }
+    # Validation at every save, as run #1 (decision 029): training continues after the step-2
+    # validation and save, the path that failed in job 3234134 at step 291.
+    kwargs = trainer_arguments(cfg, seed=1, output_dir=run_dir / "trainer")
     if fsdp:
         os.environ.update(FSDP_ENVIRONMENT)
     else:
@@ -82,6 +82,7 @@ def main() -> None:
         model=model,
         args=SFTConfig(**kwargs),
         train_dataset=train,
+        eval_dataset=train,
         processing_class=AutoTokenizer.from_pretrained(base),
         example_index={example_key(r): i for i, r in enumerate(rows)},
         example_log=log_path(run_dir, launch, rank),

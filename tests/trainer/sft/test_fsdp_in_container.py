@@ -56,6 +56,7 @@ def check_logs(run_dir: Path, lengths: range) -> None:
             assert row["loss_tokens"] == sum(n - n // 2 for n in sizes)  # the completion half
     lines = [json.loads(x) for x in (run_dir / "metrics" / "segment-first.jsonl").open()]
     assert all("wall_time" in x["data"] for x in lines if "loss" in x["data"])
+    assert [x["step"] for x in lines if "eval_loss" in x["data"]] == [2, 4]  # at every save
     saves = [x["step"] for x in lines if "save_seconds" in x["data"]]
     assert saves == [2, 4] and all(x["data"].get("save_seconds", 0) >= 0 for x in lines)
 
