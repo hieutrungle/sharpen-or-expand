@@ -34,7 +34,8 @@ from datasets import Dataset
 from peft import LoraConfig
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 from safetensors import safe_open
-from torch.distributed.fsdp import MixedPrecisionPolicy
+from torch.distributed.fsdp import FSDPModule, MixedPrecisionPolicy
+from torch.distributed.fsdp._fully_shard._fsdp_common import TrainingState
 from transformers import (
     AutoModelForImageTextToText,
     AutoTokenizer,
@@ -142,20 +143,40 @@ def peak_memory() -> dict[str, float]:
 
 
 class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
-    """Two additions to TRL's trainer.
+    """Three additions to TRL's trainer.
 
     Liger skips the logits only in training mode; in evaluation it would build the full sequence x
     vocabulary logits (12 GB for one 18K-token example on 2B, job 3223714 OOM). The loss and token
     accuracy come from Liger's fused kernel in both modes, so logits are never needed.
 
     Each training micro-batch appends the train-set indices of its examples to this rank's log, so
-    the data order can be compared across a resume."""
+    the data order can be compared across a resume.
+
+    After a validation, every FSDP2 unit is reset as the end of a backward pass resets it in
+    training (torch's `_root_post_backward_final_callback`). accelerate shards the tied
+    `embed_tokens` and `lm_head` as one two-module unit; Liger reads `lm_head.weight` without
+    calling `lm_head`, so after a forward without backward the unit still waits for `lm_head`'s
+    forward. Its pre-forward hook then never fired again: the next training forward used the
+    sharded embedding and failed (job 3234134 at step 291). Private torch state, pinned at 2.11;
+    the 2-GPU container test covers it."""
 
     def __init__(self, *args: Any, example_index: dict[str, int], example_log: Path, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._example_index = example_index
         self._example_log = example_log
         example_log.parent.mkdir(parents=True, exist_ok=True)
+
+    def evaluate(self, *args: Any, **kwargs: Any) -> dict[str, float]:
+        metrics: dict[str, float] = super().evaluate(*args, **kwargs)
+        for module in self.model.modules():
+            if isinstance(module, FSDPModule):
+                state = module._get_fsdp_state()
+                state._modules_to_run_forward.clear()  # lm_head never runs forward (Liger)
+                state._training_state = TrainingState.IDLE
+                if state._fsdp_param_group is not None:
+                    state._fsdp_param_group._training_state = TrainingState.IDLE
+                module.reshard()
+        return metrics
 
     def compute_loss(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
         if model.training:
