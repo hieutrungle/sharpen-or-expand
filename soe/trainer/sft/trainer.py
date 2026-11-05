@@ -34,7 +34,7 @@ from datasets import Dataset
 from peft import LoraConfig
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 from safetensors import safe_open
-from torch.distributed.fsdp import MixedPrecisionPolicy
+from torch.distributed.fsdp import FSDPModule, MixedPrecisionPolicy
 from transformers import (
     AutoModelForImageTextToText,
     AutoTokenizer,
@@ -142,20 +142,32 @@ def peak_memory() -> dict[str, float]:
 
 
 class SoeSftTrainer(SFTTrainer):  # type: ignore[misc]
-    """Two additions to TRL's trainer.
+    """Three additions to TRL's trainer.
 
     Liger skips the logits only in training mode; in evaluation it would build the full sequence x
     vocabulary logits (12 GB for one 18K-token example on 2B, job 3223714 OOM). The loss and token
     accuracy come from Liger's fused kernel in both modes, so logits are never needed.
 
     Each training micro-batch appends the train-set indices of its examples to this rank's log, so
-    the data order can be compared across a resume."""
+    the data order can be compared across a resume.
+
+    After a validation, every FSDP2 module is resharded. A forward without backward leaves the
+    root module's parameters gathered; the save that follows swaps them back to shards without
+    FSDP noticing, so the next training forward skipped the gather and failed (job 3234134 at step
+    291: the embedding weight was still a DTensor)."""
 
     def __init__(self, *args: Any, example_index: dict[str, int], example_log: Path, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._example_index = example_index
         self._example_log = example_log
         example_log.parent.mkdir(parents=True, exist_ok=True)
+
+    def evaluate(self, *args: Any, **kwargs: Any) -> dict[str, float]:
+        metrics: dict[str, float] = super().evaluate(*args, **kwargs)
+        for module in self.model.modules():
+            if isinstance(module, FSDPModule):
+                module.reshard()
+        return metrics
 
     def compute_loss(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
         if model.training:
