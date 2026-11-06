@@ -1,0 +1,23 @@
+{
+ "copied_from_base": 15,
+ "other_files_byte_identical": {
+  ".gitattributes": true,
+  "LICENSE": true,
+  "README.md": true,
+  "config.json": true,
+  "merges.txt": true,
+  "model.safetensors.index.json": true,
+  "preprocessor_config.json": true,
+  "tokenizer.json": true,
+  "tokenizer_config.json": true,
+  "video_preprocessor_config.json": true,
+  "vocab.json": true
+ },
+ "tensors_changed_vs_base": 396,
+ "trained_by_prefix": {
+  "model.language_model": 4205751296
+ },
+ "training": "full",
+ "vision_and_mtp_bit_identical": true,
+ "vision_and_mtp_tensors": 312
+}
