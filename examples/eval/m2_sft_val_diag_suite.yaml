@@ -1,0 +1,50 @@
+# M2.11 diagnostic (user, 2026-11-05): base and SFT run #1 on the 500 held-out problems of the SFT
+# validation split (DeepMath, in distribution for SFT), 4 samples each. soe-eval-v4's sampling,
+# prompt and scoring, copied unchanged (tests/examples/test_m2_sft_val_diag_on_cpu.py checks them);
+# only the main tier differs (4 samples instead of 16). Not an evaluation level and never used for
+# any choice; analysed by scripts/sft_diagnostic.py.
+#   SBATCH_GRES=gpu:a30:1 sbatch slurm/eval.sbatch examples/eval/m2_sft_val_diag_suite.yaml \
+#       <checkpoint> $SOE_DATA/eval/<name> --num-shards 8
+name: soe-eval-v4-sft-val-k4
+data_build_report: docs/reports/m2_sft_data.json  # val.jsonl's problems; file built by m2_sft_val_problems.py
+
+# As in Yue et al. (2025), "Does Reinforcement Learning Really Incentivize Reasoning Capacity in
+# LLMs Beyond the Base Model?": identical for base and RL models.
+sampling:
+  temperature: 0.6
+  top_p: 0.95
+  top_k: -1  # disabled
+  max_tokens: 16384  # also the cap on RL rollout length (enforced from M1)
+  seed: 0  # every request; the same random numbers for every checkpoint
+  kv_cache_dtype: fp8  # decision 009 (user): e4m3, scale 1.0; also for every RL rollout
+
+# Zero-shot, the same prompt for every model stage, wrapped in the model's chat template.
+# SFT data (M2) must use this format. Gemma 4 E4B base ships no chat template; M8 uses the one
+# from google/gemma-4-E4B-it (same tokenizer).
+prompt:
+  use_chat_template: true
+  # Generation prompt ends with an open "<think>\n" (decision 006); every renderer must pass this:
+  # evaluation, verl rollouts (apply_chat_template kwargs) and the SFT data format.
+  enable_thinking: true
+  template: |-
+    {problem}
+
+    Please reason step by step, and put your final answer within \boxed{}.
+
+scoring:
+  answer_extraction: last_boxed  # no \boxed{} -> incorrect
+  truncated_response: incorrect  # hit max_tokens; truncation rate is reported per set
+  maj_grouping: verifier_equivalence
+  transition_solved_threshold: 0.5  # solved at k when pass@k >= 0.5
+
+main:  # 4 samples per problem
+  ks: [1, 4]
+  transition_ks: [1, 4]
+hard:  # unused (no hard subset); kept as soe-eval-v4's
+  ks: [1, 4, 8, 16, 32, 64]
+  transition_ks: [1, 64]
+
+problem_sets:
+  - {name: sft_val, level: train, path: datasets/soe/v1/sft/val_problems.jsonl,
+     sha256: 2f588b5ed86303e6fe2c3e09f456d85b58b371b0f3cbb5589b92c3257f14b1e4}
+hard_subset: null
