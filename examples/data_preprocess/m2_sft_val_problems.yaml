@@ -1,0 +1,6 @@
+# M2.11 diagnostic (user, 2026-11-05): the 500 problems of the SFT validation split as a Problem file.
+problems: datasets/soe/v1/sft/kept_problems_clean.jsonl
+problems_sha256: 0b20026ce4bc01ddc306f05b47f5a38f7ef8e68bac8ed846003898604dc5aac4
+val: datasets/soe/v1/sft/val.jsonl
+val_sha256: 48f248847bf265bd1f612b08b32081e1aba471712a9a1900e6f4e4e911aa09e1
+output: datasets/soe/v1/sft/val_problems.jsonl
