@@ -1,7 +1,7 @@
 # 031 — Every RL and DPO run starts from the base model; SFT run #2 is an evaluated arm
 
 - Date: 2026-11-10
-- Status: proposed (user leaning to it, 2026-11-10; full audit asked for and done first)
+- Status: accepted (user, 2026-11-10, after the full audit the user asked for)
 - Milestone: M2 (after M2.11). Revises decision 025's "Start" row, decision 014 item 1 and decision
   017 item 5 (preference pairs), and settles the starting point decision 030 left open. Changes the
   plan's experiment tree and its "One starting point" rule.
