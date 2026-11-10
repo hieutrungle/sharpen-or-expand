@@ -1,0 +1,39 @@
+# M2.10 SFT run #2, the one run #2 of decision 029: run #1's recipe with the changes of the two
+# criteria that held (docs/reports/m2_sft_run2_check.json): criterion 4 -> learning rate 1e-5 / 3;
+# criterion 3 -> train examples above the 90th length percentile dropped
+# (docs/reports/m2_sft_run2_data.json: 22,996 of 25,551 examples, cut at 10,963 tokens). Steps,
+# warmup and the cosine horizon follow the new size: 22,996 / 32 = 719 steps. Seed 1, batch, save
+# cadence, validation file and everything else as run #1:
+#   SBATCH_GRES=gpu:a40:4 CHAIN_LEFT=1 sbatch --nodelist=fc098 --job-name=m2-sft-run2 \
+#       slurm/train.sbatch examples/sft/m2_run2_qwen35-4b.yaml 1
+# If run #2 meets no criterion, its final export is frozen; otherwise a decision memo chooses
+# between the two exports (no third run).
+name: sft_m2_run2_qwen35-4b
+milestone: m2
+development: false
+lane: A
+model:
+  hf_id: Qwen/Qwen3.5-4B-Base
+  revision: 1001bb4d826a52d1f399e183466143f4da7b741b
+init_checkpoint: null  # SFT starts from the base model
+training_mode: full_bf16  # the G0 mode (decision 025)
+algorithm: sft
+optim:
+  learning_rate: 3.3333333e-6  # 1e-5 / 3 (criterion 4 held for run #1)
+  warmup_steps: 22  # 3% of 719 steps, rounded up; cosine decay to 0 after it
+  weight_decay: 0.0
+sft:
+  n_gpus: 4
+  max_length: 18432  # unchanged; after the cut no example exceeds 10,963 tokens
+  epochs: 1
+  batch_size_per_gpu: 1
+  gradient_accumulation_steps: 8  # 32 sequences per optimizer step on 4 GPUs (D5)
+  lr_scheduler: cosine
+  save_every_steps: 290  # as run #1; validations at 290, 580 and 719
+  keep_last: 2
+data:
+  train_file: datasets/soe/v1/sft/train_run2.jsonl  # examples/data_preprocess/m2_sft_run2_data.yaml
+  train_sha256: c071eb6a21214f2e8d2ca2fb0482fe0b666f24e101e5bb10255b3819dcf6f085
+  val_file: datasets/soe/v1/sft/val.jsonl
+  val_sha256: 48f248847bf265bd1f612b08b32081e1aba471712a9a1900e6f4e4e911aa09e1
+eval_suite: soe/trainer/config/eval_suite.yaml

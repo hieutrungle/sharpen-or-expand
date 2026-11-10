@@ -1,0 +1,212 @@
+{
+ "rl_val": {
+  "base": {
+   "accuracy_when_stopped": 0.9715929521754765,
+   "loop_rate": 0.050537109375,
+   "loops_among_truncated": 0.1574144486692015,
+   "mean_completion_tokens": 8789.13720703125,
+   "median_stopped_tokens": 3884,
+   "pass@1": 0.65966796875,
+   "pass@16": 0.8515625,
+   "problems": 256,
+   "samples_per_problem": 16,
+   "stop_rate": 0.678955078125,
+   "truncation_rate": 0.321044921875
+  },
+  "base_checkpoint": "Qwen/Qwen3.5-4B-Base",
+  "by_difficulty": {},
+  "paired": {
+   "loops": {
+    "se": 0.0068299149870673734,
+    "sft_minus_base": 0.0537109375
+   },
+   "pass@1": {
+    "se": 0.008246019468099981,
+    "sft_minus_base": -0.022705078125
+   },
+   "pass@n": {
+    "se": 0.01158728577700016,
+    "sft_minus_base": 0.00390625
+   },
+   "truncated": {
+    "se": 0.008440463090012574,
+    "sft_minus_base": 0.023681640625
+   }
+  },
+  "pass@1_change": {
+   "accuracy": 0.00030383700220239587,
+   "stopping": -0.023008915127202444,
+   "total": -0.022705078125
+  },
+  "sft": {
+   "accuracy_when_stopped": 0.9720566318926974,
+   "loop_rate": 0.104248046875,
+   "loops_among_truncated": 0.3024079320113314,
+   "mean_completion_tokens": 8732.5029296875,
+   "median_stopped_tokens": 3347.5,
+   "pass@1": 0.636962890625,
+   "pass@16": 0.85546875,
+   "problems": 256,
+   "samples_per_problem": 16,
+   "stop_rate": 0.6552734375,
+   "truncation_rate": 0.3447265625
+  },
+  "sft_checkpoint": "/scratch/user/hieult/research/soe-data/checkpoints/20261109-185607-sft_m2_run2_qwen35-4b-s1-j3237928/step_719/hf",
+  "suite": "soe-eval-v4-rl-val"
+ },
+ "sft_val": {
+  "base": {
+   "accuracy_when_stopped": 0.9414316702819957,
+   "loop_rate": 0.014,
+   "loops_among_truncated": 0.1794871794871795,
+   "mean_completion_tokens": 5170.7205,
+   "median_stopped_tokens": 3013.5,
+   "pass@1": 0.868,
+   "pass@4": 0.97,
+   "problems": 500,
+   "samples_per_problem": 4,
+   "stop_rate": 0.922,
+   "truncation_rate": 0.078
+  },
+  "base_checkpoint": "Qwen/Qwen3.5-4B-Base",
+  "by_difficulty": {
+   "5.5-6.5": {
+    "base": {
+     "accuracy_when_stopped": 0.9474313022700119,
+     "loop_rate": 0.010964912280701754,
+     "loops_among_truncated": 0.13333333333333333,
+     "mean_completion_tokens": 5387.313596491228,
+     "median_stopped_tokens": 3147,
+     "pass@1": 0.8695175438596491,
+     "pass@4": 0.9736842105263158,
+     "problems": 228,
+     "samples_per_problem": 4,
+     "stop_rate": 0.9177631578947368,
+     "truncation_rate": 0.08223684210526316
+    },
+    "paired_pass@1": {
+     "se": 0.01281812435026728,
+     "sft_minus_base": -0.0010964912280701754
+    },
+    "problems": 228,
+    "sft": {
+     "accuracy_when_stopped": 0.9646772228989038,
+     "loop_rate": 0.03179824561403509,
+     "loops_among_truncated": 0.31868131868131866,
+     "mean_completion_tokens": 5209.743421052632,
+     "median_stopped_tokens": 2865,
+     "pass@1": 0.868421052631579,
+     "pass@4": 0.9780701754385965,
+     "problems": 228,
+     "samples_per_problem": 4,
+     "stop_rate": 0.9002192982456141,
+     "truncation_rate": 0.09978070175438597
+    }
+   },
+   "<=5": {
+    "base": {
+     "accuracy_when_stopped": 0.9598070739549839,
+     "loop_rate": 0.016975308641975308,
+     "loops_among_truncated": 0.4230769230769231,
+     "mean_completion_tokens": 3939.557098765432,
+     "median_stopped_tokens": 2312.5,
+     "pass@1": 0.9212962962962963,
+     "pass@4": 0.9876543209876543,
+     "problems": 162,
+     "samples_per_problem": 4,
+     "stop_rate": 0.9598765432098766,
+     "truncation_rate": 0.040123456790123455
+    },
+    "paired_pass@1": {
+     "se": 0.014072321003725012,
+     "sft_minus_base": -0.024691358024691357
+    },
+    "problems": 162,
+    "sft": {
+     "accuracy_when_stopped": 0.9715719063545151,
+     "loop_rate": 0.044753086419753084,
+     "loops_among_truncated": 0.58,
+     "mean_completion_tokens": 3957.287037037037,
+     "median_stopped_tokens": 1842.0,
+     "pass@1": 0.8966049382716049,
+     "pass@4": 0.9691358024691358,
+     "problems": 162,
+     "samples_per_problem": 4,
+     "stop_rate": 0.9228395061728395,
+     "truncation_rate": 0.07716049382716049
+    }
+   },
+   ">=7": {
+    "base": {
+     "accuracy_when_stopped": 0.8987012987012987,
+     "loop_rate": 0.015909090909090907,
+     "loops_among_truncated": 0.12727272727272726,
+     "mean_completion_tokens": 6534.95,
+     "median_stopped_tokens": 4019,
+     "pass@1": 0.7863636363636364,
+     "pass@4": 0.9363636363636364,
+     "problems": 110,
+     "samples_per_problem": 4,
+     "stop_rate": 0.875,
+     "truncation_rate": 0.125
+    },
+    "paired_pass@1": {
+     "se": 0.023221405238531834,
+     "sft_minus_base": -0.05
+    },
+    "problems": 110,
+    "sft": {
+     "accuracy_when_stopped": 0.8709677419354839,
+     "loop_rate": 0.05227272727272727,
+     "loops_among_truncated": 0.3382352941176471,
+     "mean_completion_tokens": 6334.475,
+     "median_stopped_tokens": 3436.5,
+     "pass@1": 0.7363636363636363,
+     "pass@4": 0.9090909090909091,
+     "problems": 110,
+     "samples_per_problem": 4,
+     "stop_rate": 0.8454545454545455,
+     "truncation_rate": 0.15454545454545454
+    }
+   }
+  },
+  "paired": {
+   "loops": {
+    "se": 0.005557977194334858,
+    "sft_minus_base": 0.0265
+   },
+   "pass@1": {
+    "se": 0.009267479189227315,
+    "sft_minus_base": -0.0195
+   },
+   "pass@n": {
+    "se": 0.00861725614982959,
+    "sft_minus_base": -0.01
+   },
+   "truncated": {
+    "se": 0.008516272975321723,
+    "sft_minus_base": 0.0265
+   }
+  },
+  "pass@1_change": {
+   "accuracy": 0.005447939262472799,
+   "stopping": -0.02494793926247296,
+   "total": -0.019499999999999962
+  },
+  "sft": {
+   "accuracy_when_stopped": 0.9475153545505304,
+   "loop_rate": 0.0405,
+   "loops_among_truncated": 0.3875598086124402,
+   "mean_completion_tokens": 5051.3885,
+   "median_stopped_tokens": 2618,
+   "pass@1": 0.8485,
+   "pass@4": 0.96,
+   "problems": 500,
+   "samples_per_problem": 4,
+   "stop_rate": 0.8955,
+   "truncation_rate": 0.1045
+  },
+  "sft_checkpoint": "/scratch/user/hieult/research/soe-data/checkpoints/20261109-185607-sft_m2_run2_qwen35-4b-s1-j3237928/step_719/hf",
+  "suite": "soe-eval-v4-sft-val-k4"
+ }
+}

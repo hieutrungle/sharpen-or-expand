@@ -1,0 +1,65 @@
+{
+ "base": {
+  "checkpoint": "Qwen/Qwen3.5-4B-Base",
+  "mean_completion_tokens": 8789.13720703125,
+  "pass@1": 0.65966796875,
+  "pass@16": 0.8515625,
+  "truncation_rate": 0.321044921875,
+  "well_formed_when_stopped": 0.997482919813017
+ },
+ "criteria": {
+  "1": {
+   "first_quarter_mean_loss": 0.20237350463867188,
+   "holds": false,
+   "last_quarter_mean_loss": 0.19480946858723958,
+   "non_finite_values": 0,
+   "steps": 719,
+   "validation_loss": {
+    "290": 0.20197170972824097,
+    "580": 0.1963842511177063,
+    "719": 0.19586136937141418
+   }
+  },
+  "2": {
+   "holds": false,
+   "threshold": 0.98,
+   "well_formed_when_stopped": 1.0
+  },
+  "3": {
+   "base": 0.321044921875,
+   "holds": true,
+   "sft": 0.3447265625
+  },
+  "4": {
+   "holds": true,
+   "pass@1": {
+    "drop": 0.022705078125,
+    "holds": true,
+    "se": 0.008246019468099981
+   },
+   "pass@16": {
+    "drop": -0.00390625,
+    "holds": false,
+    "se": 0.01158728577700016
+   }
+  }
+ },
+ "run2_changes": [
+  "drop train examples above the 90th percentile of train token lengths; val unchanged",
+  "learning rate 1e-5 / 3 (3.33e-6), everything else unchanged"
+ ],
+ "sft": {
+  "checkpoint": "/scratch/user/hieult/research/soe-data/checkpoints/20261109-185607-sft_m2_run2_qwen35-4b-s1-j3237928/step_719/hf",
+  "mean_completion_tokens": 8732.5029296875,
+  "pass@1": 0.636962890625,
+  "pass@16": 0.85546875,
+  "run": "20261109-185607-sft_m2_run2_qwen35-4b-s1-j3237928",
+  "truncation_rate": 0.3447265625,
+  "well_formed_when_stopped": 1.0
+ },
+ "triggered": [
+  3,
+  4
+ ],
+ "verdict": "run #2"
+}

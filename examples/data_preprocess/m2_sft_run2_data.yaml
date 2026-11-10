@@ -1,0 +1,9 @@
+# M2.10 run #2 (decision 029 item 6): run #1's train file without the examples above the 90th
+# percentile of train token lengths (criterion 3 held for run #1, docs/reports/m2_sft_run2_check.json).
+input: datasets/soe/v1/sft/train.jsonl
+input_sha256: 0264027c44287993689733d9871b5811922728938fd89953cad722ae54357b76
+model: Qwen/Qwen3.5-4B-Base  # revision pinned in scripts/stage_assets.yaml
+suite: soe/trainer/config/eval_suite.yaml
+percentile: 90
+output: datasets/soe/v1/sft/train_run2.jsonl
+report: logs/m2/m2_sft_run2_data.json

@@ -4,6 +4,8 @@ import json
 import math
 from pathlib import Path
 
+import pytest
+
 from soe.trainer.config.experiment import load_config
 from soe.trainer.sft.args import DECODER_LAYERS, plain_name, trainer_arguments
 
@@ -49,6 +51,28 @@ def test_run1_is_decision_029s_recipe() -> None:
     assert args["max_grad_norm"] == 1.0 and args["num_train_epochs"] == 1
     # Validations at 290 and 580, and the Trainer's at the last step 799: criterion 1's three.
     assert (args["eval_strategy"], args["eval_steps"], args["save_steps"]) == ("steps", 290, 290)
+
+
+def test_run2_differs_from_run1_only_by_decision_029s_changes() -> None:
+    run1 = load_config(Path("examples/sft/m2_run1_qwen35-4b.yaml"))
+    run2 = load_config(Path("examples/sft/m2_run2_qwen35-4b.yaml"))
+    a1 = trainer_arguments(run1, seed=1, output_dir=Path("/runs/r/trainer"))
+    a2 = trainer_arguments(run2, seed=1, output_dir=Path("/runs/r/trainer"))
+    changed = {k for k in a1 if a1[k] != a2[k]}
+    assert changed == {"learning_rate", "warmup_steps"}  # the trainer arguments
+    assert a2["learning_rate"] == pytest.approx(1e-5 / 3, rel=1e-6)
+    data = json.loads(Path("docs/reports/m2_sft_run2_data.json").read_text())
+    assert (run2.data.train_file, run2.data.train_sha256) == (data["output"], data["output_sha256"])
+    assert run2.data.val_file == run1.data.val_file and run2.data.val_sha256 == run1.data.val_sha256
+    sft = run2.sft
+    assert sft is not None
+    steps = math.ceil(
+        math.ceil(data["examples"]["kept"] / sft.n_gpus) / sft.gradient_accumulation_steps
+    )
+    assert steps == 719 and a2["warmup_steps"] == math.ceil(0.03 * steps)
+    others = {"name", "data", "optim"}
+    dump1, dump2 = run1.model_dump(), run2.model_dump()
+    assert {k for k in dump1 if dump1[k] != dump2[k]} == others
 
 
 def test_lora_keeps_the_m18_wiring() -> None:

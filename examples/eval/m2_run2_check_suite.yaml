@@ -1,0 +1,50 @@
+# M2.11 run-#2 check (decision 029 item 4): the RL validation split (decision 012; 256 problems,
+# never trained on, disjoint from the SFT pool by decision 027) under soe-eval-v4's sampling,
+# prompt, scoring and tiers, copied unchanged (tests/examples/test_m2_run2_check_suite_on_cpu.py
+# checks they are equal). Base and SFT checkpoints: 256 x 16 samples each, with main_eval:
+#   SBATCH_GRES=gpu:a30:1 sbatch slurm/eval.sbatch examples/eval/m2_run2_check_suite.yaml \
+#       <checkpoint> $SOE_DATA/eval/<name> --num-shards 16
+# Not an evaluation level: used only by scripts/sft_run2_check.py.
+name: soe-eval-v4-rl-val
+data_build_report: docs/reports/m1_datasets_v3.1.json
+
+# As in Yue et al. (2025), "Does Reinforcement Learning Really Incentivize Reasoning Capacity in
+# LLMs Beyond the Base Model?": identical for base and RL models.
+sampling:
+  temperature: 0.6
+  top_p: 0.95
+  top_k: -1  # disabled
+  max_tokens: 16384  # also the cap on RL rollout length (enforced from M1)
+  seed: 0  # every request; the same random numbers for every checkpoint
+  kv_cache_dtype: fp8  # decision 009 (user): e4m3, scale 1.0; also for every RL rollout
+
+# Zero-shot, the same prompt for every model stage, wrapped in the model's chat template.
+# SFT data (M2) must use this format. Gemma 4 E4B base ships no chat template; M8 uses the one
+# from google/gemma-4-E4B-it (same tokenizer).
+prompt:
+  use_chat_template: true
+  # Generation prompt ends with an open "<think>\n" (decision 006); every renderer must pass this:
+  # evaluation, verl rollouts (apply_chat_template kwargs) and the SFT data format.
+  enable_thinking: true
+  template: |-
+    {problem}
+
+    Please reason step by step, and put your final answer within \boxed{}.
+
+scoring:
+  answer_extraction: last_boxed  # no \boxed{} -> incorrect
+  truncated_response: incorrect  # hit max_tokens; truncation rate is reported per set
+  maj_grouping: verifier_equivalence
+  transition_solved_threshold: 0.5  # solved at k when pass@k >= 0.5
+
+main:  # every problem set: 16 samples per problem
+  ks: [1, 4, 8, 16]
+  transition_ks: [1, 16]  # k=1: reliably solved (sharpening); k=16: solved at least once (expansion)
+hard:  # the hard subset: 64 samples per problem (its first 16 double as the main tier)
+  ks: [1, 4, 8, 16, 32, 64]
+  transition_ks: [1, 64]
+
+problem_sets:
+  - {name: rl_val, level: train, path: datasets/soe/v3.1/rl/val.jsonl,
+     sha256: 393e175ea162112e57d76118baa8c6449d87fee8bc8eb146decfb8ccf7797a6c}
+hard_subset: null
