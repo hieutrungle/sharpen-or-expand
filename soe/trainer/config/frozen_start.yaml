@@ -1,0 +1,4 @@
+# Frozen starting checkpoints (decision 031), written by M2.12 from scripts/freeze_checkpoint.py
+# reports. Every non-development RL/DPO config names one of these models; the launch recomputes
+# the digest (soe/trainer/config/frozen_start.py).
+starts: []
