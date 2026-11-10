@@ -51,7 +51,7 @@ def checked_data_file(data_root: Path, relative: str, sha256: str) -> Path:
 
 
 def model_path(config: ExperimentConfig, data_root: Path) -> Path:
-    """The frozen SFT checkpoint when the config names one, else the staged Hub snapshot."""
+    """The config's init_checkpoint (development runs only), else the pinned base snapshot."""
     if config.init_checkpoint is not None:
         return data_root / config.init_checkpoint
     from huggingface_hub import snapshot_download  # image only

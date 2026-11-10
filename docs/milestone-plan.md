@@ -68,9 +68,9 @@ Exit criteria:
 - [x] **Gate G0:** full BF16 or BF16 LoRA chosen for all 4B algorithms; the memo also fixes the development model and which GPU type runs which comparison, including the Lane A type and the fallback rule when fc098 is unavailable
 - [x] Measured throughput converts the 30–50M and 100–200M rollout-token budgets into wall-clock hours
 
-### M2 — Frozen SFT checkpoint (Weeks 2–3, Lane A trains, Lane B evaluates)
+### M2 — Frozen starting point and the SFT arm (Weeks 2–3, Lane A trains, Lane B evaluates)
 
-One SFT checkpoint becomes the shared starting point for every RL run.
+The pinned base model is the shared starting point for every RL and DPO run (decision 031); one SFT checkpoint is trained, frozen and evaluated as an arm. *Until 2026-11-10 the SFT checkpoint was to be the starting point; see Revisions.*
 
 - 25K–50K verified reasoning trajectories, decontaminated against all three levels with the M0.9 method (decision 011) before SFT starts.
 - Base model results: already recorded in M0 (the soe-eval-v3 reference); a suite revision re-scores them on CPU, without re-sampling.
@@ -81,13 +81,13 @@ Exit criteria:
 
 - [ ] SFT pool contamination report against Levels A, B and C (moved from M0)
 - [ ] Base and SFT results at K=1,4,8,16 recorded
-- [ ] SFT checkpoint frozen, hashed, and referenced by every later config
+- [ ] Starting checkpoint (the pinned base, decision 031) frozen, hashed, and referenced by every later config
 
 ### M3 — RL screening (Weeks 4–5, Lane A; Lane B in parallel)
 
 GRPO, Dr.GRPO, DAPO and RS-GRPO each run once at 30–50M rollout tokens, roughly 30–50 hours of wall-clock each. The Dr.GRPO screening run doubles as its diagnostic run.
 
-- Lane B meanwhile: preference generation from the SFT policy (15K–30K prompts × 4–8 samples, verifier-labelled pairs), RS-GRPO β ∈ {1, 2, 4} on 2B, evaluation of screening checkpoints.
+- Lane B meanwhile: preference generation from the base policy (decision 031; 15K–30K prompts × 4–8 samples, verifier-labelled pairs), RS-GRPO β ∈ {1, 2, 4} on 2B, evaluation of screening checkpoints.
 
 Exit criteria:
 
@@ -102,7 +102,7 @@ DPO runs here, not before screening, because its preference data is generated on
 
 Exit criteria:
 
-- [ ] DPO trained from the frozen SFT checkpoint and evaluated on the full suite
+- [ ] DPO trained from the frozen starting checkpoint (the base, decision 031) and evaluated on the full suite
 
 ### M5 — Full seed-1 runs (Weeks 6–8, Lane A)
 
@@ -138,11 +138,11 @@ Exit criteria:
 
 ### M8 — Gemma 4 E4B replication (Weeks 14–15, Lane A)
 
-Repeat the hypothesis, not the project: Gemma SFT with the same data recipe, then only the two methods the G3 finding implicates (for example DAPO and RS-GRPO).
+Repeat the hypothesis, not the project: Gemma starts from its base if a format probe passes (decision 031; a Gemma SFT with the same data recipe only if it fails), then only the two methods the G3 finding implicates (for example DAPO and RS-GRPO).
 
 Exit criteria:
 
-- [ ] Gemma SFT frozen and evaluated
+- [ ] Gemma starting checkpoint (base, or SFT if the probe fails) frozen and evaluated
 - [ ] Two RL runs evaluated; replication or non-replication reported either way
 
 ### M9 — Final evaluation and write-up (Week 16, mostly Lane B)
@@ -168,7 +168,7 @@ Five changes, all driven by the single A100 lane; the experiments themselves are
 
 ## Cut order and compression
 
-The protected core never gets cut: base, SFT, DPO, GRPO/DAPO/RS-GRPO × 3 seeds, one Dr.GRPO diagnostic, 2–3 DAPO ablations, full pass@1–16, hard-subset pass@32/64, transition analysis and compute accounting.
+The protected core never gets cut: base, SFT (an evaluated arm), DPO, GRPO/DAPO/RS-GRPO × 3 seeds, one Dr.GRPO diagnostic, 2–3 DAPO ablations, full pass@1–16, hard-subset pass@32/64, transition analysis and compute accounting.
 
 If the schedule slips, cut in this order:
 
@@ -187,7 +187,7 @@ Three ways to finish sooner, in order of payoff:
 
 These hold for every run from M2 onward; breaking one makes the algorithm comparison ambiguous.
 
-- **One starting point.** Every Qwen RL run and DPO starts from the single frozen SFT checkpoint.
+- **One starting point.** Every Qwen RL run and DPO starts from the single frozen starting checkpoint: Qwen3.5-4B-Base at its pinned revision (decision 031; until 2026-11-10 the frozen SFT checkpoint).
 - **One training mode.** Whatever G0 picks (full BF16 or BF16 LoRA) applies to all algorithms; QLoRA is for development only.
 - **Matched by rollout tokens.** Runs are compared at equal generated-token budgets, not equal steps.
 - **Predeclared stopping.** A run stops on the G1 criterion (for example, no meaningful validation gain across N evaluations), never because a curve looks good.
@@ -213,3 +213,5 @@ These hold for every run from M2 onward; breaking one makes the algorithm compar
 Details: `docs/roadmap/M1.md`.
 
 **2026-11-03, closing M1.** M1's exit criteria are ticked. Gate G0 (`docs/gates/G0.md`, decision 025) fixes full BF16 on 4×A40 (fc098) for every 4B run, SFT included, with one shared 4B base config and a frozen image. Measured rates put all Lane A work from M2 to M8 at about 10–26 days, against the 40–60 estimated in this plan, so Lane B evaluation, not Lane A, now limits the schedule; G1 fixes how many saves per run are evaluated. M1 used about 230 GPU-hours, above the 145–220 estimate (an IPC crash in the memory study, and both training modes run in the throughput study). Details: `docs/roadmap/M1.md` and the M1 report chapter.
+
+**2026-11-10, RL and DPO start from the base (decision 031; proposed until you accept it).** SFT run #2 (decision 030) is slightly below the base at pass@1 (0.637 vs 0.660 on the RL validation split, a stopping loss: loops double) and no better on any measure, and the base already writes the demonstration format (`docs/reports/m2_base_start_audit.md`). Every 4B RL run and DPO therefore starts from Qwen3.5-4B-Base at the pinned revision, frozen by a digest checked at launch; SFT run #2 is evaluated on the full suite as an arm; preference pairs come from the base policy; every pass@1 change is split into stopping and accuracy. Gemma starts from its base if a format probe passes before M8.

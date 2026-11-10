@@ -2,7 +2,8 @@
 
 - Date: 2026-11-10
 - Status: accepted (user, 2026-11-10). Item 1's role as the RL/DPO starting point is reopened by the
-  base-start audit (`docs/reports/m2_base_start_audit.md`, 2026-11-10); a later decision settles it
+  base-start audit (`docs/reports/m2_base_start_audit.md`, 2026-11-10) and settled by decision 031:
+  RL and DPO start from the base, and this export is an evaluated arm
 - Milestone: M2 (task M2.11; decision 029 item 7)
 - Reports: `docs/reports/m2_sft_run2_check.json` (run #1), `docs/reports/m2_sft_run2_check_run2.json`
   (run #2), `docs/reports/m2_sft_diagnostic.json` / `m2_sft_diagnostic_run2.json` (diagnostic only),

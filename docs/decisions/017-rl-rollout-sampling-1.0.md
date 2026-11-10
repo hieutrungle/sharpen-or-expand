@@ -29,7 +29,8 @@ solve, so exploration during training matters more than matching the evaluation 
    sampling, 0.6 / 0.95, top-k off, so it measures what evaluation measures.
 3. **Evaluation** is unchanged (decision 004: 0.6 / 0.95, 16,384 tokens).
 4. As in 014, rollouts take no per-request seed; the vLLM engine seed is the run seed.
-5. **Preference (DPO) pairs** are sampled from the SFT policy at 1.0 / 1.0 too (amendment, see
+5. **Preference (DPO) pairs** are sampled from the base policy (decision 031, 2026-11-10; was the
+   SFT policy) at 1.0 / 1.0 too (amendment, see
    below), so DPO learns from the same sampler as the RL algorithms it is compared with.
 
 ## Amendment, 2026-10-28: preference data

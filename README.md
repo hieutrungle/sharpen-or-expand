@@ -2,8 +2,9 @@
 
 Does reinforcement-learning post-training with verifiable rewards (RLVR) **sharpen** what a
 reasoning model already solves (higher pass@1), or **expand** what it can solve at all (higher
-pass@k at large k)? An empirical study on Qwen3.5-4B-Base, starting from one frozen SFT checkpoint
-and comparing DPO, GRPO, Dr.GRPO, DAPO and RS-GRPO at equal rollout-token budgets.
+pass@k at large k)? An empirical study on Qwen3.5-4B-Base, starting every algorithm from the base
+model (decision 031), comparing DPO, GRPO, Dr.GRPO, DAPO and RS-GRPO at equal rollout-token
+budgets, with rejection-sampling SFT evaluated as an arm.
 
 - Plan (source of truth): [docs/milestone-plan.md](docs/milestone-plan.md)
 - Progress: [ROADMAP.md](ROADMAP.md) and [docs/roadmap/](docs/roadmap/)

@@ -29,15 +29,20 @@ def test_unknown_key_rejected() -> None:
 
 
 def test_qlora_only_for_development() -> None:
-    data = example() | {"training_mode": "qlora", "development": False, "init_checkpoint": "sft"}
+    data = example() | {"training_mode": "qlora", "development": False}
     with pytest.raises(ValidationError, match="QLoRA"):
         ExperimentConfig.model_validate(data)
 
 
-def test_non_dev_rl_needs_frozen_sft() -> None:
+def test_non_dev_rl_starts_from_the_pinned_base() -> None:
+    # Decision 031: no non-development RL/DPO run starts from an SFT (or any other) checkpoint.
     data = example() | {"development": False}
-    with pytest.raises(ValidationError, match="frozen SFT"):
-        ExperimentConfig.model_validate(data)
+    data["budget"] = {k: v for k, v in data["budget"].items() if k != "max_hours"}  # dev-only
+    assert ExperimentConfig.model_validate(data).init_checkpoint is None
+    with pytest.raises(ValidationError, match="pinned base model"):
+        ExperimentConfig.model_validate(data | {"init_checkpoint": "checkpoints/sft/hf"})
+    dev = example() | {"init_checkpoint": "checkpoints/sft/hf"}
+    assert ExperimentConfig.model_validate(dev).init_checkpoint == "checkpoints/sft/hf"
 
 
 def test_lora_block_matches_mode() -> None:
@@ -164,9 +169,7 @@ def test_learning_rate_zero_only_for_development_identity_runs() -> None:
     data["budget"] = {k: v for k, v in data["budget"].items() if k != "max_hours"}  # dev-only too
     assert ExperimentConfig.model_validate(data).optim.learning_rate == 0.0
     with pytest.raises(ValidationError, match="learning_rate 0"):
-        ExperimentConfig.model_validate(
-            data | {"development": False, "init_checkpoint": "checkpoints/sft/hf"}
-        )
+        ExperimentConfig.model_validate(data | {"development": False})
     with pytest.raises(ValidationError):
         ExperimentConfig.model_validate(with_block("optim", learning_rate=-1e-5))
 
@@ -175,9 +178,7 @@ def test_max_hours_only_for_development() -> None:
     data = with_block("budget", max_hours=20.0)
     assert ExperimentConfig.model_validate(data).budget is not None
     with pytest.raises(ValidationError, match="max_hours"):
-        ExperimentConfig.model_validate(
-            data | {"development": False, "init_checkpoint": "checkpoints/sft/hf"}
-        )
+        ExperimentConfig.model_validate(data | {"development": False})
 
 
 def test_smoke_cap_only_lowers_and_only_for_development() -> None:
@@ -189,7 +190,6 @@ def test_smoke_cap_only_lowers_and_only_for_development() -> None:
         rollout_protocol(above, suite)
     data = with_block("rollout", smoke_max_response_tokens=4096) | {
         "development": False,
-        "init_checkpoint": "sft",
     }
     with pytest.raises(ValidationError, match="development runs only"):
         ExperimentConfig.model_validate(data)

@@ -25,7 +25,7 @@ switches and nothing else. M1.10 and M1.11 measured full BF16 (B-F0) and BF16 Lo
 
    | Group | Values (from `m1_throughput_bf0_qwen35-4b.yaml`) |
    | --- | --- |
-   | Start | the frozen M2 SFT checkpoint (`init_checkpoint`), Qwen3.5-4B-Base revision `1001bb4d…` |
+   | Start | Qwen3.5-4B-Base revision `1001bb4d…`, the pinned Hub snapshot, `init_checkpoint` null (decision 031, 2026-11-10; was the frozen M2 SFT checkpoint) |
    | Batch | 64 prompts × G = 8, 4 updates per step (decision 022), 2,048 prompt tokens |
    | Sampling | rollouts 1.0 / 1.0 (017); validation 0.6 / 0.95; 16,384-token cap, reward 0 when cut (014); FP8 KV (009); thinking mode (006) |
    | Loss | no KL term, no reference model (013); rollout correction off, `rollout_corr/*` logged (021); clip 0.2 unless Clip-Higher |

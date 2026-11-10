@@ -222,7 +222,9 @@ class ExperimentConfig(FrozenModel):
     development: bool  # true for 2B/dev runs, which never enter conclusions
     lane: Lane
     model: ModelSpec
-    init_checkpoint: str | None  # the frozen SFT checkpoint, relative to $SOE_DATA
+    # Development runs only (e.g. 2B from a dev SFT export), relative to $SOE_DATA. Every
+    # non-development RL/DPO run starts from the pinned base snapshot `model` (decision 031).
+    init_checkpoint: str | None
     training_mode: TrainingMode
     lora: LoraSpec | None = None
     algorithm: Algorithm
@@ -248,10 +250,11 @@ class ExperimentConfig(FrozenModel):
             raise ValueError("a lora block is required for LoRA modes and forbidden otherwise")
         if self.training_mode is TrainingMode.QLORA and not self.development:
             raise ValueError("QLoRA is for development runs only")
-        starts_from_sft = self.algorithm in RL_ALGORITHMS or self.algorithm is Algorithm.DPO
-        if starts_from_sft and not self.development and self.init_checkpoint is None:
+        is_rl_or_dpo = self.algorithm in RL_ALGORITHMS or self.algorithm is Algorithm.DPO
+        if is_rl_or_dpo and not self.development and self.init_checkpoint is not None:
             raise ValueError(
-                "every non-development RL/DPO run starts from the frozen SFT checkpoint"
+                "every non-development RL/DPO run starts from the pinned base model"
+                " (init_checkpoint must be null; decision 031)"
             )
         is_rl = self.algorithm in RL_ALGORITHMS
         for block in ("rollout", "policy_loss", "budget", "checkpoint", "validation", "hardware"):

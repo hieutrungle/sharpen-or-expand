@@ -21,7 +21,8 @@ scores a response cut off at the length cap, while evaluation counts it as incor
 1. **Sampling** (decision 017 holds the reasons and the literature):
    - RL rollouts sample at temperature 1.0, top-p 1.0, top-k off, for every algorithm, seed and
      ablation; the values are in each experiment YAML and must be equal across compared runs;
-   - DPO preference pairs are sampled from the SFT policy at 1.0 / 1.0 as well;
+   - DPO preference pairs are sampled from the base policy (decision 031, 2026-11-10; was the SFT
+     policy) at 1.0 / 1.0 as well;
    - in-loop validation (the G1 stopping signal) and evaluation sample at the suite's 0.6 / 0.95;
    - the suite's **per-request seed (0) is not used for rollouts**: it would give a prompt the same
      random numbers each time it is drawn. Rollouts take vLLM's engine seed from the run seed; only
