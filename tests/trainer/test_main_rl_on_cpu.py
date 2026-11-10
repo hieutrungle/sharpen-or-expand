@@ -3,7 +3,10 @@ from pathlib import Path
 
 import pytest
 
+from soe.trainer import main_rl
 from soe.trainer.config.eval_suite import file_sha256
+from soe.trainer.config.experiment import load_config
+from soe.trainer.config.frozen_start import FrozenStart, directory_digest, file_hashes
 from soe.trainer.main_rl import checked_data_file, frozen_overrides, train_to_stop
 
 
@@ -24,6 +27,28 @@ def test_resumed_job_must_rebuild_the_same_overrides(tmp_path: Path) -> None:
     assert frozen_overrides(tmp_path, list(first)) == first
     with pytest.raises(ValueError, match="differ"):
         frozen_overrides(tmp_path, ["a=1", "b=3"])
+
+
+def test_launch_recomputes_the_frozen_start_digest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Decision 031: a start that is a frozen model is hashed before any GPU work.
+    (tmp_path / "config.json").write_text("{}")
+    (tmp_path / "model.safetensors").write_bytes(b"w")
+    good = directory_digest(file_hashes(tmp_path))
+    config = load_config(Path("examples/grpo_trainer/m1_dev_qwen35-2b.yaml"))
+    monkeypatch.setattr(main_rl, "model_path", lambda config, data_root: tmp_path)
+
+    def frozen(digest: str) -> FrozenStart:
+        return FrozenStart(hf_id="m", revision="0" * 40, files=2, digest=digest, report="r.json")
+
+    monkeypatch.setattr(main_rl, "frozen_start_for", lambda hf_id, revision: frozen(good))
+    assert main_rl.checked_model_path(config, tmp_path) == tmp_path
+    monkeypatch.setattr(main_rl, "frozen_start_for", lambda hf_id, revision: frozen("0" * 64))
+    with pytest.raises(ValueError, match="does not match the frozen start"):
+        main_rl.checked_model_path(config, tmp_path)
+    monkeypatch.setattr(main_rl, "frozen_start_for", lambda hf_id, revision: None)
+    assert main_rl.checked_model_path(config, tmp_path) == tmp_path  # 2B: no frozen entry
 
 
 FROZEN = ["trainer.val_before_train=true", "trainer.total_training_steps=null", "x=1"]

@@ -18,6 +18,7 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from soe.trainer.config.eval_suite import EvalSuite, PromptSpec
+from soe.trainer.config.frozen_start import frozen_start_for
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
 
@@ -287,6 +288,12 @@ class ExperimentConfig(FrozenModel):
             raise ValueError("budget.max_hours is for development runs only")
         if self.optim.learning_rate == 0 and not self.development:
             raise ValueError("learning_rate 0 is for development identity runs only")
+        frozen = frozen_start_for(self.model.hf_id, self.model.revision) is not None
+        if is_rl_or_dpo and not self.development and not frozen:
+            raise ValueError(
+                f"{self.model.hf_id}@{self.model.revision} is not a frozen start "
+                "(soe/trainer/config/frozen_start.yaml; decision 031)"
+            )
         return self
 
     def _check_clip_consistency(self, loss: PolicyLossSpec) -> None:

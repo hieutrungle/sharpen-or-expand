@@ -1,4 +1,9 @@
 # Frozen starting checkpoints (decision 031), written by M2.12 from scripts/freeze_checkpoint.py
 # reports. Every non-development RL/DPO config names one of these models; the launch recomputes
-# the digest (soe/trainer/config/frozen_start.py).
-starts: []
+# the digest (soe/trainer/config/frozen_start.py). Gemma 4 E4B is added in M8.
+starts:
+  - hf_id: Qwen/Qwen3.5-4B-Base
+    revision: 1001bb4d826a52d1f399e183466143f4da7b741b
+    files: 13
+    digest: d552bb89358a28f2b6cd95d0f81e4b9fec569ebfd1e231cb8277d36700e8b83d
+    report: docs/reports/m2_start_frozen.json

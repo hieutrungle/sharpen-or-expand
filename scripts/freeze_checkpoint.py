@@ -3,14 +3,14 @@
 The RL/DPO start (the pinned base snapshot, files left in place; their blobs made read-only):
 
     S=$SOE_DATA/hf/hub/models--Qwen--Qwen3.5-4B-Base/snapshots/1001bb4d826a52d1f399e183466143f4da7b741b
-    python scripts/freeze_checkpoint.py --source $S --read-only \\
+    python scripts/freeze_checkpoint.py --source $S --read-only true \\
         --report docs/reports/m2_start_frozen.json
 
 The SFT arm (decision 030; copied, the copy made read-only; run metadata recorded):
 
     R=20261109-185607-sft_m2_run2_qwen35-4b-s1-j3237928
     python scripts/freeze_checkpoint.py --source $SOE_DATA/checkpoints/$R/step_719/hf \\
-        --copy-to $SOE_DATA/frozen/sft_qwen35-4b_v1/hf --read-only --run-dir runs/$R \\
+        --copy-to $SOE_DATA/frozen/sft_qwen35-4b_v1/hf --read-only true --run-dir runs/$R \\
         --report docs/reports/m2_sft_frozen.json
 
 The report holds every file's sha256 and size, the digest (soe/trainer/config/frozen_start.py),

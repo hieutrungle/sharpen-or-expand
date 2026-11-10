@@ -23,6 +23,7 @@ from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
 from soe.trainer.config.eval_suite import file_sha256, load_suite
 from soe.trainer.config.experiment import ExperimentConfig, load_config, rollout_protocol
+from soe.trainer.config.frozen_start import check_frozen_start, frozen_start_for
 from soe.trainer.rl.budget import read_stop_step
 from soe.trainer.rl.checkpoints import RUN_DIR_ENV, missing_exports, prune_shards
 from soe.trainer.rl.metrics import OUTCOMES_DIR, OUTCOMES_ENV
@@ -60,6 +61,18 @@ def model_path(config: ExperimentConfig, data_root: Path) -> Path:
         config.model.hf_id, revision=config.model.revision, local_files_only=True
     )
     return Path(hub_path)
+
+
+def checked_model_path(config: ExperimentConfig, data_root: Path) -> Path:
+    """model_path, after recomputing the digest when the start is a frozen model (decision 031).
+
+    Development runs from another checkpoint, or from a model with no frozen entry (2B), are not
+    checked; non-development RL configs cannot be either (ExperimentConfig)."""
+    path = model_path(config, data_root)
+    start = frozen_start_for(config.model.hf_id, config.model.revision)
+    if config.init_checkpoint is None and start is not None:
+        check_frozen_start(start, path)
+    return path
 
 
 def frozen_overrides(run_dir: Path, overrides: list[str]) -> list[str]:
@@ -196,7 +209,7 @@ class LaunchCli(BaseSettings):
         protocol = rollout_protocol(config, load_suite(Path(config.eval_suite)))
         data_root = Path(os.environ["SOE_DATA"])
         paths = LaunchPaths(
-            model=model_path(config, data_root),
+            model=checked_model_path(config, data_root),
             run_dir=run_dir,
             train_file=checked_data_file(
                 data_root, config.data.train_file, config.data.train_sha256

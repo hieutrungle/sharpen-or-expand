@@ -34,15 +34,31 @@ def test_qlora_only_for_development() -> None:
         ExperimentConfig.model_validate(data)
 
 
+BASE_4B = {"hf_id": "Qwen/Qwen3.5-4B-Base", "revision": "1001bb4d826a52d1f399e183466143f4da7b741b"}
+
+
 def test_non_dev_rl_starts_from_the_pinned_base() -> None:
     # Decision 031: no non-development RL/DPO run starts from an SFT (or any other) checkpoint.
-    data = example() | {"development": False}
+    data = example() | {"development": False, "model": BASE_4B}
     data["budget"] = {k: v for k, v in data["budget"].items() if k != "max_hours"}  # dev-only
     assert ExperimentConfig.model_validate(data).init_checkpoint is None
     with pytest.raises(ValidationError, match="pinned base model"):
         ExperimentConfig.model_validate(data | {"init_checkpoint": "checkpoints/sft/hf"})
     dev = example() | {"init_checkpoint": "checkpoints/sft/hf"}
     assert ExperimentConfig.model_validate(dev).init_checkpoint == "checkpoints/sft/hf"
+
+
+def test_non_dev_rl_needs_a_frozen_start_model() -> None:
+    # Decision 031: the model must be an entry of soe/trainer/config/frozen_start.yaml.
+    data = example() | {"development": False}
+    data["budget"] = {k: v for k, v in data["budget"].items() if k != "max_hours"}
+    assert data["model"] != BASE_4B  # the example is a 2B development config
+    with pytest.raises(ValidationError, match="not a frozen start"):
+        ExperimentConfig.model_validate(data)
+    other_revision = BASE_4B | {"revision": "f" * 40}
+    with pytest.raises(ValidationError, match="not a frozen start"):
+        ExperimentConfig.model_validate(data | {"model": other_revision})
+    assert ExperimentConfig.model_validate(example()).development  # development: any model
 
 
 def test_lora_block_matches_mode() -> None:
