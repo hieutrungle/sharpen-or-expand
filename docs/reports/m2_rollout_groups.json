@@ -1,0 +1,72 @@
+{
+ "full_bf16": {
+  "all_steps": {
+   "box_when_stopped": 0.9998029168309026,
+   "group_sizes": [
+    8
+   ],
+   "groups": 896,
+   "groups_all_correct": 0.43638392857142855,
+   "groups_all_wrong": 0.15848214285714285,
+   "groups_mixed": 0.40513392857142855,
+   "im_end_when_stopped": 1.0,
+   "rollouts": 7168,
+   "score_when_stopped": 0.9483642096964919,
+   "truncated": 0.29213169642857145,
+   "truncated_in_all_wrong_groups": 0.8996478873239436,
+   "truncated_in_mixed_groups": 0.3691460055096419
+  },
+  "file": "/scratch/user/hieult/research/sharpen-or-expand/runs/20261102-153916-m1_throughput_bf0_qwen35-4b-s20261029-j3230133/rollouts/segment-3230133.jsonl",
+  "step_1": {
+   "box_when_stopped": 1.0,
+   "group_sizes": [
+    8
+   ],
+   "groups": 64,
+   "groups_all_correct": 0.40625,
+   "groups_all_wrong": 0.21875,
+   "groups_mixed": 0.375,
+   "im_end_when_stopped": 1.0,
+   "rollouts": 512,
+   "score_when_stopped": 0.9541284403669725,
+   "truncated": 0.361328125,
+   "truncated_in_all_wrong_groups": 0.9285714285714286,
+   "truncated_in_mixed_groups": 0.421875
+  }
+ },
+ "lora_bf16": {
+  "all_steps": {
+   "box_when_stopped": 0.9995289684408856,
+   "group_sizes": [
+    8
+   ],
+   "groups": 768,
+   "groups_all_correct": 0.42578125,
+   "groups_all_wrong": 0.17708333333333334,
+   "groups_mixed": 0.3971354166666667,
+   "im_end_when_stopped": 0.9997644842204427,
+   "rollouts": 6144,
+   "score_when_stopped": 0.9387658973151202,
+   "truncated": 0.3089192708333333,
+   "truncated_in_all_wrong_groups": 0.8860294117647058,
+   "truncated_in_mixed_groups": 0.38278688524590165
+  },
+  "file": "/scratch/user/hieult/research/sharpen-or-expand/runs/20261102-224210-m1_throughput_bl_qwen35-4b-s20261029-j3230134/rollouts/segment-3230134.jsonl",
+  "step_1": {
+   "box_when_stopped": 1.0,
+   "group_sizes": [
+    8
+   ],
+   "groups": 64,
+   "groups_all_correct": 0.375,
+   "groups_all_wrong": 0.296875,
+   "groups_mixed": 0.328125,
+   "im_end_when_stopped": 1.0,
+   "rollouts": 512,
+   "score_when_stopped": 0.9299363057324841,
+   "truncated": 0.38671875,
+   "truncated_in_all_wrong_groups": 0.9078947368421053,
+   "truncated_in_mixed_groups": 0.35714285714285715
+  }
+ }
+}
