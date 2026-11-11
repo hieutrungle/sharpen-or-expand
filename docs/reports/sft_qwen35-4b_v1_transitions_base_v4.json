@@ -1,0 +1,83 @@
+{
+ "after": "/scratch/user/hieult/research/soe-data/eval/sft_qwen35-4b_v1_soe-eval-v4",
+ "before": "/scratch/user/hieult/research/soe-data/eval/qwen35-4b-base_soe-eval-v4",
+ "hard": {
+  "1": {
+   "solved_to_lost": 0,
+   "solved_to_solved": 1,
+   "unsolved_to_solved": 2,
+   "unsolved_to_unsolved": 230
+  },
+  "64": {
+   "solved_to_lost": 16,
+   "solved_to_solved": 98,
+   "unsolved_to_solved": 15,
+   "unsolved_to_unsolved": 104
+  },
+  "problems": 233
+ },
+ "main": {
+  "A": {
+   "1": {
+    "solved_to_lost": 18,
+    "solved_to_solved": 909,
+    "unsolved_to_solved": 14,
+    "unsolved_to_unsolved": 283
+   },
+   "16": {
+    "solved_to_lost": 19,
+    "solved_to_solved": 1029,
+    "unsolved_to_solved": 15,
+    "unsolved_to_unsolved": 161
+   },
+   "problems": 1224
+  },
+  "B": {
+   "1": {
+    "solved_to_lost": 35,
+    "solved_to_solved": 660,
+    "unsolved_to_solved": 30,
+    "unsolved_to_unsolved": 257
+   },
+   "16": {
+    "solved_to_lost": 20,
+    "solved_to_solved": 837,
+    "unsolved_to_solved": 24,
+    "unsolved_to_unsolved": 101
+   },
+   "problems": 982
+  },
+  "C1": {
+   "1": {
+    "solved_to_lost": 1,
+    "solved_to_solved": 19,
+    "unsolved_to_solved": 4,
+    "unsolved_to_unsolved": 38
+   },
+   "16": {
+    "solved_to_lost": 2,
+    "solved_to_solved": 33,
+    "unsolved_to_solved": 5,
+    "unsolved_to_unsolved": 22
+   },
+   "problems": 62
+  },
+  "C2": {
+   "1": {
+    "solved_to_lost": 4,
+    "solved_to_solved": 74,
+    "unsolved_to_solved": 1,
+    "unsolved_to_unsolved": 104
+   },
+   "16": {
+    "solved_to_lost": 7,
+    "solved_to_solved": 100,
+    "unsolved_to_solved": 16,
+    "unsolved_to_unsolved": 60
+   },
+   "problems": 183
+  }
+ },
+ "suite": "soe-eval-v4",
+ "threshold": 0.5
+}
